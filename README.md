@@ -1,5 +1,5 @@
 # FSU-Project
 
-"Setup Container run:
+Setup Container run:
 
-docker-compose up --build"
+**docker-compose up --build**
