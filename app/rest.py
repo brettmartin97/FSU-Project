@@ -5,6 +5,8 @@ from flask import jsonify, Flask, render_template, redirect, url_for, request, s
 from flask_session import Session
 import os
 import hashlib
+import utils.sql as sql
+import logging
 
 @app.route('/')
 def home():
@@ -28,6 +30,7 @@ def login():
     if request.method == 'POST':
         user = request.form['username']
         password = request.form['password']
+        
         validationSQL = f'SELECT * FROM user WHERE username = "{user}" and password = "{password}"'
 
         conn = mysql.connect()
@@ -36,7 +39,7 @@ def login():
         
         cursor.execute(validationSQL)
 
-        valid = cursor.fetchone()
+        valid = sql.validate_password(user, password, app.logger)
 
         if not valid:
             error = 'Invalid Credentials. Please try again.'
