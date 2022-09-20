@@ -1,3 +1,4 @@
+from unicodedata import name
 import pymysql
 from app import app
 from db import mysql
@@ -7,16 +8,11 @@ import os
 import hashlib
 import utils.sql as sql
 import logging
+import utils.utils as utils
 
 @app.route('/')
 def home():
-    try:
-        if type(session['auth']) is bool:
-            session['auth'] = session['auth']
-        else:
-            session['auth'] = False
-    except:
-        session['auth'] = False
+    session['auth'] = utils.is_auth(session)
 
     if not session['auth']:
         return redirect(url_for('login'))
@@ -31,23 +27,30 @@ def login():
         user = request.form['username']
         password = request.form['password']
         
-        validationSQL = f'SELECT * FROM user WHERE username = "{user}" and password = "{password}"'
-
-        conn = mysql.connect()
-
-        cursor = conn.cursor(pymysql.cursors.DictCursor)
-        
-        cursor.execute(validationSQL)
-
         valid = sql.validate_password(user, password, app.logger)
 
         if not valid:
             error = 'Invalid Credentials. Please try again.'
         else:
             session['auth'] = True
-            session['level'] = 5
-            return redirect(url_for('home'))
+            session['user'] = user
+            session['level'] = sql.get_role(user)
+            if session['level'] > 10:
+                return redirect(url_for('admin'))
+            else:
+                return redirect(url_for('home'))
     return render_template('login.html', error=error)
+
+@app.route('/admin', methods=['GET', 'POST'])
+def admin():
+    error = None
+    session['auth'] = utils.is_auth(session)
+    if not session['auth']:
+        return redirect(url_for('login'))
+    else:
+        name = sql.get_name(session['user'])
+        return render_template('admin.html', error=error, name=name)
+
 
 if __name__ == "__main__":
     app.config["SESSION_PERMANENT"] = False

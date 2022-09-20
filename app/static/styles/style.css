@@ -1,0 +1,34 @@
+div {
+    background-color: rgb(235, 235, 235);
+}
+
+body, form {
+    margin: 0;
+    padding: 0;
+}
+
+a {
+    color: #039;
+}
+
+a:hover {
+    color: #03F;    
+}
+a + a {
+    margin-left: 10px;
+}
+
+.header {
+    padding: 30px;
+    text-align: right;
+    background: lightgrey;
+    color: Black;
+    font-size: 18px;
+  }
+
+  .header a {
+    color: black;
+  }
+  .header a:hover {
+    color: white;
+  }
