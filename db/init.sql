@@ -15,3 +15,6 @@ CREATE TABLE if not exists `user` (
 
 insert  into `user`(`id`,`name`,`email`,`phone`,`username`,`password`,`role`) values
 (1,'Brett Martin','brettdrew@gmail.com',2147483647,'bmartin','$2b$12$nWfHVJ/lyS8HxtL6Q6953.EoV79MMjQn4hegWhxEXka6lWb9CJF0C',13);
+
+
+-- Testing comment.
