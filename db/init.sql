@@ -4,7 +4,8 @@ use fsu;
 
 CREATE TABLE if not exists `user` (
   `userId` int unsigned NOT NULL AUTO_INCREMENT,
-  `name` varchar(50) NOT NULL,
+  `firstName` varchar(50) NOT NULL,
+  `lastName` varchar(50) NOT NULL,
   `email` varchar(100) NOT NULL,
   `phone` int unsigned NOT NULL,
   `username` varchar(50) NOT NULL,
