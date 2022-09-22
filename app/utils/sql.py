@@ -70,7 +70,7 @@ def get_role(user):
 
 
 def get_name(user):
-    query = f'SELECT name FROM user WHERE username = "{user}"'
+    query = f'SELECT firstName, lastName FROM user WHERE username = "{user}"'
 
     conn = pymysql.connect(host='db',
         user='root', 
@@ -81,8 +81,9 @@ def get_name(user):
     
     cursor.execute(query)
 
-    name = cursor.fetchone()['name']
+    firstName = cursor.fetchone()['firstName']
+    lastName = cursor.fetchone()['lastName']
 
     conn.close()
     
-    return name
+    return firstName, lastName
