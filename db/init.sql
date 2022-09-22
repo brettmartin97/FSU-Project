@@ -14,6 +14,7 @@ CREATE TABLE if not exists `user` (
   PRIMARY KEY (`userId`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+
 insert  into `user`(`userId`,`firstName`,`lastName`,`email`,`phone`,`username`,`password`,`role`) values
 (1,'Admin', 'User','brettdrew@gmail.com',2147483647,'admin','$2b$12$nWfHVJ/lyS8HxtL6Q6953.EoV79MMjQn4hegWhxEXka6lWb9CJF0C',13);
 
