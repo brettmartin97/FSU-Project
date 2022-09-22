@@ -9,6 +9,7 @@ services:
 
   db:
     image: mysql:8.0.21
+    platform: linux/amd64
     ports:
       - "30000:3306"
     environment:
