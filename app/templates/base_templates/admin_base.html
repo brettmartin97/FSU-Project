@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <title>{{ title }}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link   type= "text/css" rel="stylesheet" href="{{ url_for('static', filename='styles/style.css') }}">
+  </head>
+  <body>
+<div class="header">
+    <a href="/admin">Home</a>
+    <a href="/admin/scheduling">Scheduling</a>
+    <a href="/admin/booking">Booking</a>
+    <a href="/admin/analysis">Analysis</a>
+    <a href="/admin/user_management" >User Managment</a>
+    <a class="logout" href="/logout" >Logout</a>
+</div>
+<div class="content">
+  {% block content %} {% endblock %}
+</div>
+{% if error %}
+<p class="error"><strong>Error:</strong> {{ error }}
+{% endif %}
+</div>
+</body>
+</html>
