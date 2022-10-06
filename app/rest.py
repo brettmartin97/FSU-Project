@@ -86,7 +86,7 @@ def logout():
 
 @app.route('/error')
 def error():
-    return render_template('404.html')
+    return render_template('404.html', title='error page not found')
 
 if __name__ == "__main__":
     app.config["SESSION_PERMANENT"] = False
