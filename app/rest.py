@@ -19,6 +19,15 @@ def home():
     else:
         return render_template('home.html')
 
+@app.route('/booth')
+def booth():
+    session['auth'] = utils.is_auth(session)
+
+    if not session['auth'] or session['level'] != 11:
+        return redirect(url_for('login'))
+    else:
+        return render_template('booth.html')
+
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -35,11 +44,14 @@ def login():
             session['auth'] = True
             session['user'] = user
             session['level'] = sql.get_role(user)
-            if session['level'] > 10:
+            if session['level'] > 11:
                 return redirect(url_for('admin'))
+            elif session['level'] == 11:
+                return redirect(url_for('booth'))
             else:
                 return redirect(url_for('home'))
     return render_template('login.html', error=error)
+
 
 @app.route('/admin', methods=['GET', 'POST'])
 def admin():
@@ -50,7 +62,26 @@ def admin():
     else:
         firstname, lastname = sql.get_name(session['user'], app.logger)
         name = firstname + ' ' + lastname
-        return render_template('admin.html', error=error, name=name)
+        return render_template('admin.html', error=error, name=name, title='admin')
+
+
+@app.route('/admin/user_management', methods=['GET', 'POST'])
+def user_management():
+    error = None
+    session['auth'] = utils.is_auth(session)
+    if not session['auth']:
+        return redirect(url_for('login'))
+    else:
+        firstname, lastname = sql.get_name(session['user'], app.logger)
+        name = firstname + ' ' + lastname
+        return render_template('user_management.html', error=error)
+
+@app.route('/logout', methods=['GET'])
+def logout():
+    session['auth'] = None
+    session['user'] = None
+    session['level'] = None
+    return redirect(url_for('login'))
 
 
 if __name__ == "__main__":

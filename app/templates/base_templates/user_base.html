@@ -1,0 +1,23 @@
+<html>
+  <head>
+    <title>{{ title }}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link   type= "text/css" rel="stylesheet" href="{{ url_for('static', filename='styles/style.css') }}"">
+  </head>
+  <body>
+<div class="header">
+    <a>Home</a>
+    <a>Scheduling</a>
+    <a>Booking</a>
+    <a>Analysis</a>
+    <a href="/admin/user_management" >User Managment</a>
+    <a class="logout">Logout</a>
+</div>
+
+
+{% if error %}
+<p class="error"><strong>Error:</strong> {{ error }}
+{% endif %}
+</div>
+</body>
+</html>
