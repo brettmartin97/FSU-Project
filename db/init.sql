@@ -35,12 +35,32 @@ CREATE TABLE if not exists `Stylist` (
   FOREIGN KEY (`levelId`) REFERENCES `StylistLevel` (`levelId`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+CREATE TABLE if not exists `Schedule` (
+  `dayId` int unsigned NOT NULL,
+  `stylistId` int unsigned NOT NULL,
+  `startTime` time NOT NULL,
+  `breakTime` time NOT NULL,
+  `endTime` time NOT NULL,
+  PRIMARY KEY (`dayId`, `stylistId`),
+  FOREIGN KEY (`stylistId`) REFERENCES `Stylist` (`stylistId`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 CREATE TABLE if not exists `AppointmentType` (
   `appointTypeId` int unsigned NOT NULL AUTO_INCREMENT,
   `typeName` varchar(100) NOT NULL,
   `description` varchar(250) NOT NULL,
   `duration` int NOT NULL,
   PRIMARY KEY (`appointTypeId`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE if not exists `Pricing` (
+  `totalPriceId` int unsigned NOT NULL AUTO_INCREMENT,
+  `appointTypeId` int unsigned NOT NULL,
+  `levelId` int unsigned NOT NULL,
+  `price` varchar(100) NOT NULL,
+  PRIMARY KEY (`totalPriceId`, `appointTypeId`, `levelId`),
+  FOREIGN KEY (`appointTypeId`) REFERENCES `AppointmentType` (`appointTypeId`) ON DELETE CASCADE,
+  FOREIGN KEY (`levelId`) REFERENCES `StylistLevel` (`levelId`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE if not exists `Customer` (
@@ -57,11 +77,12 @@ CREATE TABLE if not exists `Appointment` (
   `stylistId` int unsigned NOT NULL,
   `appointTypeId` int unsigned NOT NULL,
   `customerId` int unsigned NOT NULL,
+  `totalPriceId` int unsigned NOT NULL,
+  `notes` varchar(250),
   `startTime` datetime NOT NULL,
-  `price` varchar(20) NOT NULL,
-  `notes` varchar(250) NOT NULL,
   PRIMARY KEY (`appointId`),
-  FOREIGN KEY (`stylistId`) REFERENCES `Stylist` (`stylistId`),
-  FOREIGN KEY (`appointTypeId`) REFERENCES `AppointmentType` (`appointTypeId`),
-  FOREIGN KEY (`customerId`) REFERENCES `Customer` (`customerId`)
+  FOREIGN KEY (`stylistId`) REFERENCES `Stylist` (`stylistId`) ON DELETE CASCADE,
+  FOREIGN KEY (`appointTypeId`) REFERENCES `AppointmentType` (`appointTypeId`) ON DELETE CASCADE,
+  FOREIGN KEY (`customerId`) REFERENCES `Customer` (`customerId`) ON DELETE CASCADE,
+  FOREIGN KEY (`totalPriceId`) REFERENCES `Pricing` (`totalPriceId`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
