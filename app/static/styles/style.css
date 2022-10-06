@@ -1,14 +1,22 @@
 div {
-    background-color: rgb(235, 235, 235);
+    background-color: rgba(75, 75, 75, 0);
+    color: rgb(205, 80, 35);
+    font-family: 'Courier New', Courier, monospace;
+    text-indent: 5px;
 }
 
 body, form {
     margin: 0;
     padding: 0;
+    background-color: rgb(201, 201, 201);
 }
 
 a {
     color: #039;
+}
+
+a:link {
+    text-decoration: none;
 }
 
 a:hover {
@@ -21,14 +29,16 @@ a + a {
 .header {
     padding: 30px;
     text-align: right;
-    background: lightgrey;
-    color: Black;
+    background: black;
+    color: white;
     font-size: 18px;
+    font-family: 'Courier New', Courier, monospace;
+    text-decoration: none;
   }
 
   .header a {
-    color: black;
+    color: white;
   }
   .header a:hover {
-    color: white;
+    color: rgb(205, 80, 35);
   }
