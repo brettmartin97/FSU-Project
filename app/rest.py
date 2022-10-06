@@ -48,7 +48,7 @@ def admin():
     if not session['auth']:
         return redirect(url_for('login'))
     else:
-        firstname, lastname = sql.get_name(session['user'])
+        firstname, lastname = sql.get_name(session['user'], app.logger)
         name = firstname + ' ' + lastname
         return render_template('admin.html', error=error, name=name)
 
