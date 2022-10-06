@@ -12,19 +12,20 @@ import utils.utils as utils
 
 @app.route('/')
 def home():
-    session['auth'] = utils.is_auth(session)
+    auth_bool = utils.is_auth(session)
 
-    if not session['auth']:
+    if not auth_bool:
         return redirect(url_for('login'))
     else:
         return render_template('home.html')
 
 @app.route('/booth')
 def booth():
-    session['auth'] = utils.is_auth(session)
-
-    if not session['auth'] or session['level'] != 11:
+    auth_bool = utils.is_auth(session)
+    if not auth_bool: 
         return redirect(url_for('login'))
+    elif session['level'] != 11:
+        return redirect(url_for('error'))
     else:
         return render_template('booth.html')
 
@@ -56,8 +57,8 @@ def login():
 @app.route('/admin', methods=['GET', 'POST'])
 def admin():
     error = None
-    session['auth'] = utils.is_auth(session)
-    if not session['auth']:
+    auth_bool = utils.is_auth(session)
+    if not auth_bool:
         return redirect(url_for('login'))
     else:
         firstname, lastname = sql.get_name(session['user'], app.logger)
@@ -68,8 +69,8 @@ def admin():
 @app.route('/admin/user_management', methods=['GET', 'POST'])
 def user_management():
     error = None
-    session['auth'] = utils.is_auth(session)
-    if not session['auth']:
+    auth_bool = utils.is_auth(session)
+    if not auth_bool:
         return redirect(url_for('login'))
     else:
         firstname, lastname = sql.get_name(session['user'], app.logger)
@@ -83,6 +84,9 @@ def logout():
     session['level'] = None
     return redirect(url_for('login'))
 
+@app.route('/error')
+def error():
+    return render_template('404.html')
 
 if __name__ == "__main__":
     app.config["SESSION_PERMANENT"] = False
