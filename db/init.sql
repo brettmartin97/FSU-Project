@@ -41,7 +41,6 @@ CREATE TABLE if not exists `Schedule` (
   `dayId` int unsigned NOT NULL,
   `stylistId` int unsigned NOT NULL,
   `startTime` time NOT NULL,
-  `breakTime` time NOT NULL,
   `endTime` time NOT NULL,
   PRIMARY KEY (`dayId`, `stylistId`),
   FOREIGN KEY (`stylistId`) REFERENCES `Stylist` (`stylistId`) ON DELETE CASCADE
@@ -78,8 +77,8 @@ CREATE TABLE if not exists `Appointment` (
   `appointId` int unsigned NOT NULL AUTO_INCREMENT,
   `stylistId` int unsigned NOT NULL,
   `appointTypeId` int unsigned NOT NULL,
-  `customerId` int unsigned NOT NULL,
-  `totalPriceId` int unsigned NOT NULL,
+  `customerId` int unsigned,
+  `totalPriceId` int unsigned,
   `notes` varchar(250),
   `startTime` datetime NOT NULL,
   PRIMARY KEY (`appointId`),
