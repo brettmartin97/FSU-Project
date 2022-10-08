@@ -9,6 +9,8 @@ import hashlib
 import utils.sql as sql
 import logging
 import utils.utils as utils
+import calendar
+from datetime import datetime, timedelta
 
 @app.route('/')
 def home():
@@ -117,9 +119,33 @@ def scheduling():
     if not auth_bool:
         return redirect(url_for('login'))
     else:
-        firstname, lastname = sql.get_name(session['user'], app.logger)
-        name = firstname + ' ' + lastname
-        return render_template('scheduling.html', error=error)
+        if request.method == 'POST':
+            date = request.form['date']
+            date = datetime.strptime(date, '%Y-%m-%d')
+            if request.form['submit_button'] == 'Next Month':
+                last = date.replace(day = calendar.monthrange(date.year, date.month)[1])
+                date = last + timedelta(days=1)
+            elif request.form['submit_button'] == 'Prev Month':
+                first = date.replace(day=1)
+                date = first - timedelta(days=1)
+            else:
+                day = request.form['submit_button']
+                return redirect(url_for('day'))
+        elif request.method == 'GET':
+            date = datetime.now()
+        currentDay = date.day
+        currentMonth = date.strftime("%B")
+        currentYear = date.year
+        firstDay = date.replace(day=1).weekday()
+        lastDay = date.replace(day = calendar.monthrange(date.year, date.month)[1]).strftime("%d")
+        return render_template('scheduling.html', lastDay = int(lastDay), 
+        firstDay=firstDay, day=currentDay, month=currentMonth, 
+        year=currentYear, date=date, error=error)
+
+@app.route('/admin/day', methods=['GET', 'POST'])
+def day():
+
+    return render_template('day.html', title='error page not found')
 
 @app.route('/logout', methods=['GET'])
 def logout():
