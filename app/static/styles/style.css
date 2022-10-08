@@ -5,7 +5,7 @@ div {
     text-indent: 5px;
 }
 
-body, form {
+body, form.login {
     margin: 0;
     padding: 0;
     background-color: rgb(201, 201, 201);
@@ -42,3 +42,115 @@ a + a {
   .header a:hover {
     color: rgb(205, 80, 35);
   }
+
+/*  .calendar{
+    height: 80%;
+    width: 80%;
+    border:1px solid black;
+  }
+  .calendar-day{
+    height: 10%;
+    width: 10%;
+    border:1px solid black;
+    color: white;
+  }
+*/
+
+header {
+    display: flex;
+    align-items: center;
+    font-size: calc(16px + (26 - 16) * ((100vw - 300px) / (1600 - 300)));
+    justify-content: center;
+    margin-bottom: 2em;
+    background: #000;
+    color: #fff;
+    min-height: 10vh;
+    text-align: center;
+  }
+  
+  ul, ol,form.days {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    grid-gap: 1em;
+    margin: 0 auto;
+    max-width: 64em;
+    padding: 0;
+  }
+  
+  li {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    list-style: none;
+    margin-left: 0;
+    font-size: calc(16px + (21 - 16) * ((100vw - 300px) / (1600 - 300)));
+  }
+  
+  ul.weekdays {
+    margin-bottom: 1em;
+  }
+  
+  ul.weekdays abbr[title] {
+    border: none;
+    font-weight: 800;
+    text-decoration: none;
+  }
+
+  
+  @media all and (max-width: 800px) {
+    ul, ol,form.days  {
+      grid-gap: .25em;
+    }
+    
+    ul.weekdays li {
+      font-size: 0;
+    }
+    
+    ul.weekdays > li abbr:after {
+        content: attr(title);
+        font-size: calc(16px + (26 - 16) * ((100vw - 300px) / (1600 - 300)));
+      text-align: center;
+      }
+  }
+  button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    list-style: none;
+    margin-left: 0;
+    font-size: calc(16px + (21 - 16) * ((100vw - 300px) / (1600 - 300)));
+  }
+  
+  button:hover {
+    background-color: #eaeaea;
+    color: #eaeaea;
+}
+
+ form.days input button{
+    height: 4vw;
+  }
+  
+  form.days input button{
+    background-color: #eaeaea;
+    border: 1px solid black;
+    height: 12vw;
+    max-height: 125px;
+  }
+  
+  form.days input button.othermonth
+   {
+    background-color: lightgrey;
+  }
+  
+  /*@media all and (max-width: 800px) {
+    
+    ul.weekdays form input button{
+      font-size: 0;
+    }
+    
+    ul.weekdays > form input button abbr:after {
+        content: attr(title);
+        font-size: calc(16px + (26 - 16) * ((100vw - 300px) / (1600 - 300)));
+      text-align: center;
+      }
+  }*/
