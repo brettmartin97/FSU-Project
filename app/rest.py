@@ -77,6 +77,50 @@ def user_management():
         name = firstname + ' ' + lastname
         return render_template('user_management.html', error=error)
 
+@app.route('/admin/customer_management', methods=['GET', 'POST'])
+def customers():
+    error = None
+    auth_bool = utils.is_auth(session)
+    if not auth_bool:
+        return redirect(url_for('login'))
+    else:
+        firstname, lastname = sql.get_name(session['user'], app.logger)
+        name = firstname + ' ' + lastname
+        return render_template('customers.html', error=error)
+
+@app.route('/admin/booking', methods=['GET', 'POST'])
+def booking():
+    error = None
+    auth_bool = utils.is_auth(session)
+    if not auth_bool:
+        return redirect(url_for('login'))
+    else:
+        firstname, lastname = sql.get_name(session['user'], app.logger)
+        name = firstname + ' ' + lastname
+        return render_template('booking.html', error=error)
+
+@app.route('/admin/analysis', methods=['GET', 'POST'])
+def analysis():
+    error = None
+    auth_bool = utils.is_auth(session)
+    if not auth_bool:
+        return redirect(url_for('login'))
+    else:
+        firstname, lastname = sql.get_name(session['user'], app.logger)
+        name = firstname + ' ' + lastname
+        return render_template('analysis.html', error=error)
+
+@app.route('/admin/scheduling', methods=['GET', 'POST'])
+def scheduling():
+    error = None
+    auth_bool = utils.is_auth(session)
+    if not auth_bool:
+        return redirect(url_for('login'))
+    else:
+        firstname, lastname = sql.get_name(session['user'], app.logger)
+        name = firstname + ' ' + lastname
+        return render_template('scheduling.html', error=error)
+
 @app.route('/logout', methods=['GET'])
 def logout():
     session['auth'] = None
