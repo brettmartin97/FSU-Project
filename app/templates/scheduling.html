@@ -48,18 +48,20 @@
   </ul>
 
  <!-- <ol class="day-grid"> -->
-    <form  class="days" action="" method="post">
+    <div class="day-grid">
       {% for n in range(42) %}
         {% if n > firstDay and n <= lastDay + firstDay -%}
-        <input type="hidden" name="submit_button" value={{ n - firstDay }}>
-          <button type="submit">{{ n - firstDay }}</button>
-        </input>
+        <form  class="days" action="" method="post">
+          <input type="hidden" name="submit_button" value="{{ n - firstDay }}">
+            <button type="submit">{{ n - firstDay }}</button>
+          </input>
+        </form>
         {% else -%}
         <li class="othermonth"></li>
         {% endif %}
       
       {% endfor %}
-    </form>
+    </div>
  <!--  </ol> -->
     
 </div>

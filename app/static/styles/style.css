@@ -68,7 +68,7 @@ header {
     text-align: center;
   }
   
-  ul, ol,form.days {
+  ul, ol, div.day-grid {
     display: grid;
     grid-template-columns: repeat(7, 1fr);
     grid-gap: 1em;
@@ -98,7 +98,7 @@ header {
 
   
   @media all and (max-width: 800px) {
-    ul, ol,form.days  {
+    ul, ol,div.day-grid{
       grid-gap: .25em;
     }
     
@@ -117,40 +117,34 @@ header {
     align-items: center;
     justify-content: center;
     list-style: none;
+    height: 150%;
+    width: 100%;
     margin-left: 0;
     font-size: calc(16px + (21 - 16) * ((100vw - 300px) / (1600 - 300)));
   }
   
   button:hover {
-    background-color: #eaeaea;
+    background-color: grey;
     color: #eaeaea;
 }
 
- form.days input button{
+div.day-grid form.days input button{
     height: 4vw;
   }
   
-  form.days input button{
+div.day-grid form.days input button{
     background-color: #eaeaea;
     border: 1px solid black;
     height: 12vw;
     max-height: 125px;
   }
   
-  form.days input button.othermonth
+div.day-grid form.days input button.othermonth
    {
     background-color: lightgrey;
   }
-  
-  /*@media all and (max-width: 800px) {
-    
-    ul.weekdays form input button{
-      font-size: 0;
-    }
-    
-    ul.weekdays > form input button abbr:after {
-        content: attr(title);
-        font-size: calc(16px + (26 - 16) * ((100vw - 300px) / (1600 - 300)));
-      text-align: center;
-      }
-  }*/
+
+  table, th, td {
+    border: 1px solid;
+    color: black
+  }
