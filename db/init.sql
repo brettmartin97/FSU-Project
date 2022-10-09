@@ -2,7 +2,7 @@ CREATE DATABASE if not exists fsu;
 
 use fsu;
 
-CREATE TABLE if not exists `user` (
+CREATE TABLE if not exists `User` (
   `userId` int unsigned NOT NULL AUTO_INCREMENT,
   `firstName` varchar(50) NOT NULL,
   `lastName` varchar(50) NOT NULL,
@@ -13,11 +13,6 @@ CREATE TABLE if not exists `user` (
   `role` INT unsigned NOT NULL,
   PRIMARY KEY (`userId`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
-
-insert  into `user`(`userId`,`firstName`,`lastName`,`email`,`phone`,`username`,`password`,`role`) values
-(1,'Admin', 'User','brettdrew@gmail.com',2147483647,'admin','$2b$12$nWfHVJ/lyS8HxtL6Q6953.EoV79MMjQn4hegWhxEXka6lWb9CJF0C',13);
-
 
 -- New Tables:
 
@@ -92,6 +87,7 @@ CREATE TABLE if not exists `Appointment` (
 
 -- Insert data into user table.
 insert  into `user`(`userId`,`firstName`,`lastName`,`email`,`phone`,`username`,`password`,`role`) values
+(1,'Admin', 'User','brettdrew@gmail.com',2147483647,'admin','$2b$12$nWfHVJ/lyS8HxtL6Q6953.EoV79MMjQn4hegWhxEXka6lWb9CJF0C',13);
 (2,'Alex', 'Temp1','temp1@gmail.com',111222333,'alex','$2b$12$nWfHVJ/lyS8HxtL6Q6953.EoV79MMjQn4hegWhxEXka6lWb9CJF0C', 1),
 (3,'Bella', 'Temp2','temp2@gmail.com',444555666,'bella','$2b$12$nWfHVJ/lyS8HxtL6Q6953.EoV79MMjQn4hegWhxEXka6lWb9CJF0C', 2),
 (4,'Carla', 'Temp3','temp3@gmail.com',777888999,'carla','$2b$12$nWfHVJ/lyS8HxtL6Q6953.EoV79MMjQn4hegWhxEXka6lWb9CJF0C', 3),

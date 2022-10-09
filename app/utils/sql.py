@@ -5,7 +5,7 @@ import pymysql
 def set_password(user, password):
     hash = hashing.Hash(password)
 
-    query = f'UPDATE user SET password = {hash} WHERE username = "{user}"'
+    query = f'UPDATE User SET password = {hash} WHERE username = "{user}"'
 
     conn = mysql.connect()
 
@@ -16,7 +16,7 @@ def set_password(user, password):
     conn.close()
 
 def validate_password(user, password, log):
-    validationSQL = f'SELECT password FROM user WHERE username = "{user}"'
+    validationSQL = f'SELECT password FROM User WHERE username = "{user}"'
 
     conn = pymysql.connect(host='db',
         user='root', 
@@ -33,7 +33,7 @@ def validate_password(user, password, log):
 
     hash = hashing.Hash(password, salt)
 
-    query = f'SELECT username FROM user WHERE username = "{user}" and password = "{hash}"'
+    query = f'SELECT username FROM User WHERE username = "{user}" and password = "{hash}"'
 
     conn = pymysql.connect(host='db',
         user='root', 
@@ -50,8 +50,8 @@ def validate_password(user, password, log):
 
     return valid
 
-def get_role(user):
-    validationSQL = f'SELECT role FROM user WHERE username = "{user}"'
+def get_attribute(user, field, table):
+    validationSQL = f'SELECT {field} FROM {table} WHERE username = "{user}"'
 
     conn = pymysql.connect(host='db',
         user='root', 
@@ -62,15 +62,15 @@ def get_role(user):
     
     cursor.execute(validationSQL)
 
-    role = cursor.fetchone()['role']
+    attribute = cursor.fetchone()[field]
 
     conn.close()
 
-    return role
+    return attribute
 
 
 def get_name(user, log):
-    query = f'SELECT firstName, lastName FROM user WHERE username = "{user}"'
+    query = f'SELECT firstName, lastName FROM User WHERE username = "{user}"'
 
     conn = pymysql.connect(host='db',
         user='root', 
@@ -88,3 +88,19 @@ def get_name(user, log):
     conn.close()
     
     return firstName, lastName
+
+    def get_single_user_info(user):
+    query = f'SELECT * FROM User WHERE username = "{user}"'
+
+    conn = pymysql.connect(host='db',
+                           user='root',
+                           password="root",
+                           db='fsu')
+
+    cursor = conn.cursor(pymysql.cursors.DictCursor)
+
+    cursor.execute(query)
+
+    sqlInfo = cursor.fetchone()
+
+    return sqlInfo
