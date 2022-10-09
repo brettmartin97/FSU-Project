@@ -89,7 +89,7 @@ def get_name(user, log):
     
     return firstName, lastName
 
-    def get_single_user_info(user):
+def get_single_user_info(user):
     query = f'SELECT * FROM User WHERE username = "{user}"'
 
     conn = pymysql.connect(host='db',
