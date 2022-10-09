@@ -5,6 +5,31 @@ div {
     text-indent: 5px;
 }
 
+div.halfleft {
+  float: left; 
+  left: 0;
+  width: 45%;
+  z-index: 1;
+  overflow-x: hidden;
+  padding-top: 20px;
+}
+div.halfright {
+  float: right; 
+  width: 45%;
+  right: 0;
+  z-index: 1;
+  overflow-x: hidden;
+  padding-top: 20px;
+}
+
+div.centered {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+}
+
 body, form.login {
     margin: 0;
     padding: 0;
@@ -144,7 +169,45 @@ div.day-grid form.days input button.othermonth
     background-color: lightgrey;
   }
 
+table {
+  width: 100%;
+}
+
   table, th, td {
     border: 1px solid;
     color: black
+  }
+
+  tr:nth-child(even) {background-color: #f2f2f2;}
+
+  /*display must be block for add user form to function correctly*/
+  input[type=text],  input[type=email], select {
+    width: 100%;
+    padding: 12px 20px;
+    margin: 8px 0;
+    display: block;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+  }
+  
+  input[type=submit] {
+    width: 100%;
+    background-color: #4CAF50;
+    color: white;
+    padding: 14px 20px;
+    margin: 8px 0;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  
+  input[type=submit]:hover {
+    background-color: #45a049;
+  }
+  
+  div {
+    border-radius: 5px;
+    background-color: #f2f2f2;
+    padding: 20px;
   }

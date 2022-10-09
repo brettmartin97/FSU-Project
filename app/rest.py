@@ -46,7 +46,7 @@ def login():
         else:
             session['auth'] = True
             session['user'] = user
-            session['level'] = sql.get_role(user)
+            session['level'] = sql.get_attribute(user, "role", "user")
             if session['level'] > 11:
                 return redirect(url_for('admin'))
             elif session['level'] == 11:
@@ -75,9 +75,16 @@ def user_management():
     if not auth_bool:
         return redirect(url_for('login'))
     else:
-        firstname, lastname = sql.get_name(session['user'], app.logger)
-        name = firstname + ' ' + lastname
         return render_template('user_management.html', error=error)
+
+@app.route('/admin/user_management/add_user', methods=['GET', 'POST'])
+def add_user():
+    error = None
+    auth_bool = utils.is_auth(session)
+    if not auth_bool:
+        return redirect(url_for('login'))
+    else:
+        return render_template('add_user.html', error=error)
 
 @app.route('/admin/customer_management', methods=['GET', 'POST'])
 def customers():
@@ -86,9 +93,16 @@ def customers():
     if not auth_bool:
         return redirect(url_for('login'))
     else:
-        firstname, lastname = sql.get_name(session['user'], app.logger)
-        name = firstname + ' ' + lastname
         return render_template('customers.html', error=error)
+
+@app.route('/admin/booking/<date>', methods=['GET', 'POST'])
+def bookingDay(date):
+    error = None
+    auth_bool = utils.is_auth(session)
+    if not auth_bool:
+        return redirect(url_for('login'))
+    else:
+        return render_template('booking_day.html', date=date)
 
 @app.route('/admin/booking', methods=['GET', 'POST'])
 def booking():
@@ -110,7 +124,7 @@ def booking():
                 date = first - timedelta(days=1)
             else:
                 date = request.form['submit_button']
-                return redirect(url_for('scheduleDay', date=date))
+                return redirect(url_for('bookingDay', date=date))
         elif request.method == 'GET':
             date = datetime.now()
         currentDay = date.day
@@ -140,7 +154,7 @@ def scheduleDay(date):
     if not auth_bool:
         return redirect(url_for('login'))
     else:
-        return render_template('scheduleDay.html', date=date)
+        return render_template('schedule_day.html', date=date)
 
 @app.route('/admin/scheduling', methods=['GET', 'POST'])
 def scheduling():
