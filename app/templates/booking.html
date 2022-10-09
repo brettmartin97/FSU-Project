@@ -53,8 +53,12 @@
         {% if n > firstDay and n <= lastDay + firstDay -%}
         <form  class="days" action="" method="post">
           <input type="hidden" name="submit_button" value="{{ n - firstDay }}">
-            <button type="submit">{{ n - firstDay }}</button>
+            <input type="hidden" name="month" value={{ month }}>
+              <input type="hidden" name="year" value="{{ year }}">
+                <button type="submit">{{ n - firstDay }}</button>
+            </input>
           </input>
+        </input>
         </form>
         {% else -%}
         <li class="othermonth"></li>

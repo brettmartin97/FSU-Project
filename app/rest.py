@@ -95,14 +95,22 @@ def customers():
     else:
         return render_template('customers.html', error=error)
 
-@app.route('/admin/booking/<date>', methods=['GET', 'POST'])
-def bookingDay(date):
+@app.route('/admin/booking/<day>.<month>.<year>', methods   =['GET', 'POST'])
+def bookingDay(day,month,year):
     error = None
     auth_bool = utils.is_auth(session)
     if not auth_bool:
         return redirect(url_for('login'))
     else:
-        return render_template('booking_day.html', date=date)
+        times = []
+        date = datetime(int(year),int(month),int(day),9,0,0)
+        formateddate = date.strftime("%I:%M %p")
+        times.append(str(formateddate))
+        for i in range(40): 
+            date += timedelta(minutes=15)
+            formateddate = date.strftime("%I:%M %p")
+            times.append(str(formateddate))
+        return render_template('booking_day.html', day=day, month=month, year=year, times=times)
 
 @app.route('/admin/booking', methods=['GET', 'POST'])
 def booking():
@@ -123,8 +131,12 @@ def booking():
                 first = date.replace(day=1)
                 date = first - timedelta(days=1)
             else:
-                date = request.form['submit_button']
-                return redirect(url_for('bookingDay', date=date))
+                day = int(request.form['submit_button'])
+                month = request.form['month']
+                intmonth = datetime.strptime(month, "%B")
+                month = int(intmonth.month)
+                year = int(request.form['year'])
+                return redirect(url_for('bookingDay', day=day, month=month, year=year))
         elif request.method == 'GET':
             date = datetime.now()
         currentDay = date.day
