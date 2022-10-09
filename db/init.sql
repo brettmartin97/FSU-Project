@@ -28,7 +28,7 @@ CREATE TABLE if not exists `Stylist` (
   `levelId` int unsigned NOT NULL,
   `booth` varchar(20) NOT NULL,
   PRIMARY KEY (`stylistId`),
-  FOREIGN KEY (`userId`) REFERENCES `user` (`userId`),
+  FOREIGN KEY (`userId`) REFERENCES `User` (`userId`),
   FOREIGN KEY (`levelId`) REFERENCES `StylistLevel` (`levelId`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -86,8 +86,8 @@ CREATE TABLE if not exists `Appointment` (
 -- Inserting dummy test data:
 
 -- Insert data into user table.
-insert  into `user`(`userId`,`firstName`,`lastName`,`email`,`phone`,`username`,`password`,`role`) values
-(1,'Admin', 'User','brettdrew@gmail.com',2147483647,'admin','$2b$12$nWfHVJ/lyS8HxtL6Q6953.EoV79MMjQn4hegWhxEXka6lWb9CJF0C',13);
+insert  into `User`(`userId`,`firstName`,`lastName`,`email`,`phone`,`username`,`password`,`role`) values
+(1,'Admin', 'User','brettdrew@gmail.com',2147483647,'admin','$2b$12$nWfHVJ/lyS8HxtL6Q6953.EoV79MMjQn4hegWhxEXka6lWb9CJF0C',13),
 (2,'Alex', 'Temp1','temp1@gmail.com',111222333,'alex','$2b$12$nWfHVJ/lyS8HxtL6Q6953.EoV79MMjQn4hegWhxEXka6lWb9CJF0C', 1),
 (3,'Bella', 'Temp2','temp2@gmail.com',444555666,'bella','$2b$12$nWfHVJ/lyS8HxtL6Q6953.EoV79MMjQn4hegWhxEXka6lWb9CJF0C', 2),
 (4,'Carla', 'Temp3','temp3@gmail.com',777888999,'carla','$2b$12$nWfHVJ/lyS8HxtL6Q6953.EoV79MMjQn4hegWhxEXka6lWb9CJF0C', 3),

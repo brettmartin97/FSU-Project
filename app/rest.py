@@ -46,7 +46,7 @@ def login():
         else:
             session['auth'] = True
             session['user'] = user
-            session['level'] = sql.get_attribute(user, "role", "user")
+            session['level'] = sql.get_attribute(user, "role", "User")
             if session['level'] > 11:
                 return redirect(url_for('admin'))
             elif session['level'] == 11:
