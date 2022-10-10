@@ -8,10 +8,15 @@
     <form>
         <label for="appt">Choose a Start Time:</label>
         <input type="time" id="appt" name="appt"
-       min="09:00" max="18:00" required>
+       min="00:00" max="23:59" required><br>
+        <label for="apptType">Choose an Appointment Type:</label>
+        <select id="apptType" name="apptType" required>
+          <option value="N/A">N/A</option>
+          <option value="Haircut">Haircut</option>
+          <option value="Color">Color</option>
+        </select>
        <input type="Submit" name="Submit">
     </form>
-    <select><option></select>
   </div>
 
     {% endblock %}

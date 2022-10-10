@@ -1,23 +1,41 @@
 <html>
   <head>
-    <title>salon login page</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="static/bootstrap.min.css" rel="stylesheet" media="screen">
+    <link href="https://fonts.googleapis.com/css?family=Ubuntu" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="stylesheet" href="path/to/font-awesome/css/font-awesome.min.css">
+    <title>login</title>
+    <link   type= "text/css" rel="stylesheet" href="{{ url_for('static', filename='styles/style.css') }}">
   </head>
   <body>
-    <div class="container">
-      <h1>Please login</h1>
-      <br>
-      <form action="" method="post" class = "login">
-        <input type="text" placeholder="Username" name="username" value="{{
-          request.form.username }}">
-         <input type="password" placeholder="Password" name="password" value="{{
-          request.form.password }}">
-        <input class="btn btn-default" type="submit" value="Login">
-      </form>
-      {% if error %}
-        <p class="error"><strong>Error:</strong> {{ error }}
-      {% endif %}
+    <!--<div class="login_wrap">
+      <img
+        class="login-bg"
+        src="http://cdn.shopify.com/s/files/1/0337/7469/products/Dark-Leaves-Wall-Mural_60005b10-f56d-49bb-ae22-a137ae13ea8c.jpg?v=1628796085"
+        alt=""
+      >
+    </div>-->
+    <div class="login_wrap">
+      <img
+        class="login-bg"
+        src="http://cdn.shopify.com/s/files/1/0337/7469/products/Dark-Leaves-Wall-Mural_60005b10-f56d-49bb-ae22-a137ae13ea8c.jpg?v=1628796085"
+        alt=""
+      >
+      <div class="container login_content" id="login">
+        <h1>Please login</h1>
+        <br>
+        <form action="" method="post" class = "login">
+          <input type="text" placeholder="Username" name="username" value="{{
+            request.form.username }}">
+          <input type="password" placeholder="Password" name="password" value="{{
+            request.form.password }}">
+          <input class="btn btn-default" type="submit" value="Login">
+        </form>
+        {% if error %}
+          <p class="error"><strong>Error:</strong> {{ error }}
+        {% endif %}
+      </div>
     </div>
   </body>
 </html>
