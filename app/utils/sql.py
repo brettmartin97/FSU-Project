@@ -50,8 +50,8 @@ def validate_password(user, password, log):
 
     return valid
 
-def get_attribute(user, field, table):
-    validationSQL = f'SELECT {field} FROM {table} WHERE username = "{user}"'
+def get_attribute(field, table, where):
+    validationSQL = f'SELECT {field} FROM {table} WHERE {where}'
 
     conn = pymysql.connect(host='db',
         user='root', 
