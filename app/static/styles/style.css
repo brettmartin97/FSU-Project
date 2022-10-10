@@ -1,6 +1,6 @@
 div {
-    background-color: rgba(75, 75, 75, 0);
-    color: rgb(205, 80, 35);
+    background-color: transparent;
+    color: rgb(0, 119, 0);
     font-family: 'Courier New', Courier, monospace;
     text-indent: 5px;
 }
@@ -29,11 +29,93 @@ div.centered {
   transform: translate(-50%, -50%);
   text-align: center;
 }
+.login h1 {
+    color: white;
+}
+
+.login_wrap {
+    max-width: 100%;
+    max-height: 100%;
+    bottom: 0;
+    left: 0;
+    margin: 0%;
+    overflow: auto;
+    position: fixed;
+    right: 0;
+    top: 0;
+    -o-object-fit: contain;
+    object-fit: contain;
+
+}
+
+.login_bg {
+    opacity: 0.4;
+    position: absolute; 
+    position: fixed; 
+    top: -50%; 
+    left: -50%; 
+    width: 200%; 
+    height: 200%;
+}
+
+.login_bg img {
+    max-width: 100%;
+    max-height: 100%;
+    bottom: 0;
+    left: 0;
+    overflow: auto;
+    position: fixed;
+    right: 0;
+    top: 0;
+    -o-object-fit: fill;
+    object-fit: fill;
+}
+
+/*text boxes*/
+.login_content {
+    position: absolute;
+    object-fit: cover;
+    left: 0;
+    top: 0;
+    align-items: center;
+    height: auto;
+    background-color: transparent;
+    color: white;
+
+}
 
 body, form.login {
+    position: relative;
     margin: 0;
     padding: 0;
-    background-color: rgb(201, 201, 201);
+    background-color: transparent;
+    color: black;
+}
+
+form.login button:hover {
+    background-color: white;
+    opacity: 0.6;
+    color: black;
+}
+
+#login {
+    background-color: transparent;
+}
+
+#login {
+    position: absolute;
+    width: 315.64px;
+    height: 55.38px;
+    left: 698px;
+    top: 421px;
+
+    background: rgba(0, 0, 0, 0.25);
+    border-radius: 40.6088px;
+}*/
+
+.customer_management_home, .analysis_home {
+    text-decoration-line: underline;
+    font-weight: bold;
 }
 
 a {
@@ -65,7 +147,7 @@ a + a {
     color: white;
   }
   .header a:hover {
-    color: rgb(205, 80, 35);
+    color: rgb(0, 119, 0);
   }
 
 /*  .calendar{
@@ -137,6 +219,7 @@ header {
       text-align: center;
       }
   }
+
   button {
     display: flex;
     align-items: center;
@@ -164,8 +247,7 @@ div.day-grid form.days input button{
     max-height: 125px;
   }
   
-div.day-grid form.days input button.othermonth
-   {
+div.day-grid form.days input button.othermonth{
     background-color: lightgrey;
   }
 
@@ -180,8 +262,9 @@ table {
 
   tr:nth-child(even) {background-color: #f2f2f2;}
 
+
   /*display must be block for add user form to function correctly*/
-  input[type=text],  input[type=email], select {
+  input[type=text], input[type=password],  input[type=email], select {
     width: 100%;
     padding: 12px 20px;
     margin: 8px 0;
@@ -193,17 +276,18 @@ table {
   
   input[type=submit] {
     width: 100%;
-    background-color: #4CAF50;
+    background-color: #F8A145;
     color: white;
     padding: 14px 20px;
     margin: 8px 0;
     border: none;
+    background: rgba(0, 0, 0, 0.25);
     border-radius: 4px;
     cursor: pointer;
   }
   
   input[type=submit]:hover {
-    background-color: #45a049;
+    background-color: #003c03;
   }
   
   div {
