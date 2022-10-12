@@ -143,6 +143,7 @@ def get_table(table):
     data = cursor.fetchall()
     return data
 
+
 def get_customer(id):
     query = f'SELECT * FROM Customer WHERE customerId = "{id}"'
 
