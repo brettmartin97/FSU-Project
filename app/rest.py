@@ -76,7 +76,9 @@ def user_management():
     if not auth_bool:
         return redirect(url_for('login'))
     else:
-        return render_template('user_management.html', error=error)
+        users = sql.get_table('User')
+        roles = sql.get_table('Role')
+        return render_template('user_management.html', error=error, users=users, roles=roles)
 
 @app.route('/admin/user_management/add_user', methods=['GET', 'POST'])
 def add_user():

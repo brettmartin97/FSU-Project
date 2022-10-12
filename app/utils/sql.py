@@ -133,9 +133,16 @@ def run_update(update):
     return True
 
 def get_table(table):
-     query = f'SELECT * FROM "{table}"'
-    
-     return run_query(query)
+    query = f'SELECT * FROM {table}'
+    conn = pymysql.connect(host='db',
+                           user='root',
+                           password="root",
+                           db='fsu')
+    cursor = conn.cursor(pymysql.cursors.DictCursor)
+    cursor.execute(query)
+    data = cursor.fetchall()
+    return data
+
 
 def get_customer(id):
     query = f'SELECT * FROM Customer WHERE customerId = "{id}"'
