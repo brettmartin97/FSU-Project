@@ -104,3 +104,60 @@ def get_single_user_info(user):
     sqlInfo = cursor.fetchone()
 
     return sqlInfo
+
+def run_query(query):
+    conn = pymysql.connect(host='db',
+                           user='root',
+                           password="root",
+                           db='fsu')
+
+    cursor = conn.cursor(pymysql.cursors.DictCursor)
+
+    cursor.execute(query)
+
+    data = cursor.fetchone()
+
+    return data
+
+def run_update(update):
+
+    conn = pymysql.connect(host='db',
+                           user='root',
+                           password="root",
+                           db='fsu')
+
+    cursor = conn.cursor(pymysql.cursors.DictCursor)
+
+    cursor.execute(update)
+
+    return True
+
+def get_table(table):
+     query = f'SELECT * FROM "{table}"'
+    
+     return run_query(query)
+
+def get_customer(id):
+    query = f'SELECT * FROM Customer WHERE customerId = "{id}"'
+
+    return run_query(query)
+
+def get_user(id):
+    query = f'SELECT * FROM User WHERE UserId = "{id}"'
+
+    return run_query(query)
+
+def get_user_role():
+    query = f'SELECT * FROM User as u, Role as r WHERE u.roleId = r.roleId'
+
+    return run_query(query)
+
+def get_user_role(id):
+    update = f'SELECT * FROM User as u, Role as r WHERE u.roleId = r.roleId and u.userId = "{id}"'
+
+    return run_update(update)
+
+def update_user(id, update):
+    query = f'Update User Set "{update}" WHERE userID = "{id}"'
+
+    return run_update(query)
