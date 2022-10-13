@@ -1,8 +1,47 @@
+dropdown:hover .dropbtn {
+  color: rgb(0, 119, 0);
+}
+
+button.dropbtn {
+  background-color: black;
+  color: white;
+  font-family: inherit;
+  border: none;
+  font-size: inherit;
+  padding: inherit;
+}
+
+.dropdown-content {
+  display: none;
+  position: absolute;
+  background-color: black;
+  min-width: 160px;
+  z-index: 1;
+}
+
+.dropdown {
+  position: relative;
+  display: inline-block;
+}
+
+.dropdown:hover .dropdown-content {
+    display: block;
+}
+
+.dropdown-content a {
+    color: white;
+    text-decoration: none;
+    display: block;
+}
+
 div {
     background-color: transparent;
     color: rgb(0, 119, 0);
     font-family: 'Courier New', Courier, monospace;
-    text-indent: 5px;
+}
+
+h1 {
+  text-align: center;
 }
 
 div.halfleft {
@@ -29,23 +68,18 @@ div.centered {
   transform: translate(-50%, -50%);
   text-align: center;
 }
+
+div.login-fill {
+  fill: white;
+  border-radius: 50%;
+}
 .login h1 {
     color: white;
 }
 
-.login_wrap {
-    max-width: 100%;
-    max-height: 100%;
-    bottom: 0;
-    left: 0;
-    margin: 0%;
-    overflow: auto;
-    position: fixed;
-    right: 0;
-    top: 0;
-    -o-object-fit: contain;
-    object-fit: contain;
-
+img.login-bg {
+  width: 100%;
+  height: 100%;
 }
 
 .login_bg {
@@ -73,13 +107,8 @@ div.centered {
 
 /*text boxes*/
 .login_content {
-    position: absolute;
     object-fit: cover;
-    left: 0;
-    top: 0;
     align-items: center;
-    height: auto;
-    background-color: transparent;
     color: white;
 
 }
@@ -106,12 +135,12 @@ form.login button:hover {
     position: absolute;
     width: 315.64px;
     height: 55.38px;
-    left: 698px;
-    top: 421px;
+    left: 50%;
+    top: 25%;
 
     background: rgba(0, 0, 0, 0.25);
     border-radius: 40.6088px;
-}*/
+}
 
 .customer_management_home, .analysis_home {
     text-decoration-line: underline;
@@ -162,6 +191,10 @@ a + a {
     color: white;
   }
 */
+
+.calendar h1 {
+  color: rgb(0, 119, 0);
+}
 
 header {
     display: flex;
@@ -252,12 +285,21 @@ div.day-grid form.days input button.othermonth{
   }
 
 table {
-  width: 100%;
+    border: thin solid;
+    border-collapse: collapse;
+    box-shadow: 0 0 10px rgb(0 0 0 / 15%);
+    color: black;
+}
+
+tbody {
+  text-indent: 5px;
 }
 
   table, th, td {
     border: 1px solid;
-    color: black
+    color: black;
+    width: -webkit-fill-available;
+    padding: 1px;
   }
 
   tr:nth-child(even) {background-color: #f2f2f2;}
@@ -291,7 +333,5 @@ table {
   }
   
   div {
-    border-radius: 5px;
     background-color: #f2f2f2;
-    padding: 20px;
   }
