@@ -6,6 +6,7 @@
       <h1>Welcome {{ name }} </h1>
       <h2> {{ date }}</h2>
     <form>
+      {{ day }} {{ month }} {{ year }}
         <label for="appt">Choose a Start Time:</label>
         <input type="time" id="appt" name="appt"
        min="00:00" max="23:59" required><br>
@@ -16,6 +17,19 @@
           <option value="Color">Color</option>
         </select>
        <input type="Submit" name="Submit">
+       <label for="booking">Select Booking Time:</label>
+          <select id="booking" name="bookingtime" required>
+            {% for i in times %}
+            <option value="{{ i }}">{{ i }}</option>
+            {% endfor %}
+        </select>
+        <fieldset>      
+          <legend>Choose a Start Time:</legend>  
+          {% for i in times %}    
+          <input type="checkbox" name="BookingTime" value={{ i }}>{{ i }}<br> 
+          {% endfor %}        
+          <input type="submit" value="Submit now" />      
+      </fieldset> 
     </form>
   </div>
 

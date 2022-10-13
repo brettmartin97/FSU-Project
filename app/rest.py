@@ -46,7 +46,8 @@ def login():
         else:
             session['auth'] = True
             session['user'] = user
-            session['level'] = sql.get_attribute(user, "role", "User")
+            where = f'username = "{user}"'
+            session['level'] = sql.get_attribute("roleId", "User", where)
             if session['level'] > 11:
                 return redirect(url_for('admin'))
             elif session['level'] == 11:
@@ -75,7 +76,9 @@ def user_management():
     if not auth_bool:
         return redirect(url_for('login'))
     else:
-        return render_template('user_management.html', error=error)
+        users = sql.get_table('User')
+        roles = sql.get_table('Role')
+        return render_template('user_management.html', error=error, users=users, roles=roles)
 
 @app.route('/admin/user_management/add_user', methods=['GET', 'POST'])
 def add_user():
@@ -93,7 +96,8 @@ def customers():
     if not auth_bool:
         return redirect(url_for('login'))
     else:
-        return render_template('customers.html', error=error)
+        customers = sql.get_table('Customer')
+        return render_template('customers.html', error=error, customers = customers)
 
 @app.route('/admin/appointments', methods=['GET', 'POST'])
 def appointments():
@@ -120,7 +124,15 @@ def bookingDay(day,month,year):
     if not auth_bool:
         return redirect(url_for('login'))
     else:
-        return render_template('booking_day.html', date=date)
+        times = []
+        date = datetime(int(year),int(month),int(day),9,0,0)
+        formateddate = date.strftime("%I:%M %p")
+        times.append(str(formateddate))
+        for i in range(40): 
+            date += timedelta(minutes=15)
+            formateddate = date.strftime("%I:%M %p")
+            times.append(str(formateddate))
+        return render_template('booking_day.html', day=day, month=month, year=year, times=times)
 
 @app.route('/admin/booking', methods=['GET', 'POST'])
 def booking():
@@ -141,8 +153,12 @@ def booking():
                 first = date.replace(day=1)
                 date = first - timedelta(days=1)
             else:
-                date = request.form['submit_button']
-                return redirect(url_for('bookingDay', date=date))
+                day = int(request.form['submit_button'])
+                month = request.form['month']
+                intmonth = datetime.strptime(month, "%B")
+                month = int(intmonth.month)
+                year = int(request.form['year'])
+                return redirect(url_for('bookingDay', day=day, month=month, year=year))
         elif request.method == 'GET':
             date = datetime.now()
         currentDay = date.day
