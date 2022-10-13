@@ -96,7 +96,8 @@ def customers():
     if not auth_bool:
         return redirect(url_for('login'))
     else:
-        return render_template('customers.html', error=error)
+        customers = sql.get_table('Customer')
+        return render_template('customers.html', error=error, customers = customers)
 
 @app.route('/admin/booking/<day>.<month>.<year>', methods   =['GET', 'POST'])
 def bookingDay(day,month,year):
