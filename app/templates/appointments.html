@@ -1,0 +1,29 @@
+{% extends "base_templates/admin_base.html" %}
+
+{% block content %}
+<div class="container">
+    <h1>Appointment Data</h1>
+    <a href="/admin/appointments/add_appointment">
+        <button type="submit">Add appointment</button>
+    </a>
+    <table>
+        <thead>
+            <tr>
+                <th>Appointment</th>
+                <th>Description</th>
+                <th>Edit</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for i in appointments %}
+            <tr>
+                <td>{{ i.typeName }}</td>
+                <td>{{ i.description }}</td>
+                <td><input type="Submit" value="Edit"></td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+{% endblock %}
