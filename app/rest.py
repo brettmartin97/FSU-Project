@@ -95,8 +95,26 @@ def customers():
     else:
         return render_template('customers.html', error=error)
 
-@app.route('/admin/booking/<date>', methods=['GET', 'POST'])
-def bookingDay(date):
+@app.route('/admin/appointments', methods=['GET', 'POST'])
+def appointments():
+    error = None
+    auth_bool = utils.is_auth(session)
+    if not auth_bool:
+        return redirect(url_for('login'))
+    else:
+        appointments = sql.get_table('AppointmentType')
+        return render_template('appointments.html', error=error, appointments = appointments)
+
+@app.route('/admin/appointments/add_appointment')
+def add_appointment():
+    auth_bool = utils.is_auth(session)
+    if not auth_bool:
+        return redirect(url_for('login'))
+    else:
+        return render_template('add_appointment.html', error=error)
+
+@app.route('/admin/booking/<day>.<month>.<year>', methods   =['GET', 'POST'])
+def bookingDay(day,month,year):
     error = None
     auth_bool = utils.is_auth(session)
     if not auth_bool:
