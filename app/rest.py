@@ -99,6 +99,24 @@ def customers():
         customers = sql.get_table('Customer')
         return render_template('customers.html', error=error, customers = customers)
 
+@app.route('/admin/appointments', methods=['GET', 'POST'])
+def appointments():
+    error = None
+    auth_bool = utils.is_auth(session)
+    if not auth_bool:
+        return redirect(url_for('login'))
+    else:
+        appointments = sql.get_table('AppointmentType')
+        return render_template('appointments.html', error=error, appointments = appointments)
+
+@app.route('/admin/appointments/add_appointment')
+def add_appointment():
+    auth_bool = utils.is_auth(session)
+    if not auth_bool:
+        return redirect(url_for('login'))
+    else:
+        return render_template('add_appointment.html', error=error)
+
 @app.route('/admin/calendar/<day>.<month>.<year>', methods   =['GET', 'POST'])
 def calendarDay(day,month,year):
     error = None
