@@ -1,0 +1,36 @@
+{% extends "base_templates/admin_base.html" %}
+
+{% block content %}
+
+<div class="container">
+  <header>
+    <form  action="" method="post">
+      <input type="hidden" name="submit_button" value="Prev Month">
+      </input>
+      <input type="hidden" name="date" value={{ date }}>
+
+      <input class="btn btn-default" type="submit" value="&larr;"></input>
+    </input>
+    </form>
+  <h1>{{ month }} {{ year }}</h1>
+  </header>
+  <table>
+    <tr><th>Time</th>
+      {% for i in users %}
+      <th>{{ i.firstName }} {{ i.lastName }}</th>
+      {% endfor %}
+    </tr>
+      {% for i in range(40) %}
+      <tr>
+      <td>{{ times[i] }}</td>
+      {% for i in users %}
+      <td>{{ i.firstName }} {{ i.lastName }}</td>
+      {% endfor %}
+    </tr>
+      {% endfor %}
+    </tr>
+  </table> 
+    
+</div>
+  
+{% endblock %}

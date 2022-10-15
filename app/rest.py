@@ -117,8 +117,8 @@ def add_appointment():
     else:
         return render_template('add_appointment.html', error=error)
 
-@app.route('/admin/booking/<day>.<month>.<year>', methods   =['GET', 'POST'])
-def bookingDay(day,month,year):
+@app.route('/admin/calendar/<day>.<month>.<year>', methods   =['GET', 'POST'])
+def calendarDay(day,month,year):
     error = None
     auth_bool = utils.is_auth(session)
     if not auth_bool:
@@ -128,14 +128,16 @@ def bookingDay(day,month,year):
         date = datetime(int(year),int(month),int(day),9,0,0)
         formateddate = date.strftime("%I:%M %p")
         times.append(str(formateddate))
+        users = sql.get_table('User')
         for i in range(40): 
             date += timedelta(minutes=15)
             formateddate = date.strftime("%I:%M %p")
             times.append(str(formateddate))
-        return render_template('booking_day.html', day=day, month=month, year=year, times=times)
+        
+        return render_template('Calendar-Day.html', day=day, month=month, year=year, times=times,users=users)
 
-@app.route('/admin/booking', methods=['GET', 'POST'])
-def booking():
+@app.route('/admin/calendar', methods=['GET', 'POST'])
+def calendarmonth():
     error = None
     auth_bool = utils.is_auth(session)
     if not auth_bool:
@@ -158,7 +160,7 @@ def booking():
                 intmonth = datetime.strptime(month, "%B")
                 month = int(intmonth.month)
                 year = int(request.form['year'])
-                return redirect(url_for('bookingDay', day=day, month=month, year=year))
+                return redirect(url_for('calendarDay', day=day, month=month, year=year))
         elif request.method == 'GET':
             date = datetime.now()
         currentDay = date.day
@@ -166,7 +168,7 @@ def booking():
         currentYear = date.year
         firstDay = date.replace(day=1).weekday()
         lastDay = date.replace(day = calendar.monthrange(date.year, date.month)[1]).strftime("%d")
-        return render_template('booking.html', lastDay = int(lastDay), 
+        return render_template('Calendar-Month.html', lastDay = int(lastDay), 
         firstDay=firstDay, day=currentDay, month=currentMonth, 
         year=currentYear, date=date, error=error)
 
@@ -180,47 +182,6 @@ def analysis():
         firstname, lastname = sql.get_name(session['user'], app.logger)
         name = firstname + ' ' + lastname
         return render_template('analysis.html', error=error)
-
-@app.route('/admin/scheduling/<date>', methods=['GET', 'POST'])
-def scheduleDay(date):
-    error = None
-    auth_bool = utils.is_auth(session)
-    if not auth_bool:
-        return redirect(url_for('login'))
-    else:
-        return render_template('schedule_day.html', date=date)
-
-@app.route('/admin/scheduling', methods=['GET', 'POST'])
-def scheduling():
-    error = None
-    auth_bool = utils.is_auth(session)
-    if not auth_bool:
-        return redirect(url_for('login'))
-    else:
-        if request.method == 'POST':
-            if request.form['submit_button'] == 'Next Month':
-                date = request.form['date']
-                date = datetime.strptime(date, '%Y-%m-%d')
-                last = date.replace(day = calendar.monthrange(date.year, date.month)[1])
-                date = last + timedelta(days=1)
-            elif request.form['submit_button'] == 'Prev Month':
-                date = request.form['date']
-                date = datetime.strptime(date, '%Y-%m-%d')
-                first = date.replace(day=1)
-                date = first - timedelta(days=1)
-            else:
-                date = request.form['submit_button']
-                return redirect(url_for('scheduleDay', date=date))
-        elif request.method == 'GET':
-            date = datetime.now()
-        currentDay = date.day
-        currentMonth = date.strftime("%B")
-        currentYear = date.year
-        firstDay = date.replace(day=1).weekday()
-        lastDay = date.replace(day = calendar.monthrange(date.year, date.month)[1]).strftime("%d")
-        return render_template('scheduling.html', lastDay = int(lastDay), 
-        firstDay=firstDay, day=currentDay, month=currentMonth, 
-        year=currentYear, date=date, error=error)
 
 
 @app.route('/logout', methods=['GET'])
