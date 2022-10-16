@@ -29,7 +29,7 @@
           <td>{{ i.phone }}</td>
           <td>{{ i.roleId }}</td>
           <td>{{ i.roleId }}</td>
-          <td><input type="Submit" value="Edit"></td>
+          <td><form method="post"><input type='hidden' id="userId" name="userId" value="{{ i.userId }}"><input type="Submit" value="Edit"></form></td>
         </tr>
         {% endfor %}
       </tbody>

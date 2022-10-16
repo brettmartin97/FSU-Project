@@ -170,7 +170,24 @@ def update_user(id, update):
     return run_update(query)
 
 def get_schedule(weekday):
-    query = f'SELECT firstName, lastNAme, TIME_FORMAT(startTime, "%I:%i %p") as  startTime, TIME_FORMAT(endTime, "%I:%i %p") as endTime,dayId  FROM User u JOIN Schedule s on u.userId = s.userId where s.dayId = "{weekday}" ORDER by u.firstName'
+    query = f'SELECT userId, firstName, lastName, TIME_FORMAT(startTime, "%I:%i %p") as  startTime, TIME_FORMAT(endTime, "%I:%i %p") as endTime,dayId  FROM User u JOIN Schedule s on u.userId = s.userId where s.dayId = "{weekday}" ORDER by u.firstName'
+    conn = pymysql.connect(host='db',
+                           user='root',
+                           password="root",
+                           db='fsu')
+    cursor = conn.cursor(pymysql.cursors.DictCursor)
+    cursor.execute(query)
+    data = cursor.fetchall()
+    return data
+
+
+def get_bookings(date):
+    query = f'''SELECT userId, TIME_FORMAT(startTime, "%I:%i %p") as startTime,
+    CASE 
+    WHEN at.hasHourlyRate THEN TIME_FORMAT(TIME(DATE_ADD(a.startTime, INTERVAL at.duration HOUR)), "%I:%i %p") 
+    ELSE TIME_FORMAT(TIME(DATE_ADD(a.startTime, INTERVAL at.duration MINUTE)), "%I:%i %p") 
+    END as endTime, at.appointTypeId, at.description
+    FROM Appointment a JOIN AppointmentType at on a.appointTypeId = at.appointTypeId where startTime between '{date} 00:00:00' and '{date} 23:59:59' ORDER by a.userID'''
     conn = pymysql.connect(host='db',
                            user='root',
                            password="root",

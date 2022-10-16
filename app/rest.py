@@ -11,6 +11,7 @@ import logging
 import utils.utils as utils
 import calendar
 from datetime import datetime, timedelta
+import yaml
 
 @app.route('/')
 def home():
@@ -76,9 +77,57 @@ def user_management():
     if not auth_bool:
         return redirect(url_for('login'))
     else:
-        users = sql.get_table('User')
-        roles = sql.get_table('Role')
-        return render_template('user_management.html', error=error, users=users, roles=roles)
+        if request.method == 'POST':
+            userId = request.form['userId']
+            return redirect(url_for('edit_user',  userId=userId))
+        else:
+            users = sql.get_table('User')
+            roles = sql.get_table('Role')
+            return render_template('user_management.html', error=error, users=users, roles=roles)
+
+@app.route('/admin/user_management/<userId>', methods=['GET', 'POST'])
+def edit_user(userId):
+    error = None
+    auth_bool = utils.is_auth(session)
+    if not auth_bool:
+        return redirect(url_for('login'))
+    else:
+        if request.method == 'POST':
+            userId = request.form['userId']
+            return redirect(url_for('editUser', userId=userId))
+        else:
+            user = sql.get_user(userId)
+            with open("config/config.yml") as f:
+                config = yaml.safe_load(f)
+            maxRole = config['site']['maxRole']
+            return render_template('edit_user.html', error=error, user=user, maxRole=maxRole)
+
+@app.route('/admin/site_management', methods=['GET', 'POST'])
+def site_management():
+    error = None
+    auth_bool = utils.is_auth(session)
+    if not auth_bool:
+        return redirect(url_for('login'))
+    else:
+        if request.method == 'POST':
+            with open("config/config.yml") as f:
+                config = yaml.safe_load(f)
+            maxRole = request.form['maxRole']
+            startTime = request.form['open']
+            endTime = request.form['close']
+            config['site']['maxRole'] = maxRole
+            config['site']['open'] = startTime
+            config['site']['close'] = endTime
+            with open("config/config.yml", "w") as f:
+                yaml.dump(config, f)
+        else:
+            with open("config/config.yml") as f:
+                config = yaml.safe_load(f)
+            app.logger.info(config)
+            maxRole = config['site']['maxRole']
+            startTime = config['site']['open']
+            endTime = config['site']['close']
+        return render_template('site_management.html', error=error, maxRole=maxRole, startTime=startTime, endTime=endTime)
 
 @app.route('/admin/user_management/add_user', methods=['GET', 'POST'])
 def add_user():
@@ -94,6 +143,7 @@ def customers():
     error = None
     auth_bool = utils.is_auth(session)
     if not auth_bool:
+
         return redirect(url_for('login'))
     else:
         customers = sql.get_table('Customer')
