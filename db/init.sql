@@ -26,11 +26,12 @@ CREATE TABLE if not exists `User` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE if not exists `Schedule` (
+  `scheduleId` int unsigned NOT NULL AUTO_INCREMENT,
   `dayId` int unsigned NOT NULL,
   `userId` int unsigned NOT NULL,
   `startTime` time NOT NULL,
   `endTime` time NOT NULL,
-  PRIMARY KEY (`dayId`, `userId`),
+  PRIMARY KEY (`scheduleId`),
   FOREIGN KEY (`userId`) REFERENCES `User` (`userId`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -48,7 +49,7 @@ CREATE TABLE if not exists `Pricing` (
   `appointTypeId` int unsigned NOT NULL,
   `roleId` int unsigned NOT NULL,
   `price` double NOT NULL,
-  PRIMARY KEY (`totalPriceId`, `appointTypeId`, `roleId`),
+  PRIMARY KEY (`totalPriceId`),
   FOREIGN KEY (`appointTypeId`) REFERENCES `AppointmentType` (`appointTypeId`) ON DELETE CASCADE,
   FOREIGN KEY (`roleId`) REFERENCES `Role` (`roleId`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

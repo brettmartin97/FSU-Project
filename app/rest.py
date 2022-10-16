@@ -127,14 +127,16 @@ def calendarDay(day,month,year):
         times = []
         date = datetime(int(year),int(month),int(day),9,0,0)
         formateddate = date.strftime("%I:%M %p")
-        times.append(str(formateddate))
-        users = sql.get_table('User')
+        times.append(formateddate)
+        weekday = date.weekday()
+        user_schedule = sql.get_schedule(weekday)
+        
         for i in range(40): 
             date += timedelta(minutes=15)
             formateddate = date.strftime("%I:%M %p")
-            times.append(str(formateddate))
+            times.append(formateddate)
         
-        return render_template('Calendar-Day.html', day=day, month=month, year=year, times=times,users=users)
+        return render_template('Calendar-Day.html', day=day, month=month, year=year, times=times,user_schedule=user_schedule, datetime=datetime)
 
 @app.route('/admin/calendar', methods=['GET', 'POST'])
 def calendarmonth():

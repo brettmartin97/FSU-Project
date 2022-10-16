@@ -335,3 +335,11 @@ tbody {
   div {
     background-color: #f2f2f2;
   }
+
+  .available {
+    background-color: green;
+  }
+
+  .unavailable {
+    background-color: grey;
+  }

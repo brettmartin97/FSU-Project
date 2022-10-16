@@ -16,18 +16,24 @@
   </header>
   <table>
     <tr><th>Time</th>
-      {% for i in users %}
+      {% for i in user_schedule %}
       <th>{{ i.firstName }} {{ i.lastName }}</th>
       {% endfor %}
     </tr>
       {% for i in range(40) %}
       <tr>
       <td>{{ times[i] }}</td>
-      {% for i in users %}
-      <td>{{ i.firstName }} {{ i.lastName }}</td>
-      {% endfor %}
+      {% for u in user_schedule %}
+        {% if datetime.strptime(times[i],"%I:%M %p")  >= datetime.strptime(u.startTime,"%I:%M %p") and datetime.strptime(times[i],"%I:%M %p")  <= datetime.strptime(u.endTime, "%I:%M %p") %}
+
+            <td class=available></td>
+          {% else %}
+
+            <td class=unavailable></td>
+          {% endif %}
+        {% endfor %}
     </tr>
-      {% endfor %}
+    {% endfor %}
     </tr>
   </table> 
     

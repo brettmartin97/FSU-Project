@@ -132,8 +132,8 @@ def run_update(update):
 
     return True
 
-def get_table(table):
-    query = f'SELECT * FROM {table}'
+def get_table(table, order=1):
+    query = f'SELECT * FROM {table} ORDER by {order}'
     conn = pymysql.connect(host='db',
                            user='root',
                            password="root",
@@ -165,6 +165,17 @@ def get_user_role(id):
     return run_update(update)
 
 def update_user(id, update):
-    query = f'Update User Set "{update}" WHERE userID = "{id}"'
+    query = f'Update User Set {update} WHERE userID = "{id}"'
 
     return run_update(query)
+
+def get_schedule(weekday):
+    query = f'SELECT firstName, lastNAme, TIME_FORMAT(startTime, "%I:%i %p") as  startTime, TIME_FORMAT(endTime, "%I:%i %p") as endTime,dayId  FROM User u JOIN Schedule s on u.userId = s.userId where s.dayId = "{weekday}" ORDER by u.firstName'
+    conn = pymysql.connect(host='db',
+                           user='root',
+                           password="root",
+                           db='fsu')
+    cursor = conn.cursor(pymysql.cursors.DictCursor)
+    cursor.execute(query)
+    data = cursor.fetchall()
+    return data
