@@ -93,8 +93,20 @@ def edit_user(userId):
         return redirect(url_for('login'))
     else:
         if request.method == 'POST':
-            userId = request.form['userId']
-            return redirect(url_for('editUser', userId=userId))
+            user = sql.get_user(userId)
+            app.logger.info(user)
+            if request.form['firstName'] != user['firstName'] :
+                sql.update_user(userId,f"firstName = '{request.form['firstName']}'")
+            if request.form['lastName'] != user['lastName']:
+                sql.update_user(userId,f"lastName = '{request.form['lastName']}'")
+            if request.form['phone'] != user['phone']:
+                sql.update_user(userId,f"phone = {request.form['phone']}")
+            if request.form['email'] != user['email'] :
+                sql.update_user(userId,f"email = '{request.form['email']}'")
+            if request.form['roleId'] != user['roleId']:
+                app.logger.info(f"roleId = {request.form['roleId']}")
+                sql.update_user(userId,f"roleId = {request.form['roleId']}")
+            return redirect(url_for('edit_user', userId=user['userId']))
         else:
             user = sql.get_user(userId)
             with open("config/config.yml") as f:

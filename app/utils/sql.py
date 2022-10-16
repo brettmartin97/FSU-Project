@@ -130,6 +130,8 @@ def run_update(update):
 
     cursor.execute(update)
 
+    conn.commit()
+
     return True
 
 def get_table(table, order=1):
@@ -145,12 +147,12 @@ def get_table(table, order=1):
 
 
 def get_customer(id):
-    query = f'SELECT * FROM Customer WHERE customerId = "{id}"'
+    query = f'SELECT * FROM Customer WHERE customerId = {id}'
 
     return run_query(query)
 
 def get_user(id):
-    query = f'SELECT * FROM User WHERE UserId = "{id}"'
+    query = f'SELECT * FROM User WHERE userId = {id}'
 
     return run_query(query)
 
@@ -160,17 +162,17 @@ def get_user_role():
     return run_query(query)
 
 def get_user_role(id):
-    update = f'SELECT * FROM User as u, Role as r WHERE u.roleId = r.roleId and u.userId = "{id}"'
+    update = f'SELECT * FROM User as u, Role as r WHERE u.roleId = r.roleId and u.userId = {id}'
 
     return run_update(update)
 
 def update_user(id, update):
-    query = f'Update User Set {update} WHERE userID = "{id}"'
+    query = f'UPDATE User SET {update} WHERE userId = {id}'
 
     return run_update(query)
 
 def get_schedule(weekday):
-    query = f'SELECT userId, firstName, lastName, TIME_FORMAT(startTime, "%I:%i %p") as  startTime, TIME_FORMAT(endTime, "%I:%i %p") as endTime,dayId  FROM User u JOIN Schedule s on u.userId = s.userId where s.dayId = "{weekday}" ORDER by u.firstName'
+    query = f'SELECT userId, firstName, lastName, TIME_FORMAT(startTime, "%I:%i %p") as  startTime, TIME_FORMAT(endTime, "%I:%i %p") as endTime,dayId  FROM User u JOIN Schedule s on u.userId = s.userId where s.dayId = {weekday} ORDER by u.firstName'
     conn = pymysql.connect(host='db',
                            user='root',
                            password="root",
