@@ -4,24 +4,24 @@
     {% block content %}
     <div class="container">
       <h1>Add User</h1>
-    <form class="add_user"> 
+    <form class="add_user" method="POST">
         <div class="halfleft">
-          <input type="text" id="fname" name="firstname" value="{{ user.firstName }}" required>
+          <input type="text" id="firstName" name="firstName" value="{{ user.firstName }}" required>
           <input type="email" id="email" name="email" value="{{ user.email }}" required>
           <label for="stylistlevel">Select Stylist Level:</label>
-          <select id="stylistlevel" name="stylistlevel" required>
+          <select id="roleId" name="roleId" required>
             <option value="N/A">N/A</option>
             {% for i in range(1,maxRole+1) %}
               {% if i == user.roleId %}
-              <option value="{{ i }}" selected>{{ i }}</option>
+              <option value={{ i }} selected>{{ i }}</option>
               {% else %}
-            <option value="{{ i }}">{{ i }}</option>
+            <option value={{ i }}>{{ i }}</option>
               {% endif %}
             {% endfor %}
         </select>
         </div>
          <div class="halfright">
-            <input type="text" id="lname" name="lastname" value="{{ user.lastName }}" required>
+            <input type="text" id="lastName" name="lastName" value="{{ user.lastName }}" required>
             <input type="text" id="phone" name="phone" value="{{ user.phone }}" required>
         </div>
         <input type="submit" value="Submit">
