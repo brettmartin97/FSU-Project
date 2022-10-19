@@ -1,6 +1,10 @@
 from db import mysql
+from io import BytesIO
 import utils.hashing as hashing
-import pymysql
+import pymysql  
+import pandas as pd
+import matplotlib.pyplot as plt
+import base64
 
 def set_password(user, password):
     hash = hashing.Hash(password)
@@ -115,7 +119,7 @@ def run_query(query):
 
     cursor.execute(query)
 
-    data = cursor.fetchone()
+    data = cursor.fetchall()
 
     return data
 
@@ -133,6 +137,17 @@ def run_update(update):
     conn.commit()
 
     return True
+
+def chart_data():
+
+    conn = pymysql.connect(host='db',
+                           user='root',
+                           password="root",
+                           db='fsu')
+
+    cursor = conn.cursor(pymysql.cursors.DictCursor)
+
+    df = pd.read_sql(query, con)
 
 def get_table(table, order=1):
     query = f'SELECT * FROM {table} ORDER by {order}'
@@ -198,3 +213,68 @@ def get_bookings(date):
     cursor.execute(query)
     data = cursor.fetchall()
     return data
+
+"""
+this function gets a field error for unknown column 'management'
+def insert_User(Id,fName,lName,email,phone,username,password,roleId,isMan):
+
+    conn = pymysql.connect(host='db',
+                           user='root',
+                           password="root",
+                           db='fsu')
+    cursor = conn.cursor(pymysql.cursors.DictCursor)
+    print(Id,fName,lName,email,phone,username,password,roleId,isMan, flush=True)
+
+    query = fINSERT INTO User(userId, firstName, lastName, email, phone, username, password, roleId, management) 
+            VALUES (%s, %s, %s,  %s, %s, %s, %s, %s, %s)
+
+
+    cursor.execute(query, (Id,fName,lName,email,phone,username,password,roleId,isMan))
+
+    return True    
+"""
+
+"""
+Gets the data for the charts using the SQL
+"""
+def chart_data(query):
+
+    conn = pymysql.connect(host='db',
+                           user='root',
+                           password="root",
+                           db='fsu')
+
+    cursor = conn.cursor(pymysql.cursors.DictCursor)
+
+    df = pd.read_sql(query, conn)
+
+    return df
+"""
+Builds the appointment Chart
+"""
+def appointment_chart():
+    query = f'''SELECT count(a.appointID) as appointments, at.typeName 
+    FROM Appointment as a, AppointmentType as at 
+    WHERE a.appointTypeId = at.appointTypeId GROUP BY typeName'''
+
+    data = chart_data(query)
+    
+    plt.title('Customers by Appointment Type')
+    plt.bar(data.typeName, data.appointments)
+    plt.xticks(rotation=75)
+
+    img = BytesIO()
+
+    plt.savefig(img, format ='png')
+    plotUrl = base64.b64encode(img.getvalue()).decode('utf8')
+
+    return plotUrl    
+
+
+
+
+
+
+
+
+

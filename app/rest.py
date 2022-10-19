@@ -245,7 +245,8 @@ def analysis():
     else:
         firstname, lastname = sql.get_name(session['user'], app.logger)
         name = firstname + ' ' + lastname
-        return render_template('analysis.html', error=error)
+        plotUrl = sql.appointment_chart()
+        return render_template('analysis.html', error=error, plot_url=plotUrl)
 
 
 @app.route('/logout', methods=['GET'])
@@ -260,6 +261,7 @@ def error():
     return render_template('404.html', title='error page not found')
 
 if __name__ == "__main__":
+    
     app.config["SESSION_PERMANENT"] = False
     app.config["SESSION_TYPE"] = "filesystem"
     Session(app)
