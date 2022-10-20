@@ -16,20 +16,7 @@ import yaml
 @app.route('/')
 def home():
     auth_bool = utils.is_auth(session)
-    ################################################## TESTING Below this ########
-    vari = sql.get_single_user_info('alex')
-    print(vari, flush = True)
 
-    sql.insert_User('Diane2', 'Temp4-2','temp4-2@gmail.com',222111333,'diane2','$2b$12$nWfHVJ/lyS8HxtL6Q6953.EoV79MMjQn4hegWhxEXka6lWb9CJF0C', 4, 0)
-    vari = sql.get_single_user_info('diane2')
-    print(vari, flush = True)
-    vari2 = sql.get_table('User', 'userId')
-    print(vari2, flush = True)
-
-    sql.insert_Role('Secret Stylist', '99%', 0)
-    vari3 = sql.get_table('Role', 'roleId')
-    print(vari3, flush = True)
-    ##############################################################################
     if not auth_bool:
         return redirect(url_for('login'))
     else:

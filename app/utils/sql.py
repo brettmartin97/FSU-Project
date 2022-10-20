@@ -215,6 +215,7 @@ def get_bookings(date):
     return data
 
 
+# Insert data into Schedule table.
 def insert_Role(rName,com,hRate):
     
     conn = pymysql.connect(host='db',
@@ -225,7 +226,7 @@ def insert_Role(rName,com,hRate):
     print(rName, com, hRate, flush=True)
 
     query = f'''INSERT INTO Role(roleName, commission, hourlyRate) 
-            VALUES (%s,  %s, %s)'''
+            VALUES (%s, %s, %s)'''
 
 
     cursor.execute(query, (rName,com,hRate))
@@ -253,7 +254,7 @@ def insert_User(fName,lName,email,phone,username,password,roleId,isMan):
     print(fName,lName,email,phone,username,password,roleId,isMan, flush=True)
 
     query = f'''INSERT INTO User(firstName, lastName, email, phone, username, password, roleId, management) 
-            VALUES (%s, %s,  %s, %s, %s, %s, %s, %s)'''
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s)'''
 
 
     cursor.execute(query, (fName,lName,email,phone,username,password,roleId,isMan))
@@ -261,6 +262,89 @@ def insert_User(fName,lName,email,phone,username,password,roleId,isMan):
     conn.commit()
 
     return True    
+
+# Insert data into Schedule table.
+def insert_Schedule(dId, uId, sTime, endTime):
+    
+    conn = pymysql.connect(host='db',
+                           user='root',
+                           password="root",
+                           db='fsu')
+    cursor = conn.cursor(pymysql.cursors.DictCursor)
+    print(dId, uId, sTime, endTime, flush=True)
+
+    query = f'''INSERT INTO Schedule(dayId, userId, startTime, endTime) 
+            VALUES (%s, %s, %s, %s)'''
+
+
+    cursor.execute(query, (dId, uId, sTime, endTime))
+
+    conn.commit()
+
+    return True
+
+
+# Insert data into AppointmentType table, hourly rate must be a 0 for False or a 1 for True for insertion.
+def insert_AppointmentType(tName, des, dur, hHourlyRate):
+    
+    conn = pymysql.connect(host='db',
+                           user='root',
+                           password="root",
+                           db='fsu')
+    cursor = conn.cursor(pymysql.cursors.DictCursor)
+    print(tName, des, dur, hHourlyRate, flush=True)
+
+    query = f'''INSERT INTO AppointmentType(typeName, description, duration, hasHourlyRate) 
+            VALUES (%s, %s, %s, %s)'''
+
+
+    cursor.execute(query, (tName, des, dur, hHourlyRate))
+
+    conn.commit()
+
+    return True
+
+
+# Insert data into Schedule table.
+def insert_Pricing(aTypeId, rId, pri):
+    
+    conn = pymysql.connect(host='db',
+                           user='root',
+                           password="root",
+                           db='fsu')
+    cursor = conn.cursor(pymysql.cursors.DictCursor)
+    print(aTypeId, rId, pri, flush=True)
+
+    query = f'''INSERT INTO Pricing(appointTypeId, roleId, price) 
+            VALUES (%s,  %s, %s)'''
+
+
+    cursor.execute(query, (aTypeId, rId, pri))
+
+    conn.commit()
+
+    return True
+
+
+# Insert data into Customer table.
+def insert_Customer(fName, lName, mail, pNumber):
+    
+    conn = pymysql.connect(host='db',
+                           user='root',
+                           password="root",
+                           db='fsu')
+    cursor = conn.cursor(pymysql.cursors.DictCursor)
+    print(fName, lName, mail, pNumber, flush=True)
+
+    query = f'''INSERT INTO Customer(firstName, lastName, email, phoneNumber) 
+            VALUES (%s, %s, %s, %s)'''
+
+
+    cursor.execute(query, (fName, lName, mail, pNumber))
+
+    conn.commit()
+
+    return True
 
 
 """
