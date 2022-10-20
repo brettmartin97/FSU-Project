@@ -214,25 +214,54 @@ def get_bookings(date):
     data = cursor.fetchall()
     return data
 
+
+def insert_Role(rName,com,hRate):
+    
+    conn = pymysql.connect(host='db',
+                           user='root',
+                           password="root",
+                           db='fsu')
+    cursor = conn.cursor(pymysql.cursors.DictCursor)
+    print(rName, com, hRate, flush=True)
+
+    query = f'''INSERT INTO Role(roleName, commission, hourlyRate) 
+            VALUES (%s,  %s, %s)'''
+
+
+    cursor.execute(query, (rName,com,hRate))
+
+    conn.commit()
+
+    return True
+
+
+
 """
-this function gets a field error for unknown column 'management'
-def insert_User(Id,fName,lName,email,phone,username,password,roleId,isMan):
+Fixed this insert function.
+The isMan variable needs to be a 0 for False or a 1 for True.
+userId is ignored since it auto increments.
+
+-Hayden
+"""
+def insert_User(fName,lName,email,phone,username,password,roleId,isMan):
 
     conn = pymysql.connect(host='db',
                            user='root',
                            password="root",
                            db='fsu')
     cursor = conn.cursor(pymysql.cursors.DictCursor)
-    print(Id,fName,lName,email,phone,username,password,roleId,isMan, flush=True)
+    print(fName,lName,email,phone,username,password,roleId,isMan, flush=True)
 
-    query = fINSERT INTO User(userId, firstName, lastName, email, phone, username, password, roleId, management) 
-            VALUES (%s, %s, %s,  %s, %s, %s, %s, %s, %s)
+    query = f'''INSERT INTO User(firstName, lastName, email, phone, username, password, roleId, management) 
+            VALUES (%s, %s,  %s, %s, %s, %s, %s, %s)'''
 
 
-    cursor.execute(query, (Id,fName,lName,email,phone,username,password,roleId,isMan))
+    cursor.execute(query, (fName,lName,email,phone,username,password,roleId,isMan))
+
+    conn.commit()
 
     return True    
-"""
+
 
 """
 Gets the data for the charts using the SQL
