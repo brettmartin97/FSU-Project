@@ -145,6 +145,17 @@ def site_management():
 def add_user():
     error = None
     auth_bool = utils.is_auth(session)
+    if request.method == 'POST':
+        firstName = request.form['firstname']
+        lname = request.form['lastname']
+        email = request.form['email']
+        un = request.form['username']
+        pwd = request.form['password']
+        phone = request.form['phone']
+        role = request.form['role']
+        booth = request.form['booth']
+        sql.insert_User(firstName, lname, email, phone, un, pwd, role, 0)
+        print(firstName, flush=True)
     if not auth_bool:
         return redirect(url_for('login'))
     else:
@@ -245,8 +256,9 @@ def analysis():
     else:
         firstname, lastname = sql.get_name(session['user'], app.logger)
         name = firstname + ' ' + lastname
-        plotUrl = sql.appointment_chart()
-        return render_template('analysis.html', error=error, plot_url=plotUrl)
+        aptChart = sql.appointment_chart()
+        styChart = sql.by_user_chart()
+        return render_template('analysis.html', error=error, aptChart=aptChart, styChart = styChart)
 
 
 @app.route('/logout', methods=['GET'])

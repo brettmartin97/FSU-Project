@@ -251,7 +251,6 @@ def insert_User(fName,lName,email,phone,username,password,roleId,isMan):
                            password="root",
                            db='fsu')
     cursor = conn.cursor(pymysql.cursors.DictCursor)
-    print(fName,lName,email,phone,username,password,roleId,isMan, flush=True)
 
     query = f'''INSERT INTO User(firstName, lastName, email, phone, username, password, roleId, management) 
             VALUES (%s, %s, %s, %s, %s, %s, %s, %s)'''
@@ -372,7 +371,7 @@ def appointment_chart():
 
     data = chart_data(query)
     
-    plt.title('Customers by Appointment Type')
+    plt.title('Appointment by Appointment Type')
     plt.bar(data.typeName, data.appointments)
     plt.xticks(rotation=75)
 
@@ -384,6 +383,26 @@ def appointment_chart():
     return plotUrl    
 
 
+"""
+Creates a chart for showing appointment by stylist.
+"""
+def by_user_chart():
+    query = f'''SELECT count(a.appointID) as appointments, u.lastName 
+    FROM Appointment as a, User as u 
+    WHERE a.userID = u.userId GROUP BY u.lastName'''
+
+    data = chart_data(query)
+    
+    plt.title('Appointment by stylist')
+    plt.bar(data.lastName, data.appointments)
+    plt.xticks(rotation=75)
+
+    img = BytesIO()
+
+    plt.savefig(img, format ='png')
+    plotUrl = base64.b64encode(img.getvalue()).decode('utf8')
+
+    return plotUrl
 
 
 
