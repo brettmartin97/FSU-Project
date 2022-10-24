@@ -155,7 +155,6 @@ def add_user():
         role = request.form['role']
         booth = request.form['booth']
         sql.insert_User(firstName, lname, email, phone, un, pwd, role, 0)
-        print(firstName, flush=True)
     if not auth_bool:
         return redirect(url_for('login'))
     else:
