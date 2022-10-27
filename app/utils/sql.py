@@ -216,25 +216,45 @@ def get_bookings(date):
 
 
 # Insert data into Schedule table.
-def insert_Role(rName,com,hRate):
+def insert_Role(rName,com,hRate, hGoal):
     
     conn = pymysql.connect(host='db',
                            user='root',
                            password="root",
                            db='fsu')
     cursor = conn.cursor(pymysql.cursors.DictCursor)
-    print(rName, com, hRate, flush=True)
+    print(rName, com, hRate, hGoal, flush=True)
 
-    query = f'''INSERT INTO Role(roleName, commission, hourlyRate) 
-            VALUES (%s, %s, %s)'''
+    query = f'''INSERT INTO Role(roleName, commission, hourlyRate, hasGoal) 
+            VALUES (%s, %s, %s, %s)'''
 
 
-    cursor.execute(query, (rName,com,hRate))
+    cursor.execute(query, (rName, com, hRate, hGoal))
 
     conn.commit()
 
     return True
 
+
+# Insert data into RoleGoal table.
+def insert_RoleGoal(rId, gName, val):
+    
+    conn = pymysql.connect(host='db',
+                           user='root',
+                           password="root",
+                           db='fsu')
+    cursor = conn.cursor(pymysql.cursors.DictCursor)
+    print(rId, gName, val, flush=True)
+
+    query = f'''INSERT INTO RoleGoal(roleId,goalName, value) 
+            VALUES (%s, %s, %s)'''
+
+
+    cursor.execute(query, (rId, gName, val))
+
+    conn.commit()
+
+    return True
 
 
 """
@@ -341,6 +361,38 @@ def insert_Customer(fName, lName, mail, pNumber):
 
 
     cursor.execute(query, (fName, lName, mail, pNumber))
+
+    conn.commit()
+
+    return True
+
+
+# Insert data into Appointment table.
+def insert_Appointment(uId, apptId, cusId, note, sTime):
+    
+    conn = pymysql.connect(host='db',
+                           user='root',
+                           password="root",
+                           db='fsu')
+    cursor = conn.cursor(pymysql.cursors.DictCursor)
+
+    query = f'SELECT roleId FROM User WHERE userId = {uId}'
+    cursor.execute(query)
+    temp = cursor.fetchone()
+    rId = temp['roleId']
+
+    query = f'SELECT totalPriceId FROM Pricing WHERE appointTypeId = {apptId} AND roleId = {rId}'
+    cursor.execute(query)
+    temp2 = cursor.fetchone()
+    tPId = temp2['totalPriceId']
+
+    print(uId, apptId, cusId, tPId, note, sTime, flush=True)
+
+    query = f'''INSERT INTO Appointment(userId, appointTypeId, customerId, totalPriceId, notes, startTime) 
+            VALUES (%s, %s, %s, %s, %s, %s)'''
+
+
+    cursor.execute(query, (uId, apptId, cusId, tPId, note, sTime))
 
     conn.commit()
 
