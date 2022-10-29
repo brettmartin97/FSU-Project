@@ -255,9 +255,8 @@ def analysis():
     else:
         firstname, lastname = sql.get_name(session['user'], app.logger)
         name = firstname + ' ' + lastname
-        aptChart = sql.appointment_chart()
-        styChart = sql.by_user_chart()
-        return render_template('analysis.html', error=error, aptChart=aptChart, styChart = styChart)
+        aptChart = sql.Appiont_by_date('2022-10-18', '2022-10-20')
+        return render_template('analysis.html', error=error, aptChart=aptChart)
 
 
 @app.route('/logout', methods=['GET'])

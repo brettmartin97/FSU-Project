@@ -223,7 +223,6 @@ def insert_Role(rName,com,hRate):
                            password="root",
                            db='fsu')
     cursor = conn.cursor(pymysql.cursors.DictCursor)
-    print(rName, com, hRate, flush=True)
 
     query = f'''INSERT INTO Role(roleName, commission, hourlyRate) 
             VALUES (%s, %s, %s)'''
@@ -270,7 +269,6 @@ def insert_Schedule(dId, uId, sTime, endTime):
                            password="root",
                            db='fsu')
     cursor = conn.cursor(pymysql.cursors.DictCursor)
-    print(dId, uId, sTime, endTime, flush=True)
 
     query = f'''INSERT INTO Schedule(dayId, userId, startTime, endTime) 
             VALUES (%s, %s, %s, %s)'''
@@ -291,7 +289,6 @@ def insert_AppointmentType(tName, des, dur, hHourlyRate):
                            password="root",
                            db='fsu')
     cursor = conn.cursor(pymysql.cursors.DictCursor)
-    print(tName, des, dur, hHourlyRate, flush=True)
 
     query = f'''INSERT INTO AppointmentType(typeName, description, duration, hasHourlyRate) 
             VALUES (%s, %s, %s, %s)'''
@@ -312,7 +309,6 @@ def insert_Pricing(aTypeId, rId, pri):
                            password="root",
                            db='fsu')
     cursor = conn.cursor(pymysql.cursors.DictCursor)
-    print(aTypeId, rId, pri, flush=True)
 
     query = f'''INSERT INTO Pricing(appointTypeId, roleId, price) 
             VALUES (%s,  %s, %s)'''
@@ -333,7 +329,6 @@ def insert_Customer(fName, lName, mail, pNumber):
                            password="root",
                            db='fsu')
     cursor = conn.cursor(pymysql.cursors.DictCursor)
-    print(fName, lName, mail, pNumber, flush=True)
 
     query = f'''INSERT INTO Customer(firstName, lastName, email, phoneNumber) 
             VALUES (%s, %s, %s, %s)'''
@@ -356,45 +351,14 @@ def chart_data(query):
                            password="root",
                            db='fsu')
 
-    cursor = conn.cursor(pymysql.cursors.DictCursor)
-
     df = pd.read_sql(query, conn)
 
     return df
-"""
-Builds the appointment Chart
-"""
-def appointment_chart():
-    query = f'''SELECT count(a.appointID) as appointments, at.typeName 
-    FROM Appointment as a, AppointmentType as at 
-    WHERE a.appointTypeId = at.appointTypeId GROUP BY typeName'''
 
-    data = chart_data(query)
-    
-    plt.title('Appointment by Appointment Type')
-    plt.bar(data.typeName, data.appointments)
-    plt.xticks(rotation=75)
-
-    img = BytesIO()
-
-    plt.savefig(img, format ='png')
-    plotUrl = base64.b64encode(img.getvalue()).decode('utf8')
-
-    return plotUrl    
-
-
-"""
-Creates a chart for showing appointment by stylist.
-"""
-def by_user_chart():
-    query = f'''SELECT count(a.appointID) as appointments, u.lastName 
-    FROM Appointment as a, User as u 
-    WHERE a.userID = u.userId GROUP BY u.lastName'''
-
-    data = chart_data(query)
-    
-    plt.title('Appointment by stylist')
-    plt.bar(data.lastName, data.appointments)
+def build_barchart(title, x, y):
+    plt.close
+    plt.title(title)
+    plt.bar(x, y)
     plt.xticks(rotation=75)
 
     img = BytesIO()
@@ -404,7 +368,72 @@ def by_user_chart():
 
     return plotUrl
 
+"""
+Gets the total number of appointments within the time frame.
+"""
+def appointment_total(startDay, endDay):
+    query = f'''SELECT count(appointId) as num
+    FROM Appointment
+    WHERE date(startTime) >= '{startDay}' and date(startTime) <= '{endDay}'
+    '''
+    
+    data = chart_data(query)
 
+    appoint = data['num']
+
+    return appoint[0]
+
+
+"""
+Creates a chart for showing appointment by date.
+"""
+def Appiont_by_date(startDay, endDay):
+    startDay = '2022-10-18'
+    endDay = '2022-10-20'
+    query = f'''SELECT date(startTime) as d, count(date(startTime)) as num 
+    FROM Appointment
+    WHERE date(startTime) >= '{startDay}' and date(startTime) <= '{endDay}' 
+    GROUP BY d 
+    ORDER BY d ASC'''
+
+    data = chart_data(query)
+    
+    plt.close()
+    plt.title('Appointment by date')
+    plt.bar(data.d, data.num)
+    plt.xticks(rotation=75)
+
+    img = BytesIO()
+
+    plt.savefig(img, format ='png')
+    plotUrl = base64.b64encode(img.getvalue()).decode('utf8')
+
+    return plotUrl
+
+"""
+Creates a chart for showing filtered appointment by user and grouped by date.
+"""
+def Appiont_by_user(Id, startDay, endDay):
+    query = f'''SELECT date(startTime) as d, count(date(startTime)) as num 
+    FROM Appointment
+    WHERE date(startTime) >= '{startDay}' and date(startTime) <= '{endDay}' and userId = {Id} 
+    GROUP BY d 
+    ORDER BY d ASC'''
+
+    data = chart_data(query)
+
+    #data['d'] = pd.to_datetime(data['d'], format = '%Y-%m-%d')
+    plt.close()
+    plt.title('Appointment by date')
+    plt.bar(data.d, data.num)
+    plt.xticks(rotation=75)
+
+    img = BytesIO()
+
+    plt.savefig(img, format ='png')
+    plotUrl = base64.b64encode(img.getvalue()).decode('utf8')
+
+    return plotUrl
 
 
 
