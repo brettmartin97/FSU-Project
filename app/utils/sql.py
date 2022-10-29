@@ -198,13 +198,15 @@ def get_schedule(weekday):
     return data
 
 
-def get_bookings(date):
+def get_bookings(date, logger):
     query = f'''SELECT userId, TIME_FORMAT(startTime, "%I:%i %p") as startTime,
     CASE 
     WHEN at.hasHourlyRate THEN TIME_FORMAT(TIME(DATE_ADD(a.startTime, INTERVAL at.duration HOUR)), "%I:%i %p") 
     ELSE TIME_FORMAT(TIME(DATE_ADD(a.startTime, INTERVAL at.duration MINUTE)), "%I:%i %p") 
     END as endTime, at.appointTypeId, at.description
     FROM Appointment a JOIN AppointmentType at on a.appointTypeId = at.appointTypeId where startTime between '{date} 00:00:00' and '{date} 23:59:59' ORDER by a.userID'''
+    
+    logger.info(query)
     conn = pymysql.connect(host='db',
                            user='root',
                            password="root",
@@ -212,6 +214,7 @@ def get_bookings(date):
     cursor = conn.cursor(pymysql.cursors.DictCursor)
     cursor.execute(query)
     data = cursor.fetchall()
+    logger.info(data)
     return data
 
 

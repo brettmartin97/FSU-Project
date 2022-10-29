@@ -9,3 +9,4 @@ def is_auth(session):
             return False
     except:
         return False
+
