@@ -8,7 +8,17 @@ CREATE TABLE if not exists `Role` (
   `roleName` varchar(50) NOT NULL,
   `commission` varchar(30),
   `hourlyRate` double,
+  `hasGoal` boolean NOT NULL,
   PRIMARY KEY (`roleId`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE if not exists `RoleGoal` (
+  `goalId` int unsigned NOT NULL AUTO_INCREMENT,
+  `roleId` int unsigned NOT NULL,
+  `goalName` varchar(80) NOT NULL,
+  `value` double,
+  PRIMARY KEY (`goalId`),
+  FOREIGN KEY (`roleId`) REFERENCES `Role` (`roleId`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE if not exists `User` (
@@ -81,20 +91,54 @@ CREATE TABLE if not exists `Appointment` (
 -- Inserting dummy test data:
 
 -- Insert data into the Role table.
-insert  into `Role`(`roleId`,`roleName`, `commission`, `hourlyRate`) values
-(1, 'Level 1 Stylist', '45%', 0),
-(2, 'Level 2 Stylist', '45%', 0),
-(3, 'Level 3 Stylist', '45%', 0),
-(4, 'Level 4 Stylist', '45%', 0),
-(5, 'Level 5 Stylist', '50%', 0),
-(6, 'Level 6 Stylist', '50%', 0),
-(7, 'Level 7 Stylist', '55%', 0),
-(8, 'Level 8 Stylist', '60%', 0),
-(9, 'Level 9 Stylist', '60%', 0),
-(10, 'Level 10 Stylist', '60%', 0),
-(11, 'Booth Stylist', '60%', 0),
-(12, 'Deskworker', 'N\A', 0),
-(13, 'Admin', 'N\A', 0);
+insert  into `Role`(`roleId`,`roleName`, `commission`, `hourlyRate`, `hasGoal`) values
+(1, 'Level 1 Stylist', '45%', 0, TRUE),
+(2, 'Level 2 Stylist', '45%', 0, TRUE),
+(3, 'Level 3 Stylist', '45%', 0, TRUE),
+(4, 'Level 4 Stylist', '45%', 0, TRUE),
+(5, 'Level 5 Stylist', '50%', 0, TRUE),
+(6, 'Level 6 Stylist', '50%', 0, TRUE),
+(7, 'Level 7 Stylist', '55%', 0, TRUE),
+(8, 'Level 8 Stylist', '60%', 0, TRUE),
+(9, 'Level 9 Stylist', '60%', 0, TRUE),
+(10, 'Level 10 Stylist', '60%', 0, TRUE),
+(11, 'Booth Stylist', '60%', 0, FALSE),
+(12, 'Deskworker', 'N\A', 0, FALSE),
+(13, 'Admin', 'N\A', 0, FALSE);
+
+
+-- Insert data into the RoleGoal table.
+insert  into `RoleGoal`(`goalId`, `roleId`,`goalName`, `value`) values
+(1, 1, 'Total money made per day:', 300.00),
+(2, 1, 'Percentage time booked:', 70.00),
+(3, 1, 'Percentage of clients that rebooked:', 60.00),
+(4, 2, 'Total money made per day:', 500.00),
+(5, 2, 'Percentage time booked:', 70.00),
+(6, 2, 'Percentage of clients that rebooked:', 60.00),
+(7, 3, 'Total money made per day:', 600.00),
+(8, 3, 'Percentage time booked:', 70.00),
+(9, 3, 'Percentage of clients that rebooked:', 60.00),
+(10, 4, 'Total money made per day:', 700.00),
+(11, 4, 'Percentage time booked:', 75.00),
+(12, 4, 'Percentage of clients that rebooked:', 65.00),
+(13, 5, 'Total money made per day:', 800.00),
+(14, 5, 'Percentage time booked:', 75.00),
+(15, 5, 'Percentage of clients that rebooked:', 65.00),
+(16, 6, 'Total money made per day:', 900.00),
+(17, 6, 'Percentage time booked:', 75.00),
+(18, 6, 'Percentage of clients that rebooked:', 65.00),
+(19, 7, 'Total money made per day:', 1000.00),
+(20, 7, 'Percentage time booked:', 80.00),
+(21, 7, 'Percentage of clients that rebooked:', 70.00),
+(22, 8, 'Total money made per day:', 1100.00),
+(23, 8, 'Percentage time booked:', 80.00),
+(24, 8, 'Percentage of clients that rebooked:', 70.00),
+(25, 9, 'Total money made per day:', 1200.00),
+(26, 9, 'Percentage time booked:', 80.00),
+(27, 9, 'Percentage of clients that rebooked:', 70.00),
+(28, 10, 'Total money made per day:', 1350.00),
+(29, 10, 'Percentage time booked:', 85.00),
+(30, 10, 'Percentage of clients that rebooked:', 75.00);
 
 
 -- Insert data into the User table.
