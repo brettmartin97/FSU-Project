@@ -32,6 +32,18 @@ def booth():
     else:
         return render_template('booth.html')
 
+@app.route('/setup', methods=['GET', 'POST'])
+def setup():
+    error=None
+    if len(sql.get_table("User")) > 0:
+        return redirect(url_for('login'))
+
+    with open("config/config.yml") as f:
+        config = yaml.safe_load(f)
+    where = f'username = "{user}"'
+    session['level'] = sql.get_attribute("roleId", "User", where)
+    len(get_table("User"))
+    return render_template('setup.html', error=error)
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -45,9 +57,12 @@ def login():
         if not valid:
             error = 'Invalid Credentials. Please try again.'
         else:
+            if len(sql.get_table("User")) == 0:
+                return redirect(url_for('setup'))
             session['auth'] = True
             session['user'] = user
             where = f'username = "{user}"'
+            app.logger.info(sql.get_attribute("roleId", "User", where))
             session['level'] = sql.get_attribute("roleId", "User", where)
             if session['level'] > 11:
                 return redirect(url_for('admin'))
@@ -219,7 +234,7 @@ def calendarDay(day,month,year):
             times = []
             formatedtime = date.strftime("%I:%M %p")
             times.append(formatedtime)
-            weekday = date.weekday()
+            weekday = date.weekday()+1
             day_sql = date.strftime('%Y-%m-%d')
             user_schedule = sql.get_schedule(weekday)
             app.logger.info(user_schedule)

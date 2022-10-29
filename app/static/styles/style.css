@@ -303,11 +303,11 @@ tbody {
   }
 
 tr.schedule-border {
-  height: 15%;
+  line-height: 15%;
 }
 tr.schedule-no-border {
   border: None;
-  height: 15%;
+  line-height: 15%;
 }
   tr:nth-child(even) {background-color: #f2f2f2;}
 
