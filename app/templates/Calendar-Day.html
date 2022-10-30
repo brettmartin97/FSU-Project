@@ -36,16 +36,30 @@
       <th>{{ i.firstName }} {{ i.lastName }}</th>
       {% endfor %}
     </tr>
-      {% for i in range(40) %}
-      {% if i % 4 == 0 %}
-        <tr class="schedule-border">
-        {% else %}
-        <tr class="schedule-no-border">
+      {% for i in range(96) %}
+       
+      {% if times[i] == opentime %}
+        <tr id="start">
+          {% if scroll %}
+          <script>
+              document.getElementById('{{ scroll }}').scrollIntoView();
+              // or
+              document.location.hash = '#' + '{{ scroll }}';
+          </script>
+          {% endif %}
+      {% elif i % 4 == 0  and datetime.strptime(times[i],"%I:%M %p")  >= datetime.strptime(opentime,"%I:%M %p") and datetime.strptime(times[i],"%I:%M %p")  <= datetime.strptime(closetime,"%I:%M %p")%}
+        <tr class="schedule-border"> 
+      {% elif datetime.strptime(times[i],"%I:%M %p")  >= datetime.strptime(opentime,"%I:%M %p") and datetime.strptime(times[i],"%I:%M %p")  <= datetime.strptime(closetime,"%I:%M %p")%}
+        <tr class="schedule-no-border"> 
+      {% elif i % 4 == 0 %}
+        <tr class="closed-schedule-border"> 
+      {% else %}
+        <tr class="closed-schedule-no-border">
       {% endif %}
       {% if i % 4 == 0 %}
         <td>{{ times[i] }}</td>
       {% else %}
-        <td></td>
+        <td> </td>
       {% endif %}
       {% set vars = namespace(booked=0) %}
       {% for u in user_schedule %}
@@ -63,7 +77,6 @@
             <td class=available></td>
         {% endif %}
         {% else %}
-
             <td class=unavailable></td>
         {% endif %}
       {% endfor %}

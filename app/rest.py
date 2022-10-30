@@ -224,7 +224,7 @@ def calendarDay(day,month,year):
     if not auth_bool:
         return redirect(url_for('login'))
     else:
-        date = datetime(int(year),int(month),int(day),9,0,0)
+        date = datetime(int(year),int(month),int(day),0,0,0)
         if request.method == 'POST':
             if request.form['submit_button'] == 'Month View':
                 return redirect(url_for('calendarMonth', month=month, year=year))
@@ -250,11 +250,19 @@ def calendarDay(day,month,year):
             app.logger.info(user_schedule)
             user_booked = sql.get_bookings(day_sql,app.logger)
             app.logger.info(user_booked)
-            for i in range(40): 
+            for i in range(96): 
                 date += timedelta(minutes=15)
                 formatedtime = date.strftime("%I:%M %p")
                 times.append(formatedtime)
-            return render_template('Calendar-Day.html', day=day, month=month, year=year, times=times,user_schedule=user_schedule, datetime=datetime, user_booked=user_booked, booked = 0)
+            with open("config/config.yml") as f:
+                config = yaml.safe_load(f)
+            opentime = config['site']['open']
+            closetime = config['site']['close']
+            app.logger.info(datetime.strptime(opentime,"%I:%M %p"))
+            app.logger.info(datetime.strptime(times[36],"%I:%M %p")) 
+            return render_template('Calendar-Day.html', day=day, month=month, year=year,
+            times=times,user_schedule=user_schedule, datetime=datetime, 
+            user_booked=user_booked, booked = 0, scroll = 'start', opentime = opentime, closetime = closetime)
 
 @app.route('/admin/calendar/<month>-<year>', methods=['GET', 'POST'])
 def calendarMonth(month, year):
