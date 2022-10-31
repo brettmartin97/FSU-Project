@@ -41,7 +41,7 @@ def setup():
     with open("config/config.yml") as f:
         config = yaml.safe_load(f)
     where = f'username = "{user}"'
-    session['level'] = sql.get_attribute("roleId", "User", where)
+    session['level'] = sql.get_attribute_single("roleId", "User", where)
     len(get_table("User"))
     return render_template('setup.html', error=error)
 
@@ -62,8 +62,8 @@ def login():
             session['auth'] = True
             session['user'] = user
             where = f'username = "{user}"'
-            app.logger.info(sql.get_attribute("roleId", "User", where))
-            session['level'] = sql.get_attribute("roleId", "User", where)
+            app.logger.info(sql.get_attribute_single("roleId", "User", where))
+            session['level'] = sql.get_attribute_single("roleId", "User", where)
             if session['level'] > 11:
                 return redirect(url_for('admin'))
             elif session['level'] == 11:
@@ -217,6 +217,36 @@ def calendar():
         day = dt.day
         return redirect(url_for('calendarDay', day=day, month=month, year=year))
 
+@app.route('/admin/calendar/<day>-<month>-<year>/book-<userid>', methods   =['GET', 'POST'])
+def book(day,month,year,userid):
+    auth_bool = utils.is_auth(session)
+    if not auth_bool:
+        return redirect(url_for('login'))
+    else:
+        date = f'{year}-{month}-{day}'
+        if request.method == 'POST':
+            if request.form['time']:
+                time = f'{request.form["time"]}'
+                app.logger.info(time)
+                time = datetime.strptime(time, '%I:%M %p').replace(year=int(year),month=int(month),day=int(day))
+                next_appt = sql.get_next_appt(date, time, userid)
+                if next_appt:
+                    next_appt = next_appt['startTime']
+                    app.logger.info(time)
+                    app.logger.info(next_appt)
+                    maxDur = next_appt - time
+                    maxDur = maxDur.total_seconds() / 60
+                    app.logger.info(maxDur)
+                    where = f'duration < {maxDur} AND hasHourlyRate = 0 ORDER BY 1'
+                    appointmentTypes = sql.get_all('typeName, description, duration', 'AppointmentType',where, app.logger)
+                    where = f'duration < {maxDur} AND hasHourlyRate = 1 ORDER BY 1'
+                    appointmentTypes += sql.get_all('typeName, description, duration', 'AppointmentType',where, app.logger)
+                else:
+                    appointmentTypes = sql.get_table('AppointmentType')
+                return render_template('booking.html', time=time.strftime("%I:%M %p"), day=day, month=month, year=year, appointmentTypes = appointmentTypes)
+            else:
+                return redirect(url_for('calendarDay', day=day, month=month, year=year))
+        
 @app.route('/admin/calendar/<day>-<month>-<year>', methods   =['GET', 'POST'])
 def calendarDay(day,month,year):
     error = None
