@@ -360,7 +360,15 @@ tr.closed-schedule-no-border {
     height:18px;
     border-style:groove;
   }
-
+  button.available {
+    background-color: #F8C8DC;
+    padding: 0px;
+    margin: 0px;
+    border: None
+  }
+  button.available:hover {
+    background-color: #f7a8c9;
+  }
   td.unavailable {
     background-color: #C9A9A6;
     border-style:groove;

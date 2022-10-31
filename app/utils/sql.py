@@ -54,7 +54,7 @@ def validate_password(user, password, log):
 
     return valid
 
-def get_attribute(field, table, where):
+def get_attribute_single(field, table, where):
     validationSQL = f'SELECT {field} FROM {table} WHERE {where}'
 
     conn = pymysql.connect(host='db',
@@ -72,6 +72,43 @@ def get_attribute(field, table, where):
 
     return attribute
 
+def get_attribute_all(field, table, where):
+    validationSQL = f'SELECT {field} FROM {table} WHERE {where}'
+
+    conn = pymysql.connect(host='db',
+        user='root', 
+        password = "root",
+        db='fsu')
+
+    cursor = conn.cursor(pymysql.cursors.DictCursor)
+    
+    cursor.execute(validationSQL)
+
+    attribute = cursor.fetchall()[field]
+
+    conn.close()
+
+    return attribute
+
+def get_all(field, table, where, logger):
+    validationSQL = f'SELECT {field} FROM {table} WHERE {where}'
+
+    logger.info(validationSQL)
+
+    conn = pymysql.connect(host='db',
+        user='root', 
+        password = "root",
+        db='fsu')
+
+    cursor = conn.cursor(pymysql.cursors.DictCursor)
+    
+    cursor.execute(validationSQL)
+
+    attribute = cursor.fetchall()
+
+    conn.close()
+
+    return attribute
 
 def get_name(user, log):
     query = f'SELECT firstName, lastName FROM User WHERE username = "{user}"'
@@ -214,7 +251,21 @@ def get_bookings(date, logger):
     cursor = conn.cursor(pymysql.cursors.DictCursor)
     cursor.execute(query)
     data = cursor.fetchall()
-    logger.info(data)
+    return data
+
+def get_next_appt(date, time, userid):
+    query = f'''SELECT userId, at.duration, a.startTime
+    FROM Appointment a JOIN AppointmentType at on a.appointTypeId = at.appointTypeId 
+    WHERE startTime > '{time}' and userId = {userid}
+    ORDER by a.startTime'''
+    
+    conn = pymysql.connect(host='db',
+                           user='root',
+                           password="root",
+                           db='fsu')
+    cursor = conn.cursor(pymysql.cursors.DictCursor)
+    cursor.execute(query)
+    data = cursor.fetchone()
     return data
 
 
