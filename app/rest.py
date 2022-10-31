@@ -82,7 +82,10 @@ def admin():
     else:
         firstname, lastname = sql.get_name(session['user'], app.logger)
         name = firstname + ' ' + lastname
-        return render_template('admin.html', error=error, name=name, title='admin')
+        with open("config/config.yml") as f:
+            config = yaml.safe_load(f)
+        company = config['site']['company']
+        return render_template('admin.html', error=error, name=name, company=company,  title='admin')
 
 
 @app.route('/admin/user_management', methods=['GET', 'POST'])
