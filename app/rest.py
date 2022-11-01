@@ -164,7 +164,7 @@ def add_user():
     error = None
     auth_bool = utils.is_auth(session)
     if request.method == 'POST':
-        firstName = request.form['firstname']
+        fName = request.form['firstname']
         lname = request.form['lastname']
         email = request.form['email']
         un = request.form['username']
@@ -172,7 +172,8 @@ def add_user():
         phone = request.form['phone']
         role = request.form['role']
         booth = request.form['booth']
-        sql.insert_User(firstName, lname, email, phone, un, pwd, role, 0)
+        sql.insert_User(fName, lname, email, phone, un, pwd, role, 0)
+        sql.set_password(un, pwd, app.logger)
     if not auth_bool:
         return redirect(url_for('login'))
     else:
@@ -342,7 +343,7 @@ def analysis():
     else:
         firstname, lastname = sql.get_name(session['user'], app.logger)
         name = firstname + ' ' + lastname
-        aptChart = sql.Appiont_by_date('2022-10-18', '2022-10-20')
+        aptChart = sql.appointType_man_chart('2022-10-17', '2022-10-21')
         return render_template('analysis.html', error=error, aptChart=aptChart)
 
 
