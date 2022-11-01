@@ -1,5 +1,6 @@
 site:
   demo: 1
   maxRole: 13
-  open: 9:00 A.M.
-  close: 6:00 P.M.
+  open: 09:00 AM
+  close: 06:00 PM
+  company: Testing
