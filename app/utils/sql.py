@@ -328,6 +328,10 @@ def get_bookings(date, logger):
     data = cursor.fetchall()
     return data
 
+
+"""
+Get the next appointment.
+"""
 def get_next_appt(date, time, userid):
     query = f'''SELECT userId, at.duration, a.startTime
     FROM Appointment a JOIN AppointmentType at on a.appointTypeId = at.appointTypeId 
