@@ -105,10 +105,8 @@ def get_attribute_all(field, table, where):
 """
 Get all data from a specified table.
 """
-def get_all(field, table, where, logger):
+def get_all(field, table, where):
     validationSQL = f'SELECT {field} FROM {table} WHERE {where}'
-
-    logger.info(validationSQL)
 
     conn = pymysql.connect(host='db',
         user='root', 

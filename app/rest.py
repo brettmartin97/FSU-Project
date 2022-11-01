@@ -220,6 +220,36 @@ def calendar():
         day = dt.day
         return redirect(url_for('calendarDay', day=day, month=month, year=year))
 
+@app.route('/admin/customer', methods   =['GET', 'POST'])
+def customer():
+    auth_bool = utils.is_auth(session)
+    if not auth_bool:
+        return redirect(url_for('login'))
+    if request.method == 'POST':
+        if request.form['submit'] == "New Customer":
+            return render_template('add_customer.html')
+        elif request.form['submit'] == "Existing Customer":
+            return render_template('search_customer.html')
+        elif request.form['submit'] == "Search Customer":
+            if request.form['search_type'] == 'Name':
+                name = request.form['search'].split()
+                if len(name) > 1:
+                    customer = sql.get_all('*','Customer',f'(firstName like "%{name[0]}%" and lastName like "%{name[-1]}%") or (firstName like "%{name[-1]}%" and lastName like "%{name[0]}%")')
+                elif len(name) == 1:
+                    customer = sql.get_all('*','Customer',f'(firstName like "%{name[0]}%") or (lastName like "%{name[0]}%")')
+                else:
+                    error = "Invalid Input, Please Input a Name"
+            elif request.form['search_type'] == 'Phone Number':
+                email = request.form['search']
+                customer = sql.get_all('*','Customer',f'email = {email}')
+            elif request.form['search_type'] == 'Email Address':
+                phone = request.form['search']
+                customer = sql.get_all('*','Customer',f'phoneNumber = {phone}')
+            app.logger.info(customer)
+            return render_template('search_customer.html', customers=customer)
+    else:
+        pass
+
 @app.route('/admin/calendar/<day>-<month>-<year>/book-<userid>', methods   =['GET', 'POST'])
 def book(day,month,year,userid):
     auth_bool = utils.is_auth(session)

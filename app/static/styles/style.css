@@ -279,6 +279,20 @@ header {
     color: #eaeaea;
 }
 
+button.left{
+  margin-left:10%;
+  margin-right:10%;
+  float:left;
+  width: 30%;
+}
+
+button.right{
+  margin-left:10%;
+  margin-right:10%;
+  float:right;
+  width: 45%;
+}
+
 div.day-grid form.days input button{
     height: 4vw;
   }

@@ -1,0 +1,43 @@
+
+    {% extends "base_templates/admin_base.html" %}
+
+    {% block content %}
+    <div class="container">
+      <h1>Add User</h1>
+    <form action= "" class="search_customer" method="POST"> 
+            <label for="search_type">Search customer by:</label>
+            <select id="search_type" name="search_type" required>
+                <option value="Name">Name</option>
+                <option value="Phone Number">Phone Number</option>
+                <option value="Email Address">Email Address</option>
+            </select>
+            <input type="search" name="search">
+        <input type="submit" name="submit" value="Search Customer" value="Search">
+        {% if customers %}
+        <table>
+            <thead>
+              <tr>
+                <th>First Name</th>
+                <th>Last Name</th>
+                <th>Email Address</th>
+                <th>Phone Number</th>
+                <th>Select</th>
+              </tr>
+          </thead>
+          <tbody>
+            {% for i in customers %}
+            <tr>
+              <td>{{ i.firstName }}</td>
+              <td>{{ i.lastName }}</td>
+              <td>{{ i.email }}</td>
+              <td>{{ i.phoneNumber }}</td>
+              <td><input type="Submit" value="Select"></td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+        {% endif %}
+    </form>
+</div>
+
+    {% endblock %}
