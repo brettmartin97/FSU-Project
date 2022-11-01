@@ -162,6 +162,16 @@ a + a {
     margin-left: 10px;
 }
 
+.header h1 {
+  text-align: left;
+  background: black;
+  color: white;
+  font-size: 28px;
+  font-style: normal;
+  font-family: 'Courier New', Courier, monospace;
+  text-decoration:none;
+}
+
 .header {
     padding: 30px;
     text-align: right;
