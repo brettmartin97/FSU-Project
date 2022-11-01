@@ -6,16 +6,23 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import base64
 
-def set_password(user, password):
+
+# hashes a new password and updates the database.
+def set_password(user, password, log):
     hash = hashing.Hash(password)
 
-    query = f'UPDATE User SET password = {hash} WHERE username = "{user}"'
+    query = f'UPDATE User SET password = "{hash}" WHERE username = "{user}"'
 
-    conn = mysql.connect()
+    conn = pymysql.connect(host='db',
+        user='root', 
+        password = "root",
+        db='fsu')
 
     cursor = conn.cursor(pymysql.cursors.DictCursor)
         
     cursor.execute(query)
+
+    conn.commit()
 
     conn.close()
 
@@ -138,17 +145,6 @@ def run_update(update):
 
     return True
 
-def chart_data():
-
-    conn = pymysql.connect(host='db',
-                           user='root',
-                           password="root",
-                           db='fsu')
-
-    cursor = conn.cursor(pymysql.cursors.DictCursor)
-
-    df = pd.read_sql(query, con)
-
 def get_table(table, order=1):
     query = f'SELECT * FROM {table} ORDER by {order}'
     conn = pymysql.connect(host='db',
@@ -159,7 +155,6 @@ def get_table(table, order=1):
     cursor.execute(query)
     data = cursor.fetchall()
     return data
-
 
 def get_customer(id):
     query = f'SELECT * FROM Customer WHERE customerId = {id}'
@@ -454,15 +449,7 @@ def Appiont_by_date(startDay, endDay):
 
     data = chart_data(query)
 
-    plt.close()
-    plt.title('Appointment by date')
-    plt.bar(data.d, data.num)
-    plt.xticks(rotation=75)
-
-    img = BytesIO()
-
-    plt.savefig(img, format ='png')
-    plotUrl = base64.b64encode(img.getvalue()).decode('utf8')
+    plotUrl = build_barchart('Appointment by date', data.d, data.num)
 
     return plotUrl
 
@@ -477,11 +464,22 @@ def Appiont_by_user(Id, startDay, endDay):
     ORDER BY d ASC'''
 
     data = chart_data(query)
+    plotUrl = build_barchart('Appointment by date', data.d, data.num)
 
-    #data['d'] = pd.to_datetime(data['d'], format = '%Y-%m-%d')
+    return plotUrl
+
+def user_pie_chart(Id, startDay, endDay):
+    query = f'''SELECT appointTypeId, count(appointId) as appoint
+    FROM Appointment
+    WHERE date(startTime) >= '{startDay}' and date(startTime) <= '{endDay}' and userId = {Id} 
+    GROUP BY appointtypeId 
+    '''
+
+    data = chart_data(query)
+
     plt.close()
     plt.title('Appointment by date')
-    plt.bar(data.d, data.num)
+    plt.pie(data.appoint)
     plt.xticks(rotation=75)
 
     img = BytesIO()
@@ -491,7 +489,26 @@ def Appiont_by_user(Id, startDay, endDay):
 
     return plotUrl
 
+def customer_chart(Id, startDay, endDay):
+    query = f'''SELECT date(startTime) as d, count(customerId) as cust
+    FROM Appointment
+    WHERE date(startTime) >= '{startDay}' and date(startTime) <= '{endDay}' and userId = {Id} 
+    GROUP BY date(startTime) 
+    '''
 
+    data = chart_data(query)
+
+    plt.close()
+    plt.title('Appointment by date')
+    plt.bar(data.d, data.cust)  
+    plt.xticks(rotation=75)
+
+    img = BytesIO()
+
+    plt.savefig(img, format ='png')
+    plotUrl = base64.b64encode(img.getvalue()).decode('utf8')
+
+    return plotUrl
 
 
 
