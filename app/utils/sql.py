@@ -82,7 +82,7 @@ def get_attribute_single(field, table, where):
     return attribute
 
 """
-Get all data from a specified table of a field.
+Get all data of a field from a specified table.
 """
 def get_attribute_all(field, table, where):
     validationSQL = f'SELECT {field} FROM {table} WHERE {where}'
