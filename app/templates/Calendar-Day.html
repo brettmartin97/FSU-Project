@@ -5,14 +5,30 @@
 <div class="container">
   <header>
     <form  action="" method="post">
-      <input type="hidden" name="submit_button" value="Prev Month">
+      <input type="hidden" name="submit_button" value="Prev Day">
       </input>
       <input type="hidden" name="date" value={{ date }}>
 
       <input class="btn btn-default" type="submit" value="&larr;"></input>
     </input>
     </form>
-  <h1>{{ month }} {{ year }}</h1>
+  <h1>{{ year }}-{{ month }}-{{ day }} </h1>
+  <form  action="" method="post">
+    <input type="hidden" name="submit_button" value="Next Day">
+    </input>
+    <input type="hidden" name="date" value={{ date }}>
+
+    <input class="btn btn-default" type="submit" value="&rarr;"></input>
+  </input>
+  </form>
+  <form  action="" method="post">
+    <input type="hidden" name="submit_button" value="Month View">
+    </input>
+    <input type="hidden" name="date" value={{ date }}>
+
+    <button class="btn btn-default" type="submit" value="Month View">Month View</button>
+  </input>
+  </form>
   </header>
   <table>
     <tr><th>Time</th>
@@ -20,18 +36,50 @@
       <th>{{ i.firstName }} {{ i.lastName }}</th>
       {% endfor %}
     </tr>
-      {% for i in range(40) %}
-      <tr>
-      <td>{{ times[i] }}</td>
-      {% for u in user_schedule %}
-        {% if datetime.strptime(times[i],"%I:%M %p")  >= datetime.strptime(u.startTime,"%I:%M %p") and datetime.strptime(times[i],"%I:%M %p")  <= datetime.strptime(u.endTime, "%I:%M %p") %}
-
-            <td class=available></td>
-          {% else %}
-
-            <td class=unavailable></td>
+      {% for i in range(96) %}
+       
+      {% if times[i] == opentime %}
+        <tr id="start">
+          {% if scroll %}
+          <script>
+              document.getElementById('{{ scroll }}').scrollIntoView();
+              // or
+              document.location.hash = '#' + '{{ scroll }}';
+          </script>
           {% endif %}
-        {% endfor %}
+      {% elif i % 4 == 0  and datetime.strptime(times[i],"%I:%M %p")  >= datetime.strptime(opentime,"%I:%M %p") and datetime.strptime(times[i],"%I:%M %p")  <= datetime.strptime(closetime,"%I:%M %p")%}
+        <tr class="schedule-border"> 
+      {% elif datetime.strptime(times[i],"%I:%M %p")  >= datetime.strptime(opentime,"%I:%M %p") and datetime.strptime(times[i],"%I:%M %p")  <= datetime.strptime(closetime,"%I:%M %p")%}
+        <tr class="schedule-no-border"> 
+      {% elif i % 4 == 0 %}
+        <tr class="closed-schedule-border"> 
+      {% else %}
+        <tr class="closed-schedule-no-border">
+      {% endif %}
+      {% if i % 4 == 0 %}
+        <td>{{ times[i] }}</td>
+      {% else %}
+        <td> </td>
+      {% endif %}
+      {% set vars = namespace(booked=0) %}
+      {% for u in user_schedule %}
+        {% set vars.booked = 0 %}
+        {% if datetime.strptime(times[i],"%I:%M %p")  >= datetime.strptime(u.startTime,"%I:%M %p") and datetime.strptime(times[i],"%I:%M %p")  <= datetime.strptime(u.endTime, "%I:%M %p") %}
+          {% for bookings in user_booked %}
+            {% if bookings.userId == u.userId and datetime.strptime(times[i],"%I:%M %p")  >= datetime.strptime(bookings.startTime,"%I:%M %p") and datetime.strptime(times[i],"%I:%M %p")  <= datetime.strptime(bookings.endTime, "%I:%M %p") %}
+             {% set vars.booked = 1 %}
+            {% endif %}
+  
+          {% endfor %}
+          {% if vars['booked'] == 1 %}
+            <td class=booked></td>
+          {% else %}
+          <form  method = "POST" action="/admin/calendar/{{ day }}-{{ month }}-{{ year }}/book-{{ u.userId }}"><td class=available><input type=hidden name=time id=time value='{{ times[i] }}''><button class=available type=submit></button></td></form>
+        {% endif %}
+        {% else %}
+            <td class=unavailable></td>
+        {% endif %}
+      {% endfor %}
     </tr>
     {% endfor %}
     </tr>

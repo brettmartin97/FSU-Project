@@ -295,12 +295,31 @@ tbody {
   text-indent: 5px;
 }
 
-  table, th, td {
+  table, th, tr, td {
     border: 1px solid;
     color: black;
     width: -webkit-fill-available;
     padding: 1px;
   }
+  tr.start {
+    height:20px;
+  }
+tr.schedule-border {
+  height:20px;
+}
+tr.schedule-no-border {
+  border: None;
+  height:20px;
+}
+tr.closed-schedule-border {
+  height:20px;
+  background-color: grey !important;;
+}
+tr.closed-schedule-no-border {
+  border: None;
+  height:20px;
+  background-color: grey !important;;
+}
 
   tr:nth-child(even) {background-color: #f2f2f2;}
 
@@ -336,10 +355,30 @@ tbody {
     background-color: #f2f2f2;
   }
 
-  .available {
-    background-color: green;
+  td.available {
+    background-color: #F8C8DC;
+    height:18px;
+    border-style:groove;
+  }
+  button.available {
+    background-color: #F8C8DC;
+    padding: 0px;
+    margin: 0px;
+    border: None
+  }
+  button.available:hover {
+    background-color: #f7a8c9;
+  }
+  td.unavailable {
+    background-color: #C9A9A6;
+    border-style:groove;
   }
 
-  .unavailable {
-    background-color: grey;
+  td.booked {
+    background-color: #FF69B4;
+    border-style:groove;
+  }
+
+  td.No-Line {
+    border-style:groove;
   }

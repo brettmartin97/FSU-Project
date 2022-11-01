@@ -9,7 +9,7 @@ import hashlib
 import utils.sql as sql
 import logging
 import utils.utils as utils
-import calendar
+import calendar as fcalendar
 from datetime import datetime, timedelta
 import yaml
 
@@ -32,6 +32,18 @@ def booth():
     else:
         return render_template('booth.html')
 
+@app.route('/setup', methods=['GET', 'POST'])
+def setup():
+    error=None
+    if len(sql.get_table("User")) > 0:
+        return redirect(url_for('login'))
+
+    with open("config/config.yml") as f:
+        config = yaml.safe_load(f)
+    where = f'username = "{user}"'
+    session['level'] = sql.get_attribute_single("roleId", "User", where)
+    len(get_table("User"))
+    return render_template('setup.html', error=error)
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -45,10 +57,13 @@ def login():
         if not valid:
             error = 'Invalid Credentials. Please try again.'
         else:
+            if len(sql.get_table("User")) == 0:
+                return redirect(url_for('setup'))
             session['auth'] = True
             session['user'] = user
             where = f'username = "{user}"'
-            session['level'] = sql.get_attribute("roleId", "User", where)
+            app.logger.info(sql.get_attribute_single("roleId", "User", where))
+            session['level'] = sql.get_attribute_single("roleId", "User", where)
             if session['level'] > 11:
                 return redirect(url_for('admin'))
             elif session['level'] == 11:
@@ -145,6 +160,16 @@ def site_management():
 def add_user():
     error = None
     auth_bool = utils.is_auth(session)
+    if request.method == 'POST':
+        firstName = request.form['firstname']
+        lname = request.form['lastname']
+        email = request.form['email']
+        un = request.form['username']
+        pwd = request.form['password']
+        phone = request.form['phone']
+        role = request.form['role']
+        booth = request.form['booth']
+        sql.insert_User(firstName, lname, email, phone, un, pwd, role, 0)
     if not auth_bool:
         return redirect(url_for('login'))
     else:
@@ -179,29 +204,98 @@ def add_appointment():
     else:
         return render_template('add_appointment.html', error=error)
 
-@app.route('/admin/calendar/<day>.<month>.<year>', methods   =['GET', 'POST'])
+@app.route('/admin/calendar/', methods=['GET', 'POST'])
+def calendar():
+    error = None
+    auth_bool = utils.is_auth(session)
+    if not auth_bool:
+        return redirect(url_for('login'))
+    else:
+        dt = datetime.today()
+        year = dt.year
+        month = dt.month
+        day = dt.day
+        return redirect(url_for('calendarDay', day=day, month=month, year=year))
+
+@app.route('/admin/calendar/<day>-<month>-<year>/book-<userid>', methods   =['GET', 'POST'])
+def book(day,month,year,userid):
+    auth_bool = utils.is_auth(session)
+    if not auth_bool:
+        return redirect(url_for('login'))
+    else:
+        date = f'{year}-{month}-{day}'
+        if request.method == 'POST':
+            if request.form['time']:
+                time = f'{request.form["time"]}'
+                app.logger.info(time)
+                time = datetime.strptime(time, '%I:%M %p').replace(year=int(year),month=int(month),day=int(day))
+                next_appt = sql.get_next_appt(date, time, userid)
+                if next_appt:
+                    next_appt = next_appt['startTime']
+                    app.logger.info(time)
+                    app.logger.info(next_appt)
+                    maxDur = next_appt - time
+                    maxDur = maxDur.total_seconds() / 60
+                    app.logger.info(maxDur)
+                    where = f'duration < {maxDur} AND hasHourlyRate = 0 ORDER BY 1'
+                    appointmentTypes = sql.get_all('typeName, description, duration', 'AppointmentType',where, app.logger)
+                    where = f'duration < {maxDur} AND hasHourlyRate = 1 ORDER BY 1'
+                    appointmentTypes += sql.get_all('typeName, description, duration', 'AppointmentType',where, app.logger)
+                else:
+                    appointmentTypes = sql.get_table('AppointmentType')
+                return render_template('booking.html', time=time.strftime("%I:%M %p"), day=day, month=month, year=year, appointmentTypes = appointmentTypes)
+            else:
+                return redirect(url_for('calendarDay', day=day, month=month, year=year))
+        
+@app.route('/admin/calendar/<day>-<month>-<year>', methods   =['GET', 'POST'])
 def calendarDay(day,month,year):
     error = None
     auth_bool = utils.is_auth(session)
     if not auth_bool:
         return redirect(url_for('login'))
     else:
-        times = []
-        date = datetime(int(year),int(month),int(day),9,0,0)
-        formateddate = date.strftime("%I:%M %p")
-        times.append(formateddate)
-        weekday = date.weekday()
-        user_schedule = sql.get_schedule(weekday)
-        
-        for i in range(40): 
-            date += timedelta(minutes=15)
-            formateddate = date.strftime("%I:%M %p")
-            times.append(formateddate)
-        
-        return render_template('Calendar-Day.html', day=day, month=month, year=year, times=times,user_schedule=user_schedule, datetime=datetime)
+        date = datetime(int(year),int(month),int(day),0,0,0)
+        if request.method == 'POST':
+            if request.form['submit_button'] == 'Month View':
+                return redirect(url_for('calendarMonth', month=month, year=year))
+            if request.form['submit_button'] == 'Next Day':
+                dt = date + timedelta(days=1)
+                year = dt.year
+                month = dt.month
+                day = dt.day
+                return redirect(url_for('calendarDay', day=day, month=month, year=year))
+            if request.form['submit_button'] == 'Prev Day':
+                dt = date - timedelta(days=1)
+                year = dt.year
+                month = dt.month
+                day = dt.day
+                return redirect(url_for('calendarDay', day=day, month=month, year=year))
+        else:
+            times = []
+            formatedtime = date.strftime("%I:%M %p")
+            times.append(formatedtime)
+            weekday = date.weekday()+1
+            day_sql = date.strftime('%Y-%m-%d')
+            user_schedule = sql.get_schedule(weekday)
+            app.logger.info(user_schedule)
+            user_booked = sql.get_bookings(day_sql,app.logger)
+            app.logger.info(user_booked)
+            for i in range(96): 
+                date += timedelta(minutes=15)
+                formatedtime = date.strftime("%I:%M %p")
+                times.append(formatedtime)
+            with open("config/config.yml") as f:
+                config = yaml.safe_load(f)
+            opentime = config['site']['open']
+            closetime = config['site']['close']
+            app.logger.info(datetime.strptime(opentime,"%I:%M %p"))
+            app.logger.info(datetime.strptime(times[36],"%I:%M %p")) 
+            return render_template('Calendar-Day.html', day=day, month=month, year=year,
+            times=times,user_schedule=user_schedule, datetime=datetime, 
+            user_booked=user_booked, booked = 0, scroll = 'start', opentime = opentime, closetime = closetime)
 
-@app.route('/admin/calendar', methods=['GET', 'POST'])
-def calendarmonth():
+@app.route('/admin/calendar/<month>-<year>', methods=['GET', 'POST'])
+def calendarMonth(month, year):
     error = None
     auth_bool = utils.is_auth(session)
     if not auth_bool:
@@ -211,7 +305,7 @@ def calendarmonth():
             if request.form['submit_button'] == 'Next Month':
                 date = request.form['date']
                 date = datetime.strptime(date, '%Y-%m-%d')
-                last = date.replace(day = calendar.monthrange(date.year, date.month)[1])
+                last = date.replace(day = fcalendar.monthrange(date.year, date.month)[1])
                 date = last + timedelta(days=1)
             elif request.form['submit_button'] == 'Prev Month':
                 date = request.form['date']
@@ -231,7 +325,7 @@ def calendarmonth():
         currentMonth = date.strftime("%B")
         currentYear = date.year
         firstDay = date.replace(day=1).weekday()
-        lastDay = date.replace(day = calendar.monthrange(date.year, date.month)[1]).strftime("%d")
+        lastDay = date.replace(day = fcalendar.monthrange(date.year, date.month)[1]).strftime("%d")
         return render_template('Calendar-Month.html', lastDay = int(lastDay), 
         firstDay=firstDay, day=currentDay, month=currentMonth, 
         year=currentYear, date=date, error=error)
@@ -245,8 +339,8 @@ def analysis():
     else:
         firstname, lastname = sql.get_name(session['user'], app.logger)
         name = firstname + ' ' + lastname
-        plotUrl = sql.appointment_chart()
-        return render_template('analysis.html', error=error, plot_url=plotUrl)
+        aptChart = sql.Appiont_by_date('2022-10-18', '2022-10-20')
+        return render_template('analysis.html', error=error, aptChart=aptChart)
 
 
 @app.route('/logout', methods=['GET'])
