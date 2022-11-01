@@ -81,44 +81,6 @@ def get_attribute_single(field, table, where):
 
     return attribute
 
-def get_attribute_all(field, table, where):
-    validationSQL = f'SELECT {field} FROM {table} WHERE {where}'
-
-    conn = pymysql.connect(host='db',
-        user='root', 
-        password = "root",
-        db='fsu')
-
-    cursor = conn.cursor(pymysql.cursors.DictCursor)
-    
-    cursor.execute(validationSQL)
-
-    attribute = cursor.fetchall()[field]
-
-    conn.close()
-
-    return attribute
-
-def get_all(field, table, where, logger):
-    validationSQL = f'SELECT {field} FROM {table} WHERE {where}'
-
-    logger.info(validationSQL)
-
-    conn = pymysql.connect(host='db',
-        user='root', 
-        password = "root",
-        db='fsu')
-
-    cursor = conn.cursor(pymysql.cursors.DictCursor)
-    
-    cursor.execute(validationSQL)
-
-    attribute = cursor.fetchall()
-
-    conn.close()
-
-    return attribute
-
 """
 Get all data from a specified table of a field.
 """
