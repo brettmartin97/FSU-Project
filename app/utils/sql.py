@@ -7,10 +7,6 @@ import matplotlib.pyplot as plt
 import base64
 
 
-
-# hashes a new password and updates the database.
-def set_password(user, password, log):
-=======
 """
 Hashes the password of the specified user.
 """
@@ -36,7 +32,7 @@ def set_password(user, password):
 """
 Validate that the password of a user is hashed.
 """
-def validate_password(user, password, log):
+def validate_password(user, password):
     validationSQL = f'SELECT password FROM User WHERE username = "{user}"'
 
     conn = pymysql.connect(host='db',
@@ -49,7 +45,7 @@ def validate_password(user, password, log):
     cursor.execute(validationSQL)
 
     hashed = cursor.fetchone()['password']
-    log.info(hashed)
+    
     salt = hashing.getSalt(hashed)
 
     hash = hashing.Hash(password, salt)
