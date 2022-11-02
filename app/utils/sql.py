@@ -248,8 +248,8 @@ def get_user(id):
 """
 Gets the role assigned to a user.
 """
-def get_user_role():
-    query = f'SELECT * FROM User as u, Role as r WHERE u.roleId = r.roleId'
+def get_user_role(id):
+    query = f'SELECT * FROM User as u, Role as r WHERE u.roleId = r.roleId and userId = {id}'
 
     return run_query(query)
 

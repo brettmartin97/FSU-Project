@@ -263,6 +263,12 @@ header {
       }
   }
 
+
+  h3 .error {
+    color: red;
+    font-size: 14px;
+    font-style: italic;
+  }
   button {
     display: flex;
     align-items: center;
