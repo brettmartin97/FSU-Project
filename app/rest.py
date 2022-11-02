@@ -120,6 +120,7 @@ def edit_user(userId):
         if request.method == 'POST':
             user = sql.get_user(userId)[0]
             app.logger.info(user)
+            app.logger.info(request.form)
             if request.form['firstName'] != user['firstName'] :
                 sql.update_user(userId,f"firstName = '{request.form['firstName']}'")
             if request.form['lastName'] != user['lastName']:
@@ -131,9 +132,10 @@ def edit_user(userId):
             if request.form['roleId'] != user['roleId']:
                 app.logger.info(f"roleId = {request.form['roleId']}")
                 sql.update_user(userId,f"roleId = {request.form['roleId']}")
-            if request.form.get('management') != user['management']:
-                app.logger.info(f"management = {request.form['management']}")
-                sql.update_user(userId,f"management = {request.form['management']}")
+            if request.form.get('management'):
+                if request.form['management'] != user['management']:
+                    app.logger.info(f"management = {request.form['management']}")
+                    sql.update_user(userId,f"management = {request.form['management']}")
             return redirect(url_for('edit_user', userId=user['userId']))
         else:
             user = sql.get_user(userId)
