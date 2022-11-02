@@ -228,9 +228,7 @@ def get_table(table, order=1):
     cursor.execute(query)
     data = cursor.fetchall()
     return data
-
-
-=======
+    
 """
 Get data of specific customer.
 """
