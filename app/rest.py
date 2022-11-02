@@ -53,7 +53,7 @@ def login():
         user = request.form['username']
         password = request.form['password']
         
-        valid = sql.validate_password(user, password, app.logger)
+        valid = sql.validate_password(user, password)
 
         if not valid:
             error = 'Invalid Credentials. Please try again.'
@@ -191,25 +191,27 @@ def add_user():
             lastName = request.form['lastname']
             email = request.form['email']
             un = request.form['username']
-            if not sql.get_single_user_info(un):
+            if sql.get_single_user_info(un):
                 error = "Username taken, please choose a  different one"
             pwd = hashing.Hash(request.form['password'])
             phone = request.form['phone']
             phone = re.sub('\D', '', phone)
             role = request.form['stylistlevel']
+            if not role.isnumeric():
+                error = "Please select a Stylist Level"
             booth = request.form['booth']
             if request.form.get('management'):
                 management = 1
             else:
                 management = 0
             if error:
-             return render_template('add_user-ph.html', error=error, maxRole=maxRole, firstName=firstName, lastName=lastName, 
+             return render_template('add_user_ph.html', error=error, maxRole=maxRole, firstName=firstName, lastName=lastName, 
              email=email, un=un, pwd=pwd, phone=phone, role=role, booth=booth, management=management)
             else:
                 sql.insert_User(firstName, lastName, email, phone, un, pwd, role, management)
             return redirect(url_for('user_management'))
         return render_template('add_user.html', error=error, maxRole=maxRole)
-        
+
 @app.route('/admin/customer', methods   =['GET', 'POST'])
 def customer():
     auth_bool = utils.is_auth(session)
@@ -304,10 +306,10 @@ def book(day,month,year,userid):
                     maxDur = maxDur.total_seconds() / 60
                     app.logger.info(maxDur)
                     where = f'duration < {maxDur} AND hasHourlyRate = 0 ORDER BY 1'
-                    appointmentTypes = sql.get_all('typeName, description, duration', 'AppointmentType',where, app.logger)
+                    appointmentTypes = sql.get_all('typeName, description, duration', 'AppointmentType',where)
                     maxDur = maxDur.total_seconds() / 60
                     where = f'duration < {maxDur} AND hasHourlyRate = 1 ORDER BY 1'
-                    appointmentTypes += sql.get_all('typeName, description, duration', 'AppointmentType',where, app.logger)
+                    appointmentTypes += sql.get_all('typeName, description, duration', 'AppointmentType',where)
                 else:
                     appointmentTypes = sql.get_table('AppointmentType')
                 return render_template('booking.html', time=time.strftime("%I:%M %p"), day=day, month=month, year=year, appointmentTypes = appointmentTypes)
