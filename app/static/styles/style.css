@@ -263,6 +263,12 @@ header {
       }
   }
 
+
+  h3 .error {
+    color: red;
+    font-size: 14px;
+    font-style: italic;
+  }
   button {
     display: flex;
     align-items: center;
@@ -277,6 +283,20 @@ header {
   button:hover {
     background-color: grey;
     color: #eaeaea;
+}
+
+button.left{
+  margin-left:10%;
+  margin-right:10%;
+  float:left;
+  width: 30%;
+}
+
+button.right{
+  margin-left:10%;
+  margin-right:10%;
+  float:right;
+  width: 45%;
 }
 
 div.day-grid form.days input button{

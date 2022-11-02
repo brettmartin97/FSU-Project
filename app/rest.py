@@ -5,13 +5,14 @@ from db import mysql
 from flask import jsonify, Flask, render_template, redirect, url_for, request, session
 from flask_session import Session
 import os
-import hashlib
+import utils.hashing as hashing
 import utils.sql as sql
 import logging
 import utils.utils as utils
 import calendar as fcalendar
 from datetime import datetime, timedelta
 import yaml
+import re
 
 @app.route('/')
 def home():
@@ -95,6 +96,9 @@ def user_management():
     if not auth_bool:
         return redirect(url_for('login'))
     else:
+        with open("config/config.yml") as f:
+            config = yaml.safe_load(f)
+        company = config['site']['company']
         if request.method == 'POST':
             userId = request.form['userId']
             return redirect(url_for('edit_user',  userId=userId))
@@ -110,9 +114,13 @@ def edit_user(userId):
     if not auth_bool:
         return redirect(url_for('login'))
     else:
+        with open("config/config.yml") as f:
+            config = yaml.safe_load(f)
+        company = config['site']['company']
         if request.method == 'POST':
-            user = sql.get_user(userId)
+            user = sql.get_user(userId)[0]
             app.logger.info(user)
+            app.logger.info(request.form)
             if request.form['firstName'] != user['firstName'] :
                 sql.update_user(userId,f"firstName = '{request.form['firstName']}'")
             if request.form['lastName'] != user['lastName']:
@@ -124,13 +132,18 @@ def edit_user(userId):
             if request.form['roleId'] != user['roleId']:
                 app.logger.info(f"roleId = {request.form['roleId']}")
                 sql.update_user(userId,f"roleId = {request.form['roleId']}")
+            if request.form.get('management'):
+                if request.form['management'] != user['management']:
+                    app.logger.info(f"management = {request.form['management']}")
+                    sql.update_user(userId,f"management = {request.form['management']}")
             return redirect(url_for('edit_user', userId=user['userId']))
         else:
             user = sql.get_user(userId)
             with open("config/config.yml") as f:
                 config = yaml.safe_load(f)
             maxRole = config['site']['maxRole']
-            return render_template('edit_user.html', error=error, user=user, maxRole=maxRole)
+            app.logger.info(user)
+            return render_template('edit_user.html', error=error, user=user[0], maxRole=maxRole)
 
 @app.route('/admin/site_management', methods=['GET', 'POST'])
 def site_management():
@@ -139,6 +152,9 @@ def site_management():
     if not auth_bool:
         return redirect(url_for('login'))
     else:
+        with open("config/config.yml") as f:
+            config = yaml.safe_load(f)
+        company = config['site']['company']
         if request.method == 'POST':
             with open("config/config.yml") as f:
                 config = yaml.safe_load(f)
@@ -163,21 +179,36 @@ def site_management():
 def add_user():
     error = None
     auth_bool = utils.is_auth(session)
-    if request.method == 'POST':
-        fName = request.form['firstname']
-        lname = request.form['lastname']
-        email = request.form['email']
-        un = request.form['username']
-        pwd = request.form['password']
-        phone = request.form['phone']
-        role = request.form['role']
-        booth = request.form['booth']
-        sql.insert_User(fName, lname, email, phone, un, pwd, role, 0)
-        sql.set_password(un, pwd, app.logger)
     if not auth_bool:
         return redirect(url_for('login'))
     else:
-        return render_template('add_user.html', error=error)
+        with open("config/config.yml") as f:
+            config = yaml.safe_load(f)
+        maxRole = config['site']['maxRole']
+        if request.method == 'POST':
+            app.logger.info(request.form)
+            firstName = request.form['firstname']
+            lastName = request.form['lastname']
+            email = request.form['email']
+            un = request.form['username']
+            if not sql.get_single_user_info(un):
+                error = "Username taken, please choose a  different one"
+            pwd = hashing.Hash(request.form['password'])
+            phone = request.form['phone']
+            phone = re.sub('\D', '', phone)
+            role = request.form['stylistlevel']
+            booth = request.form['booth']
+            if request.form.get('management'):
+                management = 1
+            else:
+                management = 0
+            if error:
+             return render_template('add_user-ph.html', error=error, maxRole=maxRole, firstName=firstName, lastName=lastName, 
+             email=email, un=un, pwd=pwd, phone=phone, role=role, booth=booth, management=management)
+            else:
+                sql.insert_User(firstName, lastName, email, phone, un, pwd, role, management)
+            return redirect(url_for('user_management'))
+        return render_template('add_user.html', error=error, maxRole=maxRole)
 
 @app.route('/admin/customer_management', methods=['GET', 'POST'])
 def customers():
@@ -219,7 +250,37 @@ def calendar():
         year = dt.year
         month = dt.month
         day = dt.day
-        return redirect(url_for('calendarDay', day=day, month=month, year=year))
+        return redirect(url_for('calendarDay', error=error, day=day, month=month, year=year))
+
+@app.route('/admin/customer', methods   =['GET', 'POST'])
+def customer():
+    auth_bool = utils.is_auth(session)
+    if not auth_bool:
+        return redirect(url_for('login'))
+    if request.method == 'POST':
+        if request.form['submit'] == "New Customer":
+            return render_template('add_customer.html')
+        elif request.form['submit'] == "Existing Customer":
+            return render_template('search_customer.html')
+        elif request.form['submit'] == "Search Customer":
+            if request.form['search_type'] == 'Name':
+                name = request.form['search'].split()
+                if len(name) > 1:
+                    customer = sql.get_all('*','Customer',f'(firstName like "%{name[0]}%" and lastName like "%{name[-1]}%") or (firstName like "%{name[-1]}%" and lastName like "%{name[0]}%")')
+                elif len(name) == 1:
+                    customer = sql.get_all('*','Customer',f'(firstName like "%{name[0]}%") or (lastName like "%{name[0]}%")')
+                else:
+                    error = "Invalid Input, Please Input a Name"
+            elif request.form['search_type'] == 'Phone Number':
+                email = request.form['search']
+                customer = sql.get_all('*','Customer',f'email = {email}')
+            elif request.form['search_type'] == 'Email Address':
+                phone = request.form['search']
+                customer = sql.get_all('*','Customer',f'phoneNumber = {phone}')
+            app.logger.info(customer)
+            return render_template('search_customer.html', customers=customer)
+    else:
+        pass
 
 @app.route('/admin/calendar/<day>-<month>-<year>/book-<userid>', methods   =['GET', 'POST'])
 def book(day,month,year,userid):
@@ -243,6 +304,7 @@ def book(day,month,year,userid):
                     app.logger.info(maxDur)
                     where = f'duration < {maxDur} AND hasHourlyRate = 0 ORDER BY 1'
                     appointmentTypes = sql.get_all('typeName, description, duration', 'AppointmentType',where, app.logger)
+                    maxDur = maxDur.total_seconds() / 60
                     where = f'duration < {maxDur} AND hasHourlyRate = 1 ORDER BY 1'
                     appointmentTypes += sql.get_all('typeName, description, duration', 'AppointmentType',where, app.logger)
                 else:

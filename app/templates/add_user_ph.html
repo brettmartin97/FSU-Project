@@ -1,0 +1,37 @@
+
+    {% extends "base_templates/admin_base.html" %}
+
+    {% block content %}
+    <div class="container"></div>
+      <h1>Add User</h1>
+    <form class="add_user" method="POST"> 
+        {%if error%}<h3 class="error">Error: {{ error }}</h3>{%endif%}
+        <div class="halfleft">
+          <input type="text" id="fname" name="firstname" value="{{ firstName }}" required>
+          <input type="email" id="email" name="email" value="{{ email }}" required>
+          <input type="text" id="username" name="username" value="{{ un }}" required>
+          <input type="password" id="password" name="password" value="{{ pwd }}" required>
+          <label for="stylistlevel">Select Stylist Level:</label>
+          <select id="stylistlevel" name="stylistlevel" required>
+            <option value="N/A">N/A</option>
+            {% for i in range(1,maxRole+1) %}
+                <option value="{{ i }}">{{ i }}</option>
+            {% endfor %}
+        </select>
+        </div>
+         <div class="halfright">
+            <input type="text" id="lname" name="lastname" value="{{ lastName }}" required>
+            <input type="text" id="phone" pattern="[0-9]{9}" name="phone" value="{{ phone }}" required>
+            <input type="text" id="booth" name="booth" value="{{ booth }}">
+            {% if management %}
+            <input type="checkbox" id = "Management" name = "Management" value="Management" checked>
+            {% else %}
+            <input type="checkbox" id = "Management" name = "Management" value="Management" >
+            {% endif %}
+            <label for="Management">Management:</label>
+        </div>
+        <input type="submit" value="Submit">
+    </form>
+</div>
+
+    {% endblock %}

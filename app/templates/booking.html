@@ -3,7 +3,7 @@
 {% block content %}
 
 <div class=book><h1>Booking Appointment At {{ time }}</h1>
-  <form action="/admin/Customer" method="POST">
+  <form action="/admin/customer" method="POST">
     <label for="Booking Type" >Booking Type</label>
      <select name="Booking" id="Booking" required>
          {% for i in appointmentTypes %}
@@ -11,8 +11,8 @@
         {% endfor %}
       </select>
         <p></p>
-        <button type="submit" value="New Customer">New Customer</button>  
-        <button type="submit" value="Existing Customer">Existing Customer</button>
+        <button class="left" type="submit" id="submit" name="submit" value="New Customer">New Customer</button>  
+        <button class="left" ype="submit" id="submit"  name="submit" value="Existing Customer">Existing Customer</button>
   </form>
 </div>
 

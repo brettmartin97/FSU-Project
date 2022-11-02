@@ -9,42 +9,21 @@
           <input type="text" id="fname" name="firstname" placeholder="First Name" required>
           <input type="email" id="email" name="email" placeholder="Email Address" required>
           <input type="text" id="username" name="username" placeholder="User Name" required>
-          <input type="password" id="password" name="password" placeholder="Password" required>
+          <input type="password" id="password" name="password" placeholder="Password" minlength="8" required>
           <label for="stylistlevel">Select Stylist Level:</label>
           <select id="stylistlevel" name="stylistlevel" required>
             <option value="N/A">N/A</option>
-            <option value="1">1</option>
-            <option value="2">2</option>
-            <option value="3">3</option>
-            <option value="4">4</option>
-            <option value="5">5</option>
-            <option value="6">6</option>
-            <option value="7">7</option>
-            <option value="8">8</option>
-            <option value="9">9</option>
-            <option value="10">10</option>
+            {% for i in range(1,maxRole+1) %}
+                <option value="{{ i }}">{{ i }}</option>
+            {% endfor %}
         </select>
         </div>
          <div class="halfright">
             <input type="text" id="lname" name="lastname" placeholder="Last Name" required>
-            <input type="text" id="phone" name="phone" placeholder="Phone Number" required>
-            <label for="role">Role:</label>
-            <select id="role" name="role" required>
-                <option value="1">1</option>
-                <option value="2">2</option>
-                <option value="3">3</option>
-                <option value="4">4</option>
-                <option value="5">5</option>
-                <option value="6">6</option>
-                <option value="7">7</option>
-                <option value="8">8</option>
-                <option value="9">9</option>
-                <option value="10">10</option>
-                <option value="11">11</option>
-                <option value="12">12</option>
-                <option value="13">13</option>
-            </select>
+            <input type="text" id="phone" pattern="[0-9]{9}" name="phone" placeholder="Phone Number" required>
             <input type="text" id="booth" name="booth" placeholder="Booth">
+            <input type="checkbox" id = "Management" name = "Management" value="Management" >
+            <label for="Management">Management:</label>
         </div>
         <input type="submit" value="Submit">
     </form>

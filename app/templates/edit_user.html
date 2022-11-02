@@ -1,28 +1,35 @@
-
     {% extends "base_templates/admin_base.html" %}
 
     {% block content %}
-    <div class="container">
-      <h1>Add User</h1>
-    <form class="add_user" method="POST">
+    <div class="container"></div>
+      <h1>Edit User</h1>
+    <form class="add_user" method="POST"> 
+        {%if error%}<h3 class="error">Error: {{ error }}</h3>{%endif%}
         <div class="halfleft">
-          <input type="text" id="firstName" name="firstName" value="{{ user.firstName }}" required>
-          <input type="email" id="email" name="email" value="{{ user.email }}" required>
-          <label for="stylistlevel">Select Stylist Level:</label>
+          <input type="text" id="firstName" name="firstName" value="{{ user['firstName'] }}" required>
+          <input type="email" id="email" name="email" value={{ user.email }} required>
+          <label for="roleId">Select Stylist Level:</label>
           <select id="roleId" name="roleId" required>
             <option value="N/A">N/A</option>
             {% for i in range(1,maxRole+1) %}
-              {% if i == user.roleId %}
-              <option value={{ i }} selected>{{ i }}</option>
-              {% else %}
-            <option value={{ i }}>{{ i }}</option>
-              {% endif %}
+                {% if i == user.roleId %}
+                  <option value="{{ i }}" selected>{{ i }}</option>
+                % else %
+                  <option value="{{ i }}">{{ i }}</option>
+                {% endif %}
             {% endfor %}
         </select>
         </div>
          <div class="halfright">
-            <input type="text" id="lastName" name="lastName" value="{{ user.lastName }}" required>
-            <input type="text" id="phone" name="phone" value="{{ user.phone }}" required>
+            <input type="text" id="lastName" name="lastName" value={{ user.lastName }} required>
+            <input type="text" pattern="[0-9]{7,10}" id="phone" name="phone" value={{ user.phone }} required>
+            <input type="text" id="booth" name="booth" value={{ user.booth }}>
+            {% if user.management %}
+            <input type="checkbox" id = "Management" name = "Management" value="Management" checked>
+            {% else %}
+            <input type="checkbox" id = "Management" name = "Management" value="Management" >
+            {% endif %}
+            <label for="Management">Management:</label>
         </div>
         <input type="submit" value="Submit">
     </form>
