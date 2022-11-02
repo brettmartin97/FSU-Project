@@ -6,19 +6,30 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import base64
 
+
+
+# hashes a new password and updates the database.
+def set_password(user, password, log):
+=======
 """
 Hashes the password of the specified user.
 """
 def set_password(user, password):
+
     hash = hashing.Hash(password)
 
-    query = f'UPDATE User SET password = {hash} WHERE username = "{user}"'
+    query = f'UPDATE User SET password = "{hash}" WHERE username = "{user}"'
 
-    conn = mysql.connect()
+    conn = pymysql.connect(host='db',
+        user='root', 
+        password = "root",
+        db='fsu')
 
     cursor = conn.cursor(pymysql.cursors.DictCursor)
         
     cursor.execute(query)
+
+    conn.commit()
 
     conn.close()
 
@@ -201,19 +212,8 @@ def run_update(update):
 
     return True
 
-"""
-Called by other functions to chart data.
-"""
-def chart_data():
 
-    conn = pymysql.connect(host='db',
-                           user='root',
-                           password="root",
-                           db='fsu')
 
-    cursor = conn.cursor(pymysql.cursors.DictCursor)
-
-    df = pd.read_sql(query, con)
 
 """
 Gets all data from a table in specified order.
@@ -229,6 +229,8 @@ def get_table(table, order=1):
     data = cursor.fetchall()
     return data
 
+
+=======
 """
 Get data of specific customer.
 """
@@ -568,9 +570,8 @@ def insert_Appointment(uId, apptId, cusId, note, sTime):
     return True
 
 
-"""
-Gets the data for the charts using the SQL
-"""
+
+#Gets the data for the charts using the SQL
 def chart_data(query):
 
     conn = pymysql.connect(host='db',
@@ -582,6 +583,7 @@ def chart_data(query):
 
     return df
 
+#bar chart
 def build_barchart(title, x, y):
     plt.close
     plt.title(title)
@@ -594,10 +596,23 @@ def build_barchart(title, x, y):
     plotUrl = base64.b64encode(img.getvalue()).decode('utf8')
 
     return plotUrl
+    
+#pie chart
+def build_piechart(title, x):
+    plt.close
+    plt.title(title)
+    plt.pie(x)
+    plt.xticks(rotation=75)
 
-"""
-Gets the total number of appointments within the time frame.
-"""
+    img = BytesIO()
+
+    plt.savefig(img, format ='png')
+    plotUrl = base64.b64encode(img.getvalue()).decode('utf8')
+
+    return plotUrl
+
+
+#Gets the total number of appointments within the time frame.
 def appointment_total(startDay, endDay):
     query = f'''SELECT count(appointId) as num
     FROM Appointment
@@ -611,9 +626,8 @@ def appointment_total(startDay, endDay):
     return appoint[0]
 
 
-"""
-Creates a chart for showing appointment by date.
-"""
+
+#Creates a chart for showing appointment by date.
 def Appiont_by_date(startDay, endDay):
     startDay = '2022-10-18'
     endDay = '2022-10-20'
@@ -625,21 +639,13 @@ def Appiont_by_date(startDay, endDay):
 
     data = chart_data(query)
 
-    plt.close()
-    plt.title('Appointment by date')
-    plt.bar(data.d, data.num)
-    plt.xticks(rotation=75)
-
-    img = BytesIO()
-
-    plt.savefig(img, format ='png')
-    plotUrl = base64.b64encode(img.getvalue()).decode('utf8')
+    plotUrl = build_barchart('Appointment by date', data.d, data.num)
 
     return plotUrl
 
-"""
-Creates a chart for showing filtered appointment by user and grouped by date.
-"""
+
+
+#Creates a chart for showing filtered appointment by user and grouped by date.
 def Appiont_by_user(Id, startDay, endDay):
     query = f'''SELECT date(startTime) as d, count(date(startTime)) as num 
     FROM Appointment
@@ -648,21 +654,49 @@ def Appiont_by_user(Id, startDay, endDay):
     ORDER BY d ASC'''
 
     data = chart_data(query)
-
-    #data['d'] = pd.to_datetime(data['d'], format = '%Y-%m-%d')
-    plt.close()
-    plt.title('Appointment by date')
-    plt.bar(data.d, data.num)
-    plt.xticks(rotation=75)
-
-    img = BytesIO()
-
-    plt.savefig(img, format ='png')
-    plotUrl = base64.b64encode(img.getvalue()).decode('utf8')
+    plotUrl = build_barchart('Appointment by date', data.d, data.num)
 
     return plotUrl
 
 
+#Pie chart for appointType
+def user_pie_chart(Id, startDay, endDay):
+    query = f'''SELECT appointTypeId, count(appointId) as appoint
+    FROM Appointment
+    WHERE date(startTime) >= '{startDay}' and date(startTime) <= '{endDay}' and userId = {Id} 
+    GROUP BY appointtypeId 
+    '''
+    data = chart_data(query)
+
+    plotUrl = build_piechart("AppointmentTypes", data.appoint)
+
+    return plotUrl
+
+#pie chart that shows appointment type for managment.
+def appointType_man_chart(startDay, endDay):
+    query = f'''SELECT appointTypeId, count(appointId) as appoint
+    FROM Appointment
+    WHERE date(startTime) >= '{startDay}' and date(startTime) <= '{endDay}'
+    GROUP BY appointtypeId 
+    '''
+
+    data = chart_data(query)
+
+    plotUrl = build_piechart('Appointment Types', data.appoint)
+
+    return plotUrl
+
+def customer_chart(Id, startDay, endDay):
+    query = f'''SELECT date(startTime) as d, count(customerId) as cust
+    FROM Appointment
+    WHERE date(startTime) >= '{startDay}' and date(startTime) <= '{endDay}' and userId = {Id} 
+    GROUP BY date(startTime) 
+    '''
+
+    data = chart_data(query)
+    plotUrl = build_barchart('Customers by date', data.d, data.cust)
+
+    return plotUrl
 
 
 
