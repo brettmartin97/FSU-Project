@@ -2,7 +2,7 @@
 
 {% block content %}
 <div class="container">
-  <h1>User Managment </h1>
+  <h1>User Management </h1>
       <a href="/admin/user_management/add_user">
       <button type="submit">Add User</button>
     </a>
@@ -14,8 +14,8 @@
           <th>Last Name</th>
           <th>Email Address</th>
           <th>Phone Number</th>
-          <th>Permission Level</th>
           <th>Stylist Level</th>
+          <th>Management</th>
           <th>Edit</th>
         </tr>
       </thead>
@@ -28,7 +28,7 @@
           <td>{{ i.email }}</td>
           <td>{{ i.phone }}</td>
           <td>{{ i.roleId }}</td>
-          <td>{{ i.roleId }}</td>
+          <td>{{ i.management }}</td>
           <td><form method="post"><input type='hidden' id="userId" name="userId" value="{{ i.userId }}"><input type="Submit" value="Edit"></form></td>
         </tr>
         {% endfor %}
