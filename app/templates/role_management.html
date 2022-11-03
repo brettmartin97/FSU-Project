@@ -1,0 +1,36 @@
+{% extends "base_templates/admin_base.html" %}
+
+{% block content %}
+<div class="container">
+  <h1>User Managment </h1>
+      <a href="/admin/level_management/add_role">
+      <button type="submit">Add Role</button>
+    </a>
+    <table>
+      <thead>
+        <tr>
+          <th>Role Name</th>
+          <th>Commission</th>
+          <th>Houly Rate</th>
+          <th>Has Goals</th>
+          <th>Edit</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for i in roles %}
+        <tr>
+          <td>{{ i.roleName }}</td>
+          <td>{{ i.commission }}</td>
+          <td>{{ i.hourlyRate }}</td>
+          {% if i.hasGoal %}
+            <td>Yes</td>
+          {% else %}
+             <td>No</td>
+          {% endif %}
+          <td><form method="POST"><input type='hidden' id="roleId" name="roleId" value="{{ i.roleId }}"><input type="Submit" value="Edit"></form></td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+</div>
+      {% endblock %}

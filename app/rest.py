@@ -23,7 +23,7 @@ def home():
     else:
         return render_template('home.html')
 
-@app.route('/booth')
+@app.route('/booth', methods=['GET', 'POST'])
 def booth():
     auth_bool = utils.is_auth(session)
     if not auth_bool: 
@@ -49,6 +49,9 @@ def setup():
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     error = None
+    with open("config/config.yml") as f:
+        config = yaml.safe_load(f)
+    company = config['site']['company']
     if request.method == 'POST':
         user = request.form['username']
         password = request.form['password']
@@ -64,14 +67,14 @@ def login():
             session['user'] = user
             where = f'username = "{user}"'
             app.logger.info(sql.get_attribute_single("roleId", "User", where))
-            session['level'] = sql.get_attribute_single("roleId", "User", where)
-            if session['level'] > 11:
+            session['admin'] = sql.get_attribute_single("management", "User", where)
+            if session['admin']:
                 return redirect(url_for('admin'))
-            elif session['level'] == 11:
+            elif session['admin']:
                 return redirect(url_for('booth'))
             else:
                 return redirect(url_for('home'))
-    return render_template('login.html', error=error)
+    return render_template('login.html', error=error, company=company)
 
 
 @app.route('/admin', methods=['GET', 'POST'])
@@ -87,6 +90,98 @@ def admin():
             config = yaml.safe_load(f)
         company = config['site']['company']
         return render_template('admin.html', error=error, name=name, company=company,  title='admin')
+
+@app.route('/admin/level_management', methods=['GET', 'POST'])
+def role_management():
+    error = None
+    auth_bool = utils.is_auth(session)
+    if not auth_bool:
+        return redirect(url_for('login'))
+    else:
+        with open("config/config.yml") as f:
+            config = yaml.safe_load(f)
+        company = config['site']['company']
+        if request.method == 'POST':
+            levelId = request.form['userId']
+            return redirect(url_for('edit_role',  levelId=levelId))
+        else:
+            roles = sql.get_table('Role')
+            app.logger.info(roles)
+            return render_template('role_management.html', error=error, roles=roles, company=company)
+
+@app.route('/admin/level_management/add_role', methods=['GET', 'POST'])
+def add_role():
+    error = None
+    auth_bool = utils.is_auth(session)
+    with open("config/config.yml") as f:
+        config = yaml.safe_load(f)
+    company = config['site']['company']
+    if not auth_bool:
+        return redirect(url_for('login'))
+    else:
+        maxRole = len(sql.get_table('Role'))
+        if request.method == 'POST':
+            app.logger.info(request.form)
+            firstName = request.form['firstname']
+            lastName = request.form['lastname']
+            email = request.form['email']
+            un = request.form['username']
+            if sql.get_single_user_info(un):
+                error = "Username taken, please choose a  different one"
+            pwd = hashing.Hash(request.form['password'])
+            phone = request.form['phone']
+            phone = re.sub('\D', '', phone)
+            role = request.form['stylistlevel']
+            if not role.isnumeric():
+                error = "Please select a Stylist Level"
+            booth = request.form['booth']
+            if request.form.get('management'):
+                management = 1
+            else:
+                management = 0
+            if error:
+             return render_template('add_user_ph.html', error=error, maxRole=maxRole, firstName=firstName, lastName=lastName, 
+             email=email, un=un, pwd=pwd, phone=phone, role=role, booth=booth, management=management, company=company)
+            else:
+                sql.insert_User(firstName, lastName, email, phone, un, pwd, role, management)
+            return redirect(url_for('user_management'))
+        return render_template('add_user.html', error=error, maxRole=maxRole, company=company)
+
+@app.route('/admin/level_management/<roleId>', methods=['GET', 'POST'])
+def edit_role(roleId):
+    error = None
+    auth_bool = utils.is_auth(session)
+    if not auth_bool:
+        return redirect(url_for('login'))
+    else:
+        with open("config/config.yml") as f:
+            config = yaml.safe_load(f)
+        company = config['site']['company']
+        if request.method == 'POST':
+            role = sql.get_user(roleId)
+            app.logger.info(role)
+            app.logger.info(request.form)
+            if request.form['firstName'] != user['firstName'] :
+                sql.update_user(userId,f"firstName = '{request.form['firstName']}'")
+            if request.form['lastName'] != user['lastName']:
+                sql.update_user(userId,f"lastName = '{request.form['lastName']}'")
+            if request.form['phone'] != user['phone']:
+                sql.update_user(userId,f"phone = {request.form['phone']}")
+            if request.form['email'] != user['email'] :
+                sql.update_user(userId,f"email = '{request.form['email']}'")
+            if request.form['roleId'] != user['roleId']:
+                app.logger.info(f"roleId = {request.form['roleId']}")
+                sql.update_user(userId,f"roleId = {request.form['roleId']}")
+            if request.form.get('management'):
+                if request.form['management'] != user['management']:
+                    app.logger.info(f"management = {request.form['management']}")
+                    sql.update_user(userId,f"management = {request.form['management']}")
+            return redirect(url_for('edit_role', roleId=user['roleId']))
+        else:
+            role = sql.get_all('*',f"Role','roleId = {roleId}")
+            maxRole = len(sql.get_table('Role'))
+            app.logger.info(user)
+            return render_template('edit_role.html', error=error, role=role[0], maxRole=maxRole, company=company)
 
 
 @app.route('/admin/user_management', methods=['GET', 'POST'])
@@ -105,7 +200,7 @@ def user_management():
         else:
             users = sql.get_table('User')
             roles = sql.get_table('Role')
-            return render_template('user_management.html', error=error, users=users, roles=roles)
+            return render_template('user_management.html', error=error, users=users, roles=roles, company=company)
 
 @app.route('/admin/user_management/<userId>', methods=['GET', 'POST'])
 def edit_user(userId):
@@ -139,11 +234,10 @@ def edit_user(userId):
             return redirect(url_for('edit_user', userId=user['userId']))
         else:
             user = sql.get_user(userId)
-            with open("config/config.yml") as f:
-                config = yaml.safe_load(f)
-            maxRole = config['site']['maxRole']
+            maxRole = len(sql.get_table('Role'))
             app.logger.info(user)
-            return render_template('edit_user.html', error=error, user=user[0], maxRole=maxRole)
+            return render_template('edit_user.html', error=error, user=user[0], maxRole=maxRole, company=company)
+
 
 @app.route('/admin/site_management', methods=['GET', 'POST'])
 def site_management():
@@ -158,10 +252,8 @@ def site_management():
         if request.method == 'POST':
             with open("config/config.yml") as f:
                 config = yaml.safe_load(f)
-            maxRole = request.form['maxRole']
             startTime = request.form['open']
             endTime = request.form['close']
-            config['site']['maxRole'] = maxRole
             config['site']['open'] = startTime
             config['site']['close'] = endTime
             with open("config/config.yml", "w") as f:
@@ -170,21 +262,22 @@ def site_management():
             with open("config/config.yml") as f:
                 config = yaml.safe_load(f)
             app.logger.info(config)
-            maxRole = config['site']['maxRole']
             startTime = config['site']['open']
             endTime = config['site']['close']
-        return render_template('site_management.html', error=error, maxRole=maxRole, startTime=startTime, endTime=endTime)
+        return render_template('site_management.html', error=error, startTime=startTime,
+         endTime=endTime, company=company)
 
 @app.route('/admin/user_management/add_user', methods=['GET', 'POST'])
 def add_user():
     error = None
     auth_bool = utils.is_auth(session)
+    with open("config/config.yml") as f:
+        config = yaml.safe_load(f)
+    company = config['site']['company']
     if not auth_bool:
         return redirect(url_for('login'))
     else:
-        with open("config/config.yml") as f:
-            config = yaml.safe_load(f)
-        maxRole = config['site']['maxRole']
+        maxRole = len(sql.get_table('Role'))
         if request.method == 'POST':
             app.logger.info(request.form)
             firstName = request.form['firstname']
@@ -206,15 +299,18 @@ def add_user():
                 management = 0
             if error:
              return render_template('add_user_ph.html', error=error, maxRole=maxRole, firstName=firstName, lastName=lastName, 
-             email=email, un=un, pwd=pwd, phone=phone, role=role, booth=booth, management=management)
+             email=email, un=un, pwd=pwd, phone=phone, role=role, booth=booth, management=management, company=company)
             else:
                 sql.insert_User(firstName, lastName, email, phone, un, pwd, role, management)
             return redirect(url_for('user_management'))
-        return render_template('add_user.html', error=error, maxRole=maxRole)
+        return render_template('add_user.html', error=error, maxRole=maxRole, company=company)
 
 @app.route('/admin/customer', methods   =['GET', 'POST'])
 def customer():
     auth_bool = utils.is_auth(session)
+    with open("config/config.yml") as f:
+        config = yaml.safe_load(f)
+    company = config['site']['company']
     if not auth_bool:
         return redirect(url_for('login'))
     if request.method == 'POST':
@@ -238,13 +334,16 @@ def customer():
                 phone = request.form['search']
                 customer = sql.get_all('*','Customer',f'phoneNumber = {phone}')
             app.logger.info(customer)
-            return render_template('search_customer.html', customers=customer)
+            return render_template('search_customer.html', customers=customer, company=company)
     else:
         pass
         return redirect(url_for('calendarDay', day=day, month=month, year=year))
 
 @app.route('/admin/customer_management', methods=['GET', 'POST'])
 def customers():
+    with open("config/config.yml") as f:
+        config = yaml.safe_load(f)
+    company = config['site']['company']
     error = None
     auth_bool = utils.is_auth(session)
     if not auth_bool:
@@ -252,28 +351,37 @@ def customers():
         return redirect(url_for('login'))
     else:
         customers = sql.get_table('Customer')
-        return render_template('customers.html', error=error, customers = customers)
+        return render_template('customers.html', error=error, customers = customers, company=company)
 
 @app.route('/admin/appointments', methods=['GET', 'POST'])
 def appointments():
+    with open("config/config.yml") as f:
+        config = yaml.safe_load(f)
+    company = config['site']['company']
     error = None
     auth_bool = utils.is_auth(session)
     if not auth_bool:
         return redirect(url_for('login'))
     else:
         appointments = sql.get_table('AppointmentType')
-        return render_template('appointments.html', error=error, appointments = appointments)
+        return render_template('appointments.html', error=error, appointments = appointments, company=company)
 
-@app.route('/admin/appointments/add_appointment')
+@app.route('/admin/appointments/add_appointment', methods=['GET', 'POST'])
 def add_appointment():
+    with open("config/config.yml") as f:
+        config = yaml.safe_load(f)
+    company = config['site']['company']
     auth_bool = utils.is_auth(session)
     if not auth_bool:
         return redirect(url_for('login'))
     else:
-        return render_template('add_appointment.html', error=error)
+        return render_template('add_appointment.html', error=error, company=company)
 
 @app.route('/admin/calendar/', methods=['GET', 'POST'])
 def calendar():
+    with open("config/config.yml") as f:
+        config = yaml.safe_load(f)
+    company = config['site']['company']
     error = None
     auth_bool = utils.is_auth(session)
     if not auth_bool:
@@ -287,6 +395,9 @@ def calendar():
 
 @app.route('/admin/calendar/<day>-<month>-<year>/book-<userid>', methods   =['GET', 'POST'])
 def book(day,month,year,userid):
+    with open("config/config.yml") as f:
+        config = yaml.safe_load(f)
+    company = config['site']['company']
     auth_bool = utils.is_auth(session)
     if not auth_bool:
         return redirect(url_for('login'))
@@ -312,12 +423,16 @@ def book(day,month,year,userid):
                     appointmentTypes += sql.get_all('typeName, description, duration', 'AppointmentType',where)
                 else:
                     appointmentTypes = sql.get_table('AppointmentType')
-                return render_template('booking.html', time=time.strftime("%I:%M %p"), day=day, month=month, year=year, appointmentTypes = appointmentTypes)
+                return render_template('booking.html', time=time.strftime("%I:%M %p"), day=day, month=month, 
+                year=year, appointmentTypes = appointmentTypes, company=company)
             else:
                 return redirect(url_for('calendarDay', day=day, month=month, year=year))
         
 @app.route('/admin/calendar/<day>-<month>-<year>', methods   =['GET', 'POST'])
 def calendarDay(day,month,year):
+    with open("config/config.yml") as f:
+        config = yaml.safe_load(f)
+    company = config['site']['company']
     error = None
     auth_bool = utils.is_auth(session)
     if not auth_bool:
@@ -361,10 +476,13 @@ def calendarDay(day,month,year):
             app.logger.info(datetime.strptime(times[36],"%I:%M %p")) 
             return render_template('Calendar-Day.html', day=day, month=month, year=year,
             times=times,user_schedule=user_schedule, datetime=datetime, 
-            user_booked=user_booked, booked = 0, scroll = 'start', opentime = opentime, closetime = closetime)
+            user_booked=user_booked, booked = 0, scroll = 'start', opentime = opentime, closetime = closetime, company=company)
 
 @app.route('/admin/calendar/<month>-<year>', methods=['GET', 'POST'])
 def calendarMonth(month, year):
+    with open("config/config.yml") as f:
+        config = yaml.safe_load(f)
+    company = config['site']['company']
     error = None
     auth_bool = utils.is_auth(session)
     if not auth_bool:
@@ -397,10 +515,13 @@ def calendarMonth(month, year):
         lastDay = date.replace(day = fcalendar.monthrange(date.year, date.month)[1]).strftime("%d")
         return render_template('Calendar-Month.html', lastDay = int(lastDay), 
         firstDay=firstDay, day=currentDay, month=currentMonth, 
-        year=currentYear, date=date, error=error)
+        year=currentYear, date=date, error=error, company=company)
 
 @app.route('/admin/analysis', methods=['GET', 'POST'])
 def analysis():
+    with open("config/config.yml") as f:
+        config = yaml.safe_load(f)
+    company = config['site']['company']
     error = None
     auth_bool = utils.is_auth(session)
     if not auth_bool:
@@ -409,7 +530,7 @@ def analysis():
         firstname, lastname = sql.get_name(session['user'], app.logger)
         name = firstname + ' ' + lastname
         aptChart = sql.Appiont_by_date('2022-10-18', '2022-10-20')
-        return render_template('analysis.html', error=error, aptChart=aptChart)
+        return render_template('analysis.html', error=error, aptChart=aptChart, company=company)
 
 
 @app.route('/logout', methods=['GET'])
@@ -421,7 +542,10 @@ def logout():
 
 @app.route('/error')
 def error():
-    return render_template('404.html', title='error page not found')
+    with open("config/config.yml") as f:
+        config = yaml.safe_load(f)
+    company = config['site']['company']
+    return render_template('404.html', title='error page not found', company=company)
 
 if __name__ == "__main__":
     
