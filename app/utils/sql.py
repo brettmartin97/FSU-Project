@@ -570,9 +570,9 @@ def insert_Appointment(uId, apptId, cusId, note, sTime,logger):
 
 
 
-#Gets the data for the charts using the SQL
-def chart_data(query):
 
+# Gets the data for the charts using the SQL
+def chart_data(query):
     conn = pymysql.connect(host='db',
                            user='root',
                            password="root",
@@ -582,42 +582,46 @@ def chart_data(query):
 
     return df
 
-#bar chart
+
+# bar chart
 def build_barchart(title, x, y):
     plt.close
     plt.title(title)
+    #  x = pd.to_datetime(x).dt.normalize()
     plt.bar(x, y)
     plt.xticks(rotation=75)
+    plt.gray()
 
     img = BytesIO()
 
-    plt.savefig(img, format ='png')
+    plt.savefig(img, format='png', cmap='grayscale')
     plotUrl = base64.b64encode(img.getvalue()).decode('utf8')
 
     return plotUrl
-    
-#pie chart
-def build_piechart(title, x):
+
+
+# pie chart
+def build_piechart(title, x, l):
     plt.close
     plt.title(title)
-    plt.pie(x)
+    plt.pie(x, labels=l)
     plt.xticks(rotation=75)
 
     img = BytesIO()
 
-    plt.savefig(img, format ='png')
+    plt.savefig(img, format='png')
     plotUrl = base64.b64encode(img.getvalue()).decode('utf8')
 
     return plotUrl
 
 
-#Gets the total number of appointments within the time frame.
+# Gets the total number of appointments within the time frame.
 def appointment_total(startDay, endDay):
     query = f'''SELECT count(appointId) as num
     FROM Appointment
     WHERE date(startTime) >= '{startDay}' and date(startTime) <= '{endDay}'
     '''
-    
+
     data = chart_data(query)
 
     appoint = data['num']
@@ -625,77 +629,85 @@ def appointment_total(startDay, endDay):
     return appoint[0]
 
 
+# Creates a chart for showing appointment by date.
+def appointment_by_date(startDay, endDay, id=None):
+    if not id:
+        query = f'''SELECT date(startTime) as d, count(date(startTime)) as num 
+        FROM Appointment
+        WHERE date(startTime) >= '{startDay}' and date(startTime) <= '{endDay}' 
+        GROUP BY d 
+        ORDER BY d ASC'''
+        data = chart_data(query)
+        plotUrl = build_barchart('Appointment by date', data.d, data.num)
+    else:
+        query = f'''SELECT date(startTime) as d, count(date(startTime)) as num 
+        FROM Appointment
+        WHERE date(startTime) >= '{startDay}' and date(startTime) <= '{endDay}' and userId = {id} 
+        GROUP BY d 
+        ORDER BY d ASC'''
 
-#Creates a chart for showing appointment by date.
-def Appiont_by_date(startDay, endDay):
-    startDay = '2022-10-18'
-    endDay = '2022-10-20'
-    query = f'''SELECT date(startTime) as d, count(date(startTime)) as num 
-    FROM Appointment
-    WHERE date(startTime) >= '{startDay}' and date(startTime) <= '{endDay}' 
-    GROUP BY d 
-    ORDER BY d ASC'''
-
-    data = chart_data(query)
-
-    plotUrl = build_barchart('Appointment by date', data.d, data.num)
-
-    return plotUrl
-
-
-
-#Creates a chart for showing filtered appointment by user and grouped by date.
-def Appiont_by_user(Id, startDay, endDay):
-    query = f'''SELECT date(startTime) as d, count(date(startTime)) as num 
-    FROM Appointment
-    WHERE date(startTime) >= '{startDay}' and date(startTime) <= '{endDay}' and userId = {Id} 
-    GROUP BY d 
-    ORDER BY d ASC'''
-
-    data = chart_data(query)
-    plotUrl = build_barchart('Appointment by date', data.d, data.num)
+        data = chart_data(query)
+        plotUrl = build_barchart('Appointment by date', data.d, data.num)
 
     return plotUrl
 
 
-#Pie chart for appointType
-def user_pie_chart(Id, startDay, endDay):
-    query = f'''SELECT appointTypeId, count(appointId) as appoint
-    FROM Appointment
-    WHERE date(startTime) >= '{startDay}' and date(startTime) <= '{endDay}' and userId = {Id} 
-    GROUP BY appointtypeId 
-    '''
-    data = chart_data(query)
-
-    plotUrl = build_piechart("AppointmentTypes", data.appoint)
-
-    return plotUrl
-
-#pie chart that shows appointment type for managment.
-def appointType_man_chart(startDay, endDay):
-    query = f'''SELECT appointTypeId, count(appointId) as appoint
-    FROM Appointment
-    WHERE date(startTime) >= '{startDay}' and date(startTime) <= '{endDay}'
-    GROUP BY appointtypeId 
-    '''
-
-    data = chart_data(query)
-
-    plotUrl = build_piechart('Appointment Types', data.appoint)
+# pie chart that shows appointment type for managment.
+def appointmentType_chart(startDay, endDay, id=None):
+    if not id:
+        query = f'''SELECT t.typeName as name, count(appointId) as appoint
+        FROM Appointment as a, AppointmentType as t
+        WHERE date(startTime) >= '{startDay}' and date(startTime) <= '{endDay}'
+        GROUP BY name'''
+        data = chart_data(query)
+        plotUrl = build_piechart('Appointment Types', data.appoint, data.name)
+    else:
+        query = f'''SELECT t.typeName as name, count(appointId) as appoint
+        FROM Appointment as a, AppointmentType as t
+        WHERE date(startTime) >= '{startDay}' and date(startTime) <= '{endDay}' and userId = {id} 
+        GROUP BY name'''
+        data = chart_data(query)
+        plotUrl = build_piechart('Appointment Types', data.appoint, data.name)
 
     return plotUrl
 
-def customer_chart(Id, startDay, endDay):
-    query = f'''SELECT date(startTime) as d, count(customerId) as cust
-    FROM Appointment
-    WHERE date(startTime) >= '{startDay}' and date(startTime) <= '{endDay}' and userId = {Id} 
-    GROUP BY date(startTime) 
-    '''
 
-    data = chart_data(query)
-    plotUrl = build_barchart('Customers by date', data.d, data.cust)
+def customer_chart(startDay, endDay, id=None):
+    if not id:
+        query = f'''SELECT date(startTime) as d, count(customerId) as cust
+        FROM Appointment
+        WHERE date(startTime) >= '{startDay}' and date(startTime) <= '{endDay}' 
+        GROUP BY date(startTime)'''
+        data = chart_data(query)
+        plotUrl = build_barchart('Customers by date', data.d, data.cust)
+    else:
+        query = f'''SELECT date(startTime) as d, count(customerId) as cust, userId
+        FROM Appointment
+        WHERE date(startTime) >= '{startDay}' and date(startTime) <= '{endDay}' and userId = {id} 
+        GROUP BY date(startTime)'''
+        data = chart_data(query)
+        plotUrl = build_barchart('Customers by date', data.d, data.cust)
 
     return plotUrl
 
+
+def percentage_prebooked(startDay, endDay, id):
+    queryOne = f'''SELECT count(*) as cust, customerId
+        FROM Appointment
+        WHERE date(startTime) >= '{startDay}' and date(startTime) <= '{endDay}' and userId = {id}
+        GROUP BY customerId 
+        HAVING cust >= 2'''
+
+    queryTwo = f'''SELECT count(*) as cust, customerId
+        FROM Appointment
+        WHERE date(startTime) >= '{startDay}' and date(startTime) <= '{endDay}' and userId = {id}
+        GROUP BY customerId 
+                '''
+    dataOne = chart_data(queryOne)
+    dataTwo = chart_data(queryTwo)
+
+    percPreBooked = (len(dataOne.cust) / len(dataTwo.cust)) * 100
+
+    return percPreBooked
 
 
