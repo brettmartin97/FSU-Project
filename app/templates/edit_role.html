@@ -6,7 +6,7 @@
     <form class="add_user" method="POST"> 
         {%if error%}<h3 class="error">Error: {{ error }}</h3>{%endif%}
         <div class="halfleft">
-          <input type="text" id="firstName" name="firstName" value="{{ user['firstName'] }}" required>
+          <input type="text" id="firstName" name="firstName" value={{ user.firstName }} required>
           <input type="email" id="email" name="email" value={{ user.email }} required>
           <label for="roleId">Select Stylist Level:</label>
           <select id="roleId" name="roleId" required>

@@ -102,8 +102,8 @@ def role_management():
             config = yaml.safe_load(f)
         company = config['site']['company']
         if request.method == 'POST':
-            levelId = request.form['roleId']
-            return redirect(url_for('edit_role',  levelId=levelId))
+            roleId = request.form['roleId']
+            return redirect(url_for('edit_role', roleId=roleId))
         else:
             roles = sql.get_table('Role')
             app.logger.info(roles)
@@ -179,8 +179,7 @@ def edit_role(roleId):
             return redirect(url_for('edit_role', roleId=user['roleId']))
         else:
             maxRole = len(sql.get_table('Role'))
-            app.logger.info(user)
-            return render_template('edit_role.html', error=error, role=role[0], maxRole=maxRole, company=company)
+            return render_template('edit_role.html', error=error, role=role, maxRole=maxRole, company=company)
 
 
 @app.route('/admin/user_management', methods=['GET', 'POST'])
