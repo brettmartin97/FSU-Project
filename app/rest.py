@@ -134,7 +134,6 @@ def add_role():
             role = request.form['stylistlevel']
             if not role.isnumeric():
                 error = "Please select a Stylist Level"
-            booth = request.form['booth']
             if request.form.get('management'):
                 management = 1
             else:
@@ -157,28 +156,28 @@ def edit_role(roleId):
         with open("config/config.yml") as f:
             config = yaml.safe_load(f)
         company = config['site']['company']
+        role = sql.get_all('*','Role',f"roleId = {roleId}")[0]
         if request.method == 'POST':
             role = sql.get_user(roleId)
             app.logger.info(role)
             app.logger.info(request.form)
-            if request.form['firstName'] != user['firstName'] :
+            if request.form[0]['firstName'] != user['firstName'] :
                 sql.update_user(userId,f"firstName = '{request.form['firstName']}'")
-            if request.form['lastName'] != user['lastName']:
+            if request.form[0]['lastName'] != user['lastName']:
                 sql.update_user(userId,f"lastName = '{request.form['lastName']}'")
-            if request.form['phone'] != user['phone']:
+            if request.form[0]['phone'] != user['phone']:
                 sql.update_user(userId,f"phone = {request.form['phone']}")
-            if request.form['email'] != user['email'] :
+            if request.form[0]['email'] != user['email'] :
                 sql.update_user(userId,f"email = '{request.form['email']}'")
-            if request.form['roleId'] != user['roleId']:
+            if request.form[0]['roleId'] != user['roleId']:
                 app.logger.info(f"roleId = {request.form['roleId']}")
                 sql.update_user(userId,f"roleId = {request.form['roleId']}")
-            if request.form.get('management'):
-                if request.form['management'] != user['management']:
+            if request.form[0].get('management'):
+                if request.form[0]['management'] != user['management']:
                     app.logger.info(f"management = {request.form['management']}")
                     sql.update_user(userId,f"management = {request.form['management']}")
             return redirect(url_for('edit_role', roleId=user['roleId']))
         else:
-            role = sql.get_all('*',f"Role','roleId = {roleId}")
             maxRole = len(sql.get_table('Role'))
             app.logger.info(user)
             return render_template('edit_role.html', error=error, role=role[0], maxRole=maxRole, company=company)
@@ -212,8 +211,9 @@ def edit_user(userId):
         with open("config/config.yml") as f:
             config = yaml.safe_load(f)
         company = config['site']['company']
+        user = sql.get_user(userId)[0]
+        maxRole = len(sql.get_table('Role'))
         if request.method == 'POST':
-            user = sql.get_user(userId)
             app.logger.info(user)
             app.logger.info(request.form)
             if request.form['firstName'] != user['firstName'] :
@@ -231,12 +231,13 @@ def edit_user(userId):
                 if request.form['management'] != user['management']:
                     app.logger.info(f"management = {request.form['management']}")
                     sql.update_user(userId,f"management = {request.form['management']}")
-            return redirect(url_for('edit_user', userId=user['userId']))
+            if error:
+                return render_template('edit_user.html', error=error, user=user, maxRole=maxRole, company=company)
+            else:
+                return redirect(url_for('user_management'))
         else:
-            user = sql.get_user(userId)
-            maxRole = len(sql.get_table('Role'))
             app.logger.info(user)
-            return render_template('edit_user.html', error=error, user=user[0], maxRole=maxRole, company=company)
+            return render_template('edit_user.html', error=error, user=user, maxRole=maxRole, company=company)
 
 
 @app.route('/admin/site_management', methods=['GET', 'POST'])
@@ -292,7 +293,6 @@ def add_user():
             role = request.form['stylistlevel']
             if not role.isnumeric():
                 error = "Please select a Stylist Level"
-            booth = request.form['booth']
             if request.form.get('management'):
                 management = 1
             else:

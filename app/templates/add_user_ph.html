@@ -21,14 +21,13 @@
         </div>
          <div class="halfright">
             <input type="text" id="lname" name="lastname" value="{{ lastName }}" required>
-            <input type="text" id="phone" pattern="[0-9]{9}" name="phone" value="{{ phone }}" required>
-            <input type="text" id="booth" name="booth" value="{{ booth }}">
+            <input type="text" id="phone" pattern="[0-9]{7,10}" name="phone" value="{{ phone }}" required>
             {% if management %}
             <input type="checkbox" id = "Management" name = "Management" value="Management" checked>
             {% else %}
             <input type="checkbox" id = "Management" name = "Management" value="Management" >
             {% endif %}
-            <label for="Management">Management:</label>
+            <label for="Management">Management</label>
         </div>
         <input type="submit" value="Submit">
     </form>
