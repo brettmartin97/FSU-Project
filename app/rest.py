@@ -102,7 +102,7 @@ def role_management():
             config = yaml.safe_load(f)
         company = config['site']['company']
         if request.method == 'POST':
-            levelId = request.form['userId']
+            levelId = request.form['roleId']
             return redirect(url_for('edit_role',  levelId=levelId))
         else:
             roles = sql.get_table('Role')
