@@ -5,7 +5,13 @@
     <div class="container">
       <h1>Add User</h1>
     <form action= "" class="search_customer" method="POST"> 
-            <label for="search_type">Search customer by:</label>
+      <input type="hidden" name="typeId" value={{ typeId }}>
+      <input type="hidden" name="userId" value={{ userId }}>
+      <input type="hidden" name="day" value={{ day }}>
+      <input type="hidden" name="month" value={{ month }}>
+      <input type="hidden" name="year" value={{ year }}>
+      <input type="hidden" name="time" value={{ time }}>
+      <label for="search_type">Search customer by:</label>
             <select id="search_type" name="search_type" required>
                 <option value="Name">Name</option>
                 <option value="Phone Number">Phone Number</option>
@@ -13,7 +19,9 @@
             </select>
             <input type="search" name="search">
         <input type="submit" name="submit" value="Search Customer" value="Search">
-        {% if customers %}
+       
+    </form>
+     {% if customers %}
         <table>
             <thead>
               <tr>
@@ -27,17 +35,27 @@
           <tbody>
             {% for i in customers %}
             <tr>
+              <form action= "/admin/calendar/{{ day }}-{{ month }}-{{ year }}" class="search_customer" method="POST"> 
+                <input type="hidden" name="typeId" value={{ typeId }}>
+                <input type="hidden" name="userId" value={{ userId }}>
+                <input type="hidden" name="day" value={{ day }}>
+                <input type="hidden" name="month" value={{ month }}>
+                <input type="hidden" name="year" value={{ year }}>
+                <input type="hidden" name="time" value={{ time }}>
               <td>{{ i.firstName }}</td>
               <td>{{ i.lastName }}</td>
               <td>{{ i.email }}</td>
               <td>{{ i.phoneNumber }}</td>
-              <td><input type="Submit" value="Select"></td>
+              <td>
+                <button type="Submit" name="submit_button" value="Select Customer">Select</button>
+                <input type="hidden" name="customerId" value={{ i.customerId }}>
+              </td>
+              </form> 
             </tr>
             {% endfor %}
           </tbody>
         </table>
         {% endif %}
-    </form>
 </div>
 
     {% endblock %}

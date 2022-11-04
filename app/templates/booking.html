@@ -2,12 +2,18 @@
 
 {% block content %}
 
-<div class=book><h1>Booking Appointment At {{ time }}</h1>
-  <form action="/admin/customer" method="POST">
-    <label for="Booking Type" >Booking Type</label>
-     <select name="Booking" id="Booking" required>
+<div class=book>
+  <h1>Booking Appointment At {{ time }}</h1>
+  <form action="/admin/customer" method="POST">>
+    <input type="hidden" name="userId" value={{ userId }}>
+    <input type="hidden" name="day" value={{ day }}>
+    <input type="hidden" name="month" value={{ month }}>
+    <input type="hidden" name="year" value={{ year }}>
+    <input type="hidden" name="time" value='{{ time }}'>
+    <label for="typeId">Booking Type</label>
+     <select name="typeId" id="typeId" required>
          {% for i in appointmentTypes %}
-          <option value="{{ i.typeName }}">{{ i.typeName }} - {{ i.description }} - {{ i.duration }}</option>
+          <option value={{ i.appointTypeId }}>{{ i.typeName }} - {{ i.description }} - {{ i.duration }}</option>
         {% endfor %}
       </select>
         <p></p>

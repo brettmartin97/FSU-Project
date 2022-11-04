@@ -533,7 +533,7 @@ Insert data into Appointment table.
 Example call in rest.py:
 sql.insert_Appointment(5, 2, 15, 'Baked in Temp Appointment34', '2022-10-17 09:33:33')
 """
-def insert_Appointment(uId, apptId, cusId, note, sTime):
+def insert_Appointment(uId, apptId, cusId, note, sTime,logger):
     
     conn = pymysql.connect(host='db',
                            user='root',
@@ -541,12 +541,16 @@ def insert_Appointment(uId, apptId, cusId, note, sTime):
                            db='fsu')
     cursor = conn.cursor(pymysql.cursors.DictCursor)
 
-    query = f'SELECT roleId FROM User WHERE userId = {uId}'
+    query = f"SELECT roleId FROM User WHERE userId = {uId}"
+    
+    logger.info(query)
     cursor.execute(query)
     temp = cursor.fetchone()
     rId = temp['roleId']
 
     query = f'SELECT totalPriceId FROM Pricing WHERE appointTypeId = {apptId} AND roleId = {rId}'
+    
+    logger.info(query)
     cursor.execute(query)
     temp2 = cursor.fetchone()
     tPId = temp2['totalPriceId']
@@ -556,6 +560,7 @@ def insert_Appointment(uId, apptId, cusId, note, sTime):
     query = f'''INSERT INTO Appointment(userId, appointTypeId, customerId, totalPriceId, notes, startTime) 
             VALUES (%s, %s, %s, %s, %s, %s)'''
 
+    logger.info(query)
 
     cursor.execute(query, (uId, apptId, cusId, tPId, note, sTime))
 

@@ -307,6 +307,7 @@ def add_user():
 
 @app.route('/admin/customer', methods   =['GET', 'POST'])
 def customer():
+    error = None
     auth_bool = utils.is_auth(session)
     with open("config/config.yml") as f:
         config = yaml.safe_load(f)
@@ -314,10 +315,19 @@ def customer():
     if not auth_bool:
         return redirect(url_for('login'))
     if request.method == 'POST':
+        typeId = request.form['typeId']
+        app.logger.info(typeId)
+        userId = request.form['userId']
+        app.logger.info(f'test: {userId}')
+        time = request.form['time']
+        day = request.form['day']
+        month = request.form['month']
+        year = request.form['year']
+        app.logger.info(time)
         if request.form['submit'] == "New Customer":
-            return render_template('add_customer.html')
-        elif request.form['submit'] == "Existing Customer":
-            return render_template('search_customer.html')
+            return render_template('add_customer.html', error=error, company=company, typeId=typeId, userId=userId, day=day, month=month, year=year, time=time)
+        elif request.form['submit'] == "Existing Customer": 
+            return render_template('search_customer.html', error=error, company=company, typeId=typeId, userId=userId, day=day, month=month, year=year, time=time)
         elif request.form['submit'] == "Search Customer":
             if request.form['search_type'] == 'Name':
                 name = request.form['search'].split()
@@ -334,7 +344,7 @@ def customer():
                 phone = request.form['search']
                 customer = sql.get_all('*','Customer',f'phoneNumber = {phone}')
             app.logger.info(customer)
-            return render_template('search_customer.html', customers=customer, company=company)
+            return render_template('search_customer.html', customers=customer, company=company, typeId=typeId, userId=userId, day=day, month=month, year=year, time=time)
     else:
         pass
         return redirect(url_for('calendarDay', day=day, month=month, year=year))
@@ -418,13 +428,13 @@ def book(day,month,year,userid):
                     app.logger.info(maxDur)
                     where = f'duration < {maxDur} AND hasHourlyRate = 0 ORDER BY 1'
                     appointmentTypes = sql.get_all('typeName, description, duration', 'AppointmentType',where)
-                    maxDur = maxDur.total_seconds() / 60
+                    maxDur = maxDur / 60
                     where = f'duration < {maxDur} AND hasHourlyRate = 1 ORDER BY 1'
-                    appointmentTypes += sql.get_all('typeName, description, duration', 'AppointmentType',where)
+                    appointmentTypes += sql.get_all('appointTypeId,typeName, description, duration', 'AppointmentType',where)
                 else:
                     appointmentTypes = sql.get_table('AppointmentType')
                 return render_template('booking.html', time=time.strftime("%I:%M %p"), day=day, month=month, 
-                year=year, appointmentTypes = appointmentTypes, company=company)
+                year=year, appointmentTypes = appointmentTypes, userId = userid, company=company)
             else:
                 return redirect(url_for('calendarDay', day=day, month=month, year=year))
         
@@ -453,6 +463,19 @@ def calendarDay(day,month,year):
                 year = dt.year
                 month = dt.month
                 day = dt.day
+                return redirect(url_for('calendarDay', day=day, month=month, year=year))
+            if request.form['submit_button'] == 'Select Customer':
+                typeId = request.form['typeId']
+                userId = request.form['userId']
+                customerId = request.form['customerId']
+                time = request.form['time']
+                day = request.form['day']
+                month = request.form['month']
+                year = request.form['year']
+                startTime=f"{ year }-{ month }-{ day } { time }"
+                app.logger.info(startTime)
+                app.logger.info(userId)
+                sql.insert_Appointment(userId, typeId, customerId, "",startTime, app.logger)
                 return redirect(url_for('calendarDay', day=day, month=month, year=year))
         else:
             times = []
