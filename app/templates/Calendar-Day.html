@@ -74,7 +74,13 @@
           {% if vars['booked'] == 1 %}
             <td class=booked></td>
           {% else %}
-          <form  method = "POST" action="/admin/calendar/{{ day }}-{{ month }}-{{ year }}/book-{{ u.userId }}"><td class=available><input type=hidden name=time id=time value='{{ times[i] }}''><button class=available type=submit></button></td></form>
+          <form  method = "POST" action="/admin/calendar/{{ day }}-{{ month }}-{{ year }}/book-{{ u.userId }}">
+            <td class=available>
+              <input type=hidden name=time id=time value='{{ times[i] }}'>
+              <button class=available type=submit>
+              </button>
+            </td>
+          </form>
         {% endif %}
         {% else %}
             <td class=unavailable></td>
