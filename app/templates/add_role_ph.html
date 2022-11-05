@@ -1,0 +1,26 @@
+
+    {% extends "base_templates/admin_base.html" %}
+
+    {% block content %}
+    <div class="container">
+      <h1>Add Role</h1>
+    <form class="add_role" method="POST"> 
+        {%if error%}<h3 class="error">Error: {{ error }}</h3>{%endif%}
+        <div class="halfleft">
+          <input type="text" id="rname" name="rolename" value="{{ roleName }}" required>
+          <input type="text" id="com" name="commission" value="{{ commission }}" required>
+        </div>
+         <div class="halfright">
+            <input type="text" id="hrate" name="hourlyrate" value="{{ hourlyRate }}" required>
+            {% if hasgoal %}
+            <input type="checkbox" id = "hasgoal" name = "hasgoal" value="hasgoal" checked>
+            {% else %}
+            <input type="checkbox" id = "hasgoal" name = "hasgoal" value="hasgoal" >
+            {% endif %}
+            <label for="hasgoal">Has Goal</label>
+        </div>
+        <input type="submit" value="Submit">
+    </form>
+</div>
+
+    {% endblock %}

@@ -20,7 +20,7 @@
         <td>{{ i.lastName }}</td>
         <td>{{ i.email }}</td>
         <td>{{ i.phoneNumber }}</td>
-        <td><input type="Submit" value="Details"></td>
+        <td><form method="POST"><input type='hidden' id="customerId" name="customerId" value="{{ i.customerId }}"><input type="Submit" value="Edit"></form></td>
       </tr>
       {% endfor %}
     </tbody>

@@ -119,33 +119,30 @@ def add_role():
     if not auth_bool:
         return redirect(url_for('login'))
     else:
-        maxRole = len(sql.get_table('Role'))
         if request.method == 'POST':
             app.logger.info(request.form)
-            firstName = request.form['firstname']
-            lastName = request.form['lastname']
-            email = request.form['email']
-            un = request.form['username']
-            if sql.get_single_user_info(un):
-                error = "Username taken, please choose a  different one"
-            pwd = hashing.Hash(request.form['password'])
-            phone = request.form['phone']
-            phone = re.sub('\D', '', phone)
-            role = request.form['stylistlevel']
-            if not role.isnumeric():
-                error = "Please select a Stylist Level"
-            if request.form.get('management'):
-                management = 1
+            roleName = request.form['rolename']
+            if sql.get_single_role_info(roleName):
+                error = "Role name taken, please choose a  different one"
+            commission = request.form['commission']
+            hourlyRate = request.form['hourlyrate']
+            if not hourlyRate.isnumeric():
+                error = "Please enter a proper hourly rate"
+            if request.form.get('hasgoal'):
+                hasGoal = 1
             else:
-                management = 0
+                hasGoal = 0
             if error:
-             return render_template('add_user_ph.html', error=error, maxRole=maxRole, firstName=firstName, lastName=lastName, 
-             email=email, un=un, pwd=pwd, phone=phone, role=role, booth=booth, management=management, company=company)
+             return render_template('add_role_ph.html', error=error, roleName=roleName, commission=commission, 
+             hourlyRate=hourlyRate, hasGoal=hasGoal, company=company)
             else:
-                sql.insert_User(firstName, lastName, email, phone, un, pwd, role, management)
-            return redirect(url_for('user_management'))
-        return render_template('add_user.html', error=error, maxRole=maxRole, company=company)
+                sql.insert_Role(roleName, commission, hourlyRate, hasGoal)
+            return redirect(url_for('role_management'))
+        return render_template('add_role.html', error=error, company=company)
 
+"""
+There is a bug where hasGoal will not update and will stay as the original value.
+"""
 @app.route('/admin/level_management/<roleId>', methods=['GET', 'POST'])
 def edit_role(roleId):
     error = None
@@ -158,28 +155,27 @@ def edit_role(roleId):
         company = config['site']['company']
         role = sql.get_all('*','Role',f"roleId = {roleId}")[0]
         if request.method == 'POST':
-            role = sql.get_user(roleId)
             app.logger.info(role)
             app.logger.info(request.form)
-            if request.form[0]['firstName'] != user['firstName'] :
-                sql.update_user(userId,f"firstName = '{request.form['firstName']}'")
-            if request.form[0]['lastName'] != user['lastName']:
-                sql.update_user(userId,f"lastName = '{request.form['lastName']}'")
-            if request.form[0]['phone'] != user['phone']:
-                sql.update_user(userId,f"phone = {request.form['phone']}")
-            if request.form[0]['email'] != user['email'] :
-                sql.update_user(userId,f"email = '{request.form['email']}'")
-            if request.form[0]['roleId'] != user['roleId']:
-                app.logger.info(f"roleId = {request.form['roleId']}")
-                sql.update_user(userId,f"roleId = {request.form['roleId']}")
-            if request.form[0].get('management'):
-                if request.form[0]['management'] != user['management']:
-                    app.logger.info(f"management = {request.form['management']}")
-                    sql.update_user(userId,f"management = {request.form['management']}")
-            return redirect(url_for('edit_role', roleId=user['roleId']))
+            if request.form['roleName'] != role['roleName']:
+                sql.update_table('Role',f"roleName = '{request.form['roleName']}'", f"roleId = '{roleId}'")
+            if request.form['commission'] != role['commission']:
+                sql.update_table('Role',f"commission = '{request.form['commission']}'", f"roleId = '{roleId}'")
+            if request.form['hourlyRate'] != role['hourlyRate']:
+                if not request.form['hourlyRate'].isnumeric():
+                    error = "Please enter a proper hourly rate"
+                else:
+                    sql.update_table('Role',f"hourlyRate = '{request.form['hourlyRate']}'", f"roleId = '{roleId}'")
+            if request.form.get('hasGoal'):
+                if request.form['hasGoal'] != role['hasGoal']:
+                    app.logger.info(f"hasGoal = {request.form['hasGoal']}")
+                    sql.update_table('Role',f"hasGoal = {request.form['hasGoal']}", f"roleId = '{roleId}'")
+            if error:
+                return render_template('edit_role.html', error=error, role=role, company=company)
+            else:
+                return redirect(url_for('role_management'))
         else:
-            maxRole = len(sql.get_table('Role'))
-            return render_template('edit_role.html', error=error, role=role, maxRole=maxRole, company=company)
+            return render_template('edit_role.html', error=error, role=role, company=company)
 
 
 @app.route('/admin/user_management', methods=['GET', 'POST'])
@@ -200,6 +196,9 @@ def user_management():
             roles = sql.get_table('Role')
             return render_template('user_management.html', error=error, users=users, roles=roles, company=company)
 
+"""
+There is a bug where management will not update and will stay as the original value.
+"""
 @app.route('/admin/user_management/<userId>', methods=['GET', 'POST'])
 def edit_user(userId):
     error = None
@@ -350,17 +349,50 @@ def customer():
 
 @app.route('/admin/customer_management', methods=['GET', 'POST'])
 def customers():
-    with open("config/config.yml") as f:
-        config = yaml.safe_load(f)
-    company = config['site']['company']
     error = None
     auth_bool = utils.is_auth(session)
     if not auth_bool:
-
         return redirect(url_for('login'))
     else:
-        customers = sql.get_table('Customer')
-        return render_template('customers.html', error=error, customers = customers, company=company)
+        with open("config/config.yml") as f:
+            config = yaml.safe_load(f)
+        company = config['site']['company']
+        if request.method == 'POST':
+            customerId = request.form['customerId']
+            return redirect(url_for('edit_customer',  customerId=customerId))
+        else:
+            customers = sql.get_table('Customer')
+            return render_template('customers.html', error=error, customers=customers, company=company)
+
+@app.route('/admin/customer_management/<customerId>', methods=['GET', 'POST'])
+def edit_customer(customerId):
+    error = None
+    auth_bool = utils.is_auth(session)
+    if not auth_bool:
+        return redirect(url_for('login'))
+    else:
+        with open("config/config.yml") as f:
+            config = yaml.safe_load(f)
+        company = config['site']['company']
+        customer = sql.get_all('*','Customer',f"customerId = {customerId}")[0]
+        if request.method == 'POST':
+            app.logger.info(customer)
+            app.logger.info(request.form)
+            if request.form['firstName'] != customer['firstName'] :
+                sql.update_table('Customer',f"firstName = '{request.form['firstName']}'", f"customerId = '{customerId}'")
+            if request.form['lastName'] != customer['lastName']:
+                sql.update_table('Customer',f"lastName = '{request.form['lastName']}'", f"customerId = '{customerId}'")
+            if request.form['email'] != customer['email'] :
+                sql.update_table('Customer',f"email = '{request.form['email']}'", f"customerId = '{customerId}'")
+            if request.form['phoneNumber'] != customer['phoneNumber']:
+                sql.update_table('Customer',f"phoneNumber = '{request.form['phoneNumber']}'", f"customerId = '{customerId}'")
+            if error:
+                return render_template('edit_customer.html', error=error, customer=customer, company=company)
+            else:
+                return redirect(url_for('customers'))
+        else:
+            app.logger.info(customer)
+            return render_template('edit_customer.html', error=error, customer=customer, company=company)
 
 @app.route('/admin/appointments', methods=['GET', 'POST'])
 def appointments():
