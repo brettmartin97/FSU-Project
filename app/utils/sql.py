@@ -174,6 +174,25 @@ def get_single_user_info(user):
     return sqlInfo
 
 """
+Get the data of a single role from the Role table.
+"""
+def get_single_role_info(rName):
+    query = f'SELECT * FROM Role WHERE roleName = "{rName}"'
+
+    conn = pymysql.connect(host='db',
+                           user='root',
+                           password="root",
+                           db='fsu')
+
+    cursor = conn.cursor(pymysql.cursors.DictCursor)
+
+    cursor.execute(query)
+
+    sqlInfo = cursor.fetchone()
+
+    return sqlInfo
+
+"""
 Called by other functions to run specified query.
 """
 def run_query(query):
@@ -207,8 +226,6 @@ def run_update(update):
     conn.commit()
 
     return True
-
-
 
 
 """

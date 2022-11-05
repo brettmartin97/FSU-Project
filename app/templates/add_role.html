@@ -3,26 +3,16 @@
 
     {% block content %}
     <div class="container">
-      <h1>Add User</h1>
-    <form class="add_user" method="POST"> 
+      <h1>Add Role</h1>
+    <form class="add_role" method="POST"> 
         <div class="halfleft">
-          <input type="text" id="fname" name="firstname" placeholder="First Name" required>
-          <input type="email" id="email" name="email" placeholder="Email Address" required>
-          <input type="text" id="username" name="username" placeholder="User Name" required>
-          <input type="password" id="password" name="password" placeholder="Password" minlength="8" required>
-          <label for="stylistlevel">Select Stylist Level:</label>
-          <select id="stylistlevel" name="stylistlevel" required>
-            <option value="N/A">N/A</option>
-            {% for i in range(1,maxRole+1) %}
-                <option value="{{ i }}">{{ i }}</option>
-            {% endfor %}
-        </select>
+          <input type="text" id="rname" name="rolename" placeholder="Role Name" required>
+          <input type="text" id="com" name="commission" placeholder="Commission" required>
         </div>
          <div class="halfright">
-            <input type="text" id="lname" name="lastname" placeholder="Last Name" required>
-            <input type="text" id="phone" pattern="[0-9]{7-10}" name="phone" placeholder="Phone Number" required>
-            <input type="checkbox" id = "Management" name = "Management" value="Management" >
-            <label for="Management">Management</label>
+            <input type="text" id="hrate" name="hourlyrate" placeholder="Hourly Rate" required>
+            <input type="checkbox" id = "hasgoal" name = "hasgoal" value="hasgoal" >
+            <label for="hasgoal">Has Goal</label>
         </div>
         <input type="submit" value="Submit">
     </form>
