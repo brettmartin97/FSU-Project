@@ -2,18 +2,34 @@
 
     {% block content %}
     <div class = "container">
-        <h1>Add Appointment</h1>
-        <form class="add_appointment" method="POST"> 
+        <h1>Add appointment</h1>
+        <form class="add_role" method="POST"> 
             <div class="halfleft">
                 <input type="text" id="typeName" name="typeName" placeholder="Appointment Name" required>
                 <input type="text" id="description" name="description" placeholder="Description" required>
             </div>
             <div class="halfright">
-            <input type="text" id="duration" name="duration" placeholder="Duration" required>
-            <input type="checkbox" id = "hasHourlyRate" name = "hasHourlyRate" value="hasHourlyRate" >
-            <label for="hasHourlyRate">Has Hourly Rate</label>
+              <input type="text" id="duration" name="duration" placeholder="Duration" required>
+              <input type="checkbox" id = "hasHourlyRate" name = "hasHourlyRate" value="hasHourlyRate" >
+              <label for="hasHourlyRate">Has Hourly Rate</label>
             </div>
-            <input type="submit" value="Submit">
-        </form>
+        <table>
+            <thead>
+                <tr> 
+                    <th>Stylist Level</th>
+                    <th>Cost (USD)</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for i in role %}
+                    <tr>
+                        <td>{{ i.roleName }} - {{ i.roleId }}</td>
+                        <td><input type = "number" name="rate_{{i.roleId}}"></td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <input type="submit" value="Submit">
+    </form>
     </div>
     {% endblock %}

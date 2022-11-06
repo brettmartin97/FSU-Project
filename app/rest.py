@@ -431,7 +431,10 @@ def add_appointment():
     if not auth_bool:
         return redirect(url_for('login'))
     else:
-        if request.method == 'POST':
+        if request.method = 'POST':
+            role = sql.get_table('Role')
+            return render_template('add_appointment.html', error=error, company=company,
+            role=role, appointmentType=appointmentType)
             typeName = request.form['typeName']
             description = request.form['description']
             duration = request.form['duration']
@@ -448,7 +451,8 @@ def add_appointment():
             else:
                 sql.insert_AppointmentType(typeName, description, duration, hasHourlyRate)
             return redirect(url_for('appointments'))
-        return render_template('add_appointment.html', error=error, company=company)
+        else:
+            return render_template('add_appointment.html', error=error, company=company, role=role)
 
 """
 Add edit appointment types.
