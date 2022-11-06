@@ -162,14 +162,18 @@ def edit_role(roleId):
             if request.form['commission'] != role['commission']:
                 sql.update_table('Role',f"commission = '{request.form['commission']}'", f"roleId = '{roleId}'")
             if request.form['hourlyRate'] != role['hourlyRate']:
-                if not request.form['hourlyRate'].isnumeric():
+                if not isinstance(request.form['hourlyRate'], (int, float)):
                     error = "Please enter a proper hourly rate"
                 else:
                     sql.update_table('Role',f"hourlyRate = '{request.form['hourlyRate']}'", f"roleId = '{roleId}'")
             if request.form.get('hasGoal'):
-                if request.form['hasGoal'] != role['hasGoal']:
-                    app.logger.info(f"hasGoal = {request.form['hasGoal']}")
-                    sql.update_table('Role',f"hasGoal = {request.form['hasGoal']}", f"roleId = '{roleId}'")
+                if 1 != role['hasGoal']:
+                    app.logger.info(f"hasGoal = 1")
+                    sql.update_table('Role',f"hasGoal = 1", f"roleId = '{roleId}'")
+            else:
+                if 0 != role['hasGoal']:
+                    app.logger.info(f"hasGoal = 0")
+                    sql.update_table('Role',f"hasGoal = 0", f"roleId = '{roleId}'")
             if error:
                 return render_template('edit_role.html', error=error, role=role, company=company)
             else:
@@ -226,9 +230,13 @@ def edit_user(userId):
                 app.logger.info(f"roleId = {request.form['roleId']}")
                 sql.update_user(userId,f"roleId = {request.form['roleId']}")
             if request.form.get('management'):
-                if request.form['management'] != user['management']:
+                if 1 != user['management']:
                     app.logger.info(f"management = {request.form['management']}")
-                    sql.update_user(userId,f"management = {request.form['management']}")
+                    sql.update_user(userId,f"management = 1")
+            else:
+                if 0 != user['management']:
+                    app.logger.info(f"management = {request.form['management']}")
+                    sql.update_user(userId,f"management = 0")
             if error:
                 return render_template('edit_user.html', error=error, user=user, maxRole=maxRole, company=company)
             else:
