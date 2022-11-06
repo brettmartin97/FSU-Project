@@ -405,27 +405,90 @@ def edit_customer(customerId):
 
 @app.route('/admin/appointments', methods=['GET', 'POST'])
 def appointments():
-    with open("config/config.yml") as f:
-        config = yaml.safe_load(f)
-    company = config['site']['company']
     error = None
     auth_bool = utils.is_auth(session)
     if not auth_bool:
         return redirect(url_for('login'))
     else:
-        appointments = sql.get_table('AppointmentType')
-        return render_template('appointments.html', error=error, appointments = appointments, company=company)
+        with open("config/config.yml") as f:
+            config = yaml.safe_load(f)
+        company = config['site']['company']
+        if request.method == 'POST':
+            appointTypeId = request.form['appointTypeId']
+            return redirect(url_for('edit_appointment', appointTypeId=appointTypeId))
+        else:
+            appointments = sql.get_table('AppointmentType')
+            return render_template('appointments.html', error=error, appointments = appointments, company=company)
 
+# Add new appointment types.
 @app.route('/admin/appointments/add_appointment', methods=['GET', 'POST'])
 def add_appointment():
+    error = None
+    auth_bool = utils.is_auth(session)
     with open("config/config.yml") as f:
         config = yaml.safe_load(f)
     company = config['site']['company']
+    if not auth_bool:
+        return redirect(url_for('login'))
+    else:
+        if request.method == 'POST':
+            typeName = request.form['typeName']
+            description = request.form['description']
+            duration = request.form['duration']
+            if not duration.isnumeric():
+                error = "Please input a proper duration"
+            if request.form.get('hasHourlyRate'):
+                hasHourlyRate = 1
+            else:
+                hasHourlyRate = 0
+        
+            if error:
+                return render_template('add_appointment_ph.html', error=error, typeName=typeName, description=description, duration=duration,
+                hasHourlyRate=hasHourlyRate, company=company)
+            else:
+                sql.insert_AppointmentType(typeName, description, duration, hasHourlyRate)
+            return redirect(url_for('appointments'))
+        return render_template('add_appointment.html', error=error, company=company)
+
+"""
+Add edit appointment types.
+
+There is a bug where hasHourlyRate will not update and will stay as the original value.
+"""
+@app.route('/admin/appointments/<appointTypeId>', methods=['GET', 'POST'])
+def edit_appointment(appointTypeId):
+    error = None
     auth_bool = utils.is_auth(session)
     if not auth_bool:
         return redirect(url_for('login'))
     else:
-        return render_template('add_appointment.html', error=error, company=company)
+        with open("config/config.yml") as f:
+            config = yaml.safe_load(f)
+        company = config['site']['company']
+        appointment = sql.get_all('*','AppointmentType',f"appointTypeId = {appointTypeId}")[0]
+        if request.method == 'POST':
+            app.logger.info(appointment)
+            app.logger.info(request.form)
+            if request.form['typeName'] != appointment['typeName']:
+                sql.update_table('AppointmentType',f"typeName = '{request.form['typeName']}'", f"appointTypeId = '{appointTypeId}'")
+            if request.form['description'] != appointment['description']:
+                sql.update_table('AppointmentType',f"description = '{request.form['description']}'", f"appointTypeId = '{appointTypeId}'")
+            if request.form['duration'] != appointment['duration']:
+                if not request.form['duration'].isnumeric():
+                    error = "Please enter a proper hourly rate"
+                else:
+                    sql.update_table('AppointmentType',f"duration = '{request.form['duration']}'", f"appointTypeId = '{appointTypeId}'")
+            if request.form.get('hasHourlyRate'):
+                if request.form['hasHourlyRate'] != appointment['hasHourlyRate']:
+                    app.logger.info(f"hasHourlyRate = {request.form['hasHourlyRate']}")
+                    sql.update_table('AppointmentType',f"hasHourlyRate = '{request.form['hasHourlyRate']}'", f"appointTypeId = '{appointTypeId}'")
+            if error:
+                return render_template('edit_appointment_type.html', error=error, appointment=appointment, company=company)
+            else:
+                return redirect(url_for('appointments'))
+        else:
+            return render_template('edit_appointment_type.html', error=error, appointment=appointment, company=company)
+
 
 @app.route('/admin/calendar/', methods=['GET', 'POST'])
 def calendar():

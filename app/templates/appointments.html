@@ -19,7 +19,7 @@
             <tr>
                 <td>{{ i.typeName }}</td>
                 <td>{{ i.description }}</td>
-                <td><input type="Submit" value="{{ i.appointTypeId }}"></td>
+                <td><form method="POST"><input type='hidden' id="appointTypeId" name="appointTypeId" value="{{ i.appointTypeId }}"><input type="Submit" value="Edit"></form></td>
             </tr>
             {% endfor %}
         </tbody>
