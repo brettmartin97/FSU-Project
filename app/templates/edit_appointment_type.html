@@ -18,6 +18,22 @@
         {% endif %}
         <label for="hasHourlyRate">Has Hourly Rate</label>
     </div>
+    <table>
+      <thead>
+          <tr> 
+              <th>Stylist Level</th>
+              <th>Cost (USD)</th>
+          </tr>
+      </thead>
+      <tbody>
+          {% for i in role %}
+              <tr>
+                  <td>{{ i.roleName }} - {{ i.roleId }}</td>
+                  <td><input type = "number" name="rate_{{i.roleId}}"></td>
+              </tr>
+          {% endfor %}
+      </tbody>
+  </table>
     <input type="submit" value="Submit">
 </form>
 </div>
