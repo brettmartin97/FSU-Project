@@ -2,6 +2,18 @@
 
     {% block content %}
     <div class = "container">
-        <h1>Add appointment</h1>
+        <h1>Add Appointment</h1>
+        <form class="add_appointment" method="POST"> 
+            <div class="halfleft">
+                <input type="text" id="typeName" name="typeName" placeholder="Appointment Name" required>
+                <input type="text" id="description" name="description" placeholder="Description" required>
+            </div>
+            <div class="halfright">
+            <input type="text" id="duration" name="duration" placeholder="Duration" required>
+            <input type="checkbox" id = "hasHourlyRate" name = "hasHourlyRate" value="hasHourlyRate" >
+            <label for="hasHourlyRate">Has Hourly Rate</label>
+            </div>
+            <input type="submit" value="Submit">
+        </form>
     </div>
     {% endblock %}
