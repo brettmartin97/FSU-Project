@@ -25,9 +25,9 @@
             <input type="text" pattern="[0-9]{7,10}" id="phone" name="phone" value={{ user.phone }} required>
             <input type="text" id="booth" name="booth" value={{ user.booth }}>
             {% if user.management %}
-            <input type="checkbox" id = "Management" name = "Management" value="Management" checked>
+            <input type="checkbox" id = "Management" name = "management" value=1 checked>
             {% else %}
-            <input type="checkbox" id = "Management" name = "Management" value="Management" >
+            <input type="checkbox" id = "Management" name = "management" value=0 >
             {% endif %}
             <label for="Management">Management:</label>
         </div>
