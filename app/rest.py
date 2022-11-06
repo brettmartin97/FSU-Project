@@ -418,6 +418,7 @@ def appointments():
 
 @app.route('/admin/appointments/add_appointment', methods=['GET', 'POST'])
 def add_appointment():
+    error = None
     with open("config/config.yml") as f:
         config = yaml.safe_load(f)
     company = config['site']['company']
@@ -425,7 +426,13 @@ def add_appointment():
     if not auth_bool:
         return redirect(url_for('login'))
     else:
-        return render_template('add_appointment.html', error=error, company=company)
+        if request.method == 'POST':
+            return redirect(url_for('appointments'))
+        else:
+            role = sql.get_table('Role')
+            appointmentType = sql.get_table('AppointmentType')
+            return render_template('add_appointment.html', error=error, company=company,
+            role=role, appointmentType=appointmentType)
 
 @app.route('/admin/calendar/', methods=['GET', 'POST'])
 def calendar():

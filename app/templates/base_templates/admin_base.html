@@ -25,11 +25,11 @@
     <h1>{{ company }}</h1>
 </div>
 <div class="content">
+  {% if error %}
+  <p class="error"><strong>Error:</strong> {{ error }}
+  {% endif %}
   {% block content %} {% endblock %}
 </div>
-{% if error %}
-<p class="error"><strong>Error:</strong> {{ error }}
-{% endif %}
 </div>
 </body>
 </html>

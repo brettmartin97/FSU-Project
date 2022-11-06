@@ -19,7 +19,8 @@
             <tr>
                 <td>{{ i.typeName }}</td>
                 <td>{{ i.description }}</td>
-                <td><input type="Submit" value="{{ i.appointTypeId }}"></td>
+                <input type="hidden" value=" {{ i.appointTypeId }}" name = "appointmentTypeId">
+                <td><input type="Submit" name="submit_button" value="Edit"></td>
             </tr>
             {% endfor %}
         </tbody>
