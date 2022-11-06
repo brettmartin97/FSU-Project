@@ -161,11 +161,12 @@ def edit_role(roleId):
                 sql.update_table('Role',f"roleName = '{request.form['roleName']}'", f"roleId = '{roleId}'")
             if request.form['commission'] != role['commission']:
                 sql.update_table('Role',f"commission = '{request.form['commission']}'", f"roleId = '{roleId}'")
-            if request.form['hourlyRate'] != role['hourlyRate']:
-                if not isinstance(request.form['hourlyRate'], (int, float)):
-                    error = "Please enter a proper hourly rate"
-                else:
-                    sql.update_table('Role',f"hourlyRate = '{request.form['hourlyRate']}'", f"roleId = '{roleId}'")
+            try:
+                rate = float(request.form['hourlyRate'])
+                if rate != role['hourlyRate']:
+                    sql.update_table('Role',f"hourlyRate = '{rate}'", f"roleId = '{roleId}'")
+            except exception as e:
+                error = "Please enter a valid hourly rate"
             if request.form.get('hasGoal'):
                 if 1 != role['hasGoal']:
                     app.logger.info(f"hasGoal = 1")
