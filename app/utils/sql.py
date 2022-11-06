@@ -601,11 +601,14 @@ def chart_data(query):
 
 
 # bar chart
-def build_barchart(title, x, y):
+def build_barchart(title, x, y, line = None):
     plt.close
     plt.title(title)
     #  x = pd.to_datetime(x).dt.normalize()
-    plt.bar(x, y)
+    if not line:
+        plt.bar(x, y)
+    else:
+        plt.plot(x, y)
     plt.xticks(rotation=75)
     plt.gray()
 
@@ -704,6 +707,7 @@ def customer_chart(startDay, endDay, id=None):
         GROUP BY date(startTime)'''
         data = chart_data(query)
         plotUrl = build_barchart('Customers by date', data.d, data.cust)
+    
 
     return plotUrl
 
@@ -727,4 +731,32 @@ def percentage_prebooked(startDay, endDay, id):
 
     return percPreBooked
 
+def total_sales(startDay, endDay, id = None):
+    if not id:
+        query = f'''SELECT DATE_FORMAT(startTime, '%Y-%m-%d') as d, SUM(p.price) as sales
+        FROM Appointment as a, Pricing as p
+        WHERE date(startTime) >= '{startDay}' and date(startTime) <= '{endDay}' and a.totalPriceId = p.totalPriceId 
+        GROUP BY DATE_FORMAT(startTime, '%Y-%m-%d')
+        ORDER BY d ASC'''
+    
+    else:
+        query = f'''SELECT DATE_FORMAT(startTime, '%Y-%m-%d') as d, SUM(p.price) as sales, a.userId
+        FROM Appointment as a, Pricing as p
+        WHERE date(startTime) >= '{startDay}' and date(startTime) <= '{endDay}' and userId = {id} and a.totalPriceId = p.totalPriceId 
+        GROUP BY DATE_FORMAT(startTime, '%Y-%m-%d')
+        ORDER BY d ASC'''
+    data = chart_data(query)
+    fig, ax = plt.subplots()
+    ax.plot(data.d, data.sales)
 
+       
+    ax.yaxis.set_major_formatter('${x:1.2f}')
+    plt.title("Total Sales")
+    plt.xticks(rotation=75)
+ 
+    img = BytesIO()
+
+    plt.savefig(img, format='png', cmap='grayscale')
+    plotUrl = base64.b64encode(img.getvalue()).decode('utf8')
+    
+    return plotUrl
