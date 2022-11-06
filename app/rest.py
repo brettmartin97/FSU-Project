@@ -431,8 +431,8 @@ def add_appointment():
     if not auth_bool:
         return redirect(url_for('login'))
     else:
-        if request.method = 'POST':
-            role = sql.get_table('Role')
+        role = sql.get_table('Role')
+        if request.method == 'POST':
             return render_template('add_appointment.html', error=error, company=company,
             role=role, appointmentType=appointmentType)
             typeName = request.form['typeName']
@@ -447,7 +447,7 @@ def add_appointment():
         
             if error:
                 return render_template('add_appointment_ph.html', error=error, typeName=typeName, description=description, duration=duration,
-                hasHourlyRate=hasHourlyRate, company=company)
+                hasHourlyRate=hasHourlyRate, company=company, role=role)
             else:
                 sql.insert_AppointmentType(typeName, description, duration, hasHourlyRate)
             return redirect(url_for('appointments'))
@@ -466,6 +466,7 @@ def edit_appointment(appointTypeId):
     if not auth_bool:
         return redirect(url_for('login'))
     else:
+        role = sql.get_table('Role')
         with open("config/config.yml") as f:
             config = yaml.safe_load(f)
         company = config['site']['company']
@@ -487,11 +488,11 @@ def edit_appointment(appointTypeId):
                     app.logger.info(f"hasHourlyRate = {request.form['hasHourlyRate']}")
                     sql.update_table('AppointmentType',f"hasHourlyRate = '{request.form['hasHourlyRate']}'", f"appointTypeId = '{appointTypeId}'")
             if error:
-                return render_template('edit_appointment_type.html', error=error, appointment=appointment, company=company)
+                return render_template('edit_appointment_type.html', error=error, appointment=appointment, company=company, role=role)
             else:
                 return redirect(url_for('appointments'))
         else:
-            return render_template('edit_appointment_type.html', error=error, appointment=appointment, company=company)
+            return render_template('edit_appointment_type.html', error=error, appointment=appointment, company=company, role=role)
 
 
 @app.route('/admin/calendar/', methods=['GET', 'POST'])
