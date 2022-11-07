@@ -444,7 +444,7 @@ def add_appointment():
                 hasHourlyRate = 0
             if error:
                 return render_template('add_appointment_ph.html', error=error, typeName=typeName, description=description, duration=duration,
-                hasHourlyRate=hasHourlyRate, company=company, role=role)
+                hasHourlyRate=hasHourlyRate, company=company, role=role, form=request.form, temp = None)
             else:
                 sql.insert_AppointmentType(typeName, description, duration, hasHourlyRate)
                 appoinTypeId = len(sql.get_table('AppointmentType'))
@@ -504,6 +504,7 @@ def edit_appointment(appointTypeId):
                     sql.update_table('Pricing',f"price = '{price}'", f"appointTypeId = '{appointTypeId}' and roleId = {roleid}")
             
             if error:
+                prices = sql.get_all('*','Pricing',f'appointTypeId = {appointTypeId}')
                 return render_template('edit_appointment_type.html', error=error, appointment=appointment, company=company, role=role, prices=prices)
             else:
                 return redirect(url_for('appointments'))
