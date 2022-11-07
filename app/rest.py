@@ -677,7 +677,7 @@ def analysis():
     else:
         firstname, lastname = sql.get_name(session['user'], app.logger)
         name = firstname + ' ' + lastname
-        aptChart = sql.appointmentType_chart('2022-10-18', '2022-10-20')
+        aptChart = sql.total_sales('2022-10-17', '2022-10-21')
         return render_template('analysis.html', error=error, aptChart=aptChart, company=company)
 
 

@@ -475,4 +475,12 @@ insert  into `Appointment`(`appointId`,`userId`,`appointTypeId`,`customerId`,`to
 (30, 11, 4, 8, 43, 'Baked in Temp Appointment30', '2022-10-20 17:00:00'),
 (31, 12, 15, 3, 165, 'Baked in Temp Appointment31', '2022-10-21 10:00:00'),
 (32, 12, 7, 1, 77, 'Baked in Temp Appointment32', '2022-10-21 14:00:00'),
-(33, 12, 3, 15, 33, 'Baked in Temp Appointment33', '2022-10-21 16:00:00');
+(33, 12, 3, 15, 33, 'Baked in Temp Appointment33', '2022-10-21 16:00:00'),
+(34, 6, 16, 14, 170, 'Baked in Temp Appointment14', '2022-10-17 09:30:00'),
+(35, 6, 11, 9, 115, 'Baked in Temp Appointment15', '2022-10-18 10:30:00'),
+(36, 6, 10, 8, 104, 'Baked in Temp Appointment16', '2022-10-19 12:25:00'),
+(37, 6, 4, 7, 104, 'Baked in Temp Appointment17', '2022-10-20 14:45:00'),
+(38, 6, 16, 14, 170, 'Baked in Temp Appointment14', '2022-10-17 09:30:00'),
+(39, 6, 11, 9, 115, 'Baked in Temp Appointment15', '2022-10-18 10:30:00'),
+(40, 6, 10, 8, 104, 'Baked in Temp Appointment16', '2022-10-19 12:25:00'),
+(41, 6, 4, 7, 104, 'Baked in Temp Appointment17', '2022-10-20 14:45:00');
