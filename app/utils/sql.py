@@ -701,29 +701,30 @@ def appointment_by_date(startDay, endDay, id=None):
 # pie chart that shows appointment type for managment.
 def appointmentType_chart(startDay, endDay, id=None):
     if not id:
-        query = f'''SELECT t.typeName as name, count(a.appointTypeId) as appoint
+        query = f'''SELECT a.appointTypeId as appoint, count(a.appointId) as c
         FROM Appointment as a, AppointmentType as t
-        WHERE date(startTime) >= '{startDay}' and date(startTime) <= '{endDay}'
-        GROUP BY a.appointTypeId'''
-        data = chart_data(query)
-        plt.clf()
-        plotUrl = build_piechart('Appointment Types', data.appoint, data.name)
-    else:
-        query = f'''SELECT a.appointTypeId as appoint, count(a.appointId) as c, t.typeName as name
-        FROM Appointment as a, AppointmentType as t
-        WHERE date(startTime) >= '{startDay}' and date(startTime) <= '{endDay}' and userId = {id} 
+        WHERE date(startTime) >= '{startDay}' and date(startTime) <= '{endDay}' and a.appointTypeId = t.appointTypeId
         GROUP BY a.appointTypeId'''
         data = chart_data(query)
         print(data, flush = True)
         plt.clf()
-        plotUrl = build_piechart('Appointment Types', data.c, data.name)
+        plotUrl = build_piechart('Appointment Types', data.c, data.appoint)
+    else:
+        query = f'''SELECT a.appointTypeId as appoint, count(a.appointId) as c
+        FROM Appointment as a, AppointmentType as t
+        WHERE date(startTime) >= '{startDay}' and date(startTime) <= '{endDay}' and userId = {id} and a.appointTypeId = t.appointTypeId
+        GROUP BY a.appointTypeId'''
+        data = chart_data(query)
+        print(data, flush = True)
+        plt.clf()
+        plotUrl = build_piechart('Appointment Types', data.c, data.appoint)
 
     return plotUrl
 
 
 def customer_chart(startDay, endDay, id=None):
     if not id:
-        query = f'''SELECT DATE_FORMAT(startTime, '%Y-%m-%d') as d, count(customerId) as cust
+        query = f'''SELECT DATE_FORMAT(startTime, '%Y-%m-%d') as d, count(DISTINCT(customerId)) as cust
         FROM Appointment
         WHERE date(startTime) >= '{startDay}' and date(startTime) <= '{endDay}' 
         GROUP BY DATE_FORMAT(startTime, '%Y-%m-%d')
@@ -733,11 +734,12 @@ def customer_chart(startDay, endDay, id=None):
         plt.clf()
         plotUrl = build_barchart('Customers by date', data.d, data.cust)
     else:
-        query = f'''SELECT DATE_FORMAT(startTime, '%Y-%m-%d') as d, count(customerId) as cust, userId
+        query = f'''SELECT DATE_FORMAT(startTime, '%Y-%m-%d') as d, count(DISTINCT(customerId)) as cust, userId
         FROM Appointment
         WHERE date(startTime) >= '{startDay}' and date(startTime) <= '{endDay}' and userId = {id} 
         GROUP BY DATE_FORMAT(startTime, '%Y-%m-%d')
         ORDER BY d ASC'''
+   
         data = chart_data(query)
         print(data, flush = True)
         plt.clf()
