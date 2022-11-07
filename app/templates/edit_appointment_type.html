@@ -28,8 +28,12 @@
       <tbody>
           {% for i in role %}
               <tr>
-                  <td>{{ i.roleName }} - {{ i.roleId }}</td>
-                  <td><input type = "number" name="rate_{{i.roleId}}"></td>
+                  {% for p in prices %}
+                    {% if p.roleId == i.roleId %}
+                      <td>{{ i.roleName }} - {{ i.roleId }}</td>
+                      <td><input type = "number"  min="0.00" max="10000.00" step="0.01" name="rate_{{i.roleId}}" value="{{ p.price }}"></td>
+                    {% endif %}
+                  {% endfor %}
               </tr>
           {% endfor %}
       </tbody>
