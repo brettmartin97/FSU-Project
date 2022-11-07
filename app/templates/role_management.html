@@ -13,6 +13,7 @@
           <th>Commission</th>
           <th>Houly Rate</th>
           <th>Has Goals</th>
+          <th>Has Booth</th>
           <th>Edit</th>
         </tr>
       </thead>
@@ -27,6 +28,11 @@
           {% else %}
              <td>No</td>
           {% endif %}
+          {% if i.hasBooth %}
+          <td>Yes</td>
+          {% else %}
+           <td>No</td>
+        {% endif %}
           <td><form method="POST"><input type='hidden' id="roleId" name="roleId" value="{{ i.roleId }}"><input type="Submit" value="Edit"></form></td>
         </tr>
         {% endfor %}
