@@ -433,8 +433,6 @@ def add_appointment():
     else:
         role = sql.get_table('Role')
         if request.method == 'POST':
-            return render_template('add_appointment.html', error=error, company=company,
-            role=role, appointmentType=appointmentType)
             typeName = request.form['typeName']
             description = request.form['description']
             duration = request.form['duration']
@@ -444,12 +442,22 @@ def add_appointment():
                 hasHourlyRate = 1
             else:
                 hasHourlyRate = 0
-        
             if error:
                 return render_template('add_appointment_ph.html', error=error, typeName=typeName, description=description, duration=duration,
-                hasHourlyRate=hasHourlyRate, company=company, role=role)
+                hasHourlyRate=hasHourlyRate, company=company, role=role, form=request.form, temp = None)
             else:
                 sql.insert_AppointmentType(typeName, description, duration, hasHourlyRate)
+                appoinTypeId = len(sql.get_table('AppointmentType'))
+                prices = list()
+                roles = list()
+                app.logger.info(role)
+                for i in role:
+                    roleid = i['roleId']
+                    app.logger.info(f'rate_{roleid}')
+                    prices.append(float(request.form[f'rate_{roleid}']))
+                    roles.append(roleid)
+                app.logger.info(appoinTypeId, roles, prices)
+                sql.insert_Pricing(appoinTypeId, roles, prices)
             return redirect(url_for('appointments'))
         else:
             return render_template('add_appointment.html', error=error, company=company, role=role)
@@ -467,6 +475,7 @@ def edit_appointment(appointTypeId):
         return redirect(url_for('login'))
     else:
         role = sql.get_table('Role')
+        prices = sql.get_all('*','Pricing',f'appointTypeId = {appointTypeId}')
         with open("config/config.yml") as f:
             config = yaml.safe_load(f)
         company = config['site']['company']
@@ -487,12 +496,20 @@ def edit_appointment(appointTypeId):
                 if request.form['hasHourlyRate'] != appointment['hasHourlyRate']:
                     app.logger.info(f"hasHourlyRate = {request.form['hasHourlyRate']}")
                     sql.update_table('AppointmentType',f"hasHourlyRate = '{request.form['hasHourlyRate']}'", f"appointTypeId = '{appointTypeId}'")
+            for i in prices:
+                roleid = i['roleId']
+                app.logger.info(f'rate_{roleid}')
+                price=float(request.form[f'rate_{roleid}'])
+                if price != i['price']:
+                    sql.update_table('Pricing',f"price = '{price}'", f"appointTypeId = '{appointTypeId}' and roleId = {roleid}")
+            
             if error:
-                return render_template('edit_appointment_type.html', error=error, appointment=appointment, company=company, role=role)
+                prices = sql.get_all('*','Pricing',f'appointTypeId = {appointTypeId}')
+                return render_template('edit_appointment_type.html', error=error, appointment=appointment, company=company, role=role, prices=prices)
             else:
                 return redirect(url_for('appointments'))
         else:
-            return render_template('edit_appointment_type.html', error=error, appointment=appointment, company=company, role=role)
+            return render_template('edit_appointment_type.html', error=error, appointment=appointment, company=company, role=role, prices=prices)
 
 
 @app.route('/admin/calendar/', methods=['GET', 'POST'])

@@ -507,12 +507,13 @@ def insert_Pricing(aTypeId, rId, pri):
                            password="root",
                            db='fsu')
     cursor = conn.cursor(pymysql.cursors.DictCursor)
+    for i in range(0,len(pri)):
 
-    query = f'''INSERT INTO Pricing(appointTypeId, roleId, price) 
-            VALUES (%s,  %s, %s)'''
+        query = f'''INSERT INTO Pricing(appointTypeId, roleId, price) 
+                VALUES ({aTypeId}, {rId[i]}, {pri[i]})'''
 
 
-    cursor.execute(query, (aTypeId, rId, pri))
+        cursor.execute(query)
 
     conn.commit()
 
