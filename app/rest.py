@@ -66,17 +66,22 @@ def login():
             session['auth'] = True
             session['user'] = user
             where = f'username = "{user}"'
-            profile = sql.get_all("*", "User", where)
-            where = f'roleId = "{profile.roleId}"'
-            role = sql.get_all("*", "Role", where)
-            app.logger.info(sql.get_attribute_single("roleId", "User", where))
-            session['admin']  = profile.management
-            session['booth']  = profile.booth
+            profile = sql.get_all("*", "User", where)[0]
+            app.logger.info(profile)
+            roleid = profile['roleId']
+            where = f'roleId = {roleid}'
+            role = sql.get_all("*", "Role", where)[0]
+            app.logger.info(role)
+            session['admin']  = profile['management']
+            session['booth']  = role['hasBooth']
             if session['admin']:
+                app.logger.info(session)
                 return redirect(url_for('admin'))
-            elif session['admin']:
+            elif session['booth']:
+                app.logger.info('2')
                 return redirect(url_for('booth'))
             else:
+                app.logger.info('3')
                 return redirect(url_for('home'))
     return render_template('login.html', error=error, company=company)
 
@@ -85,7 +90,8 @@ def login():
 def admin():
     error = None
     auth = utils.is_auth(session)
-    if not auth:
+    app.logger.info(auth)
+    if auth is False:
         return redirect(url_for('login'))
     elif auth == 2:
         firstname, lastname = sql.get_name(session['user'], app.logger)
@@ -593,7 +599,7 @@ def calendarDay(day,month,year):
         config = yaml.safe_load(f)
     company = config['site']['company']
     error = None
-   auth = utils.is_auth(session)
+    auth = utils.is_auth(session)
     if not auth:
         return redirect(url_for('login'))
     elif auth == 2:

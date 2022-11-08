@@ -1,18 +1,15 @@
-def is_auth(Session):
-    try:
-        if type(session['auth']) is bool:
-            if session['auth']:
-                if not session['admin'] and not session['booth']:
-                    return True
-                else:
-                    if session['admin']:
-                        return 2
-                    else:
-                        return 3
+def is_auth(session):
+    if len(session) != 0:
+        if session['auth']:
+            if not session['admin'] and not session['auth']:
+                return True
             else:
-                return False
+                if session['admin']:
+                    return 2
+                else:
+                    return 3
         else:
             return False
-    except:
+    else:
         return False
 
