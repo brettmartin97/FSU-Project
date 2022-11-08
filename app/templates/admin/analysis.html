@@ -3,7 +3,14 @@
 {% block content %}
 <div class="container">
   <h1>Welcome {{ name }} </h1>
-  <img src="data:image/png;base64, {{ aptChart }}">
+  <img src="data:image/png;base64, {{ userSales }}">
+  <img src="data:image/png;base64, {{ totalSales }}">
+  <img src="data:image/png;base64, {{ userCustomers }}">
+  <img src="data:image/png;base64, {{ totalCustomers }}">
+  <img src="data:image/png;base64, {{ appointType }}">
+  <img src="data:image/png;base64, {{ allAppointType }}">
+  <img src="data:image/png;base64, {{ userAppointments }}">
+  <img src="data:image/png;base64, {{ totalAppointments }}">
 </div>
 
 {% endblock %}

@@ -707,8 +707,24 @@ def analysis():
     elif auth == 2:
         firstname, lastname = sql.get_name(session['user'], app.logger)
         name = firstname + ' ' + lastname
-        aptChart = sql.total_sales('2022-10-17', '2022-10-21')
-        return render_template('admin/analysis.html', error=error, aptChart=aptChart, company=company)
+
+
+        # user viewed charts
+        userSales = sql.total_sales('2022-10-17', '2022-10-21', 6)   
+        userCustomers = sql.customer_chart('2022-10-17', '2022-10-21', 6)
+        appointType = sql.appointmentType_chart('2022-10-17', '2022-10-21', 6)
+        userAppointments = sql.appointment_by_date('2022-10-17', '2022-10-21', 6)
+
+        #managment viewed charts
+        totalCustomers = sql.customer_chart('2022-10-17', '2022-10-21')
+        totalSales = sql.total_sales('2022-10-17', '2022-10-21')
+        allAppointType = sql.appointmentType_chart('2022-10-17', '2022-10-21')
+        totalAppointments = sql.appointment_by_date('2022-10-17', '2022-10-21')
+
+        return render_template('analysis.html', error=error, userSales=userSales, totalSales=totalSales, usersales=userSales,
+        userCustomers = userCustomers, totalCustomers = totalCustomers, appointType = appointType, allAppointType = allAppointType, 
+        userAppointments = userAppointments, totalAppointments = totalAppointments, company=company)
+
 
 
 @app.route('/logout', methods=['GET'])
