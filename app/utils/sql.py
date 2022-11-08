@@ -706,7 +706,6 @@ def appointmentType_chart(startDay, endDay, id=None):
         WHERE date(startTime) >= '{startDay}' and date(startTime) <= '{endDay}' and a.appointTypeId = t.appointTypeId
         GROUP BY a.appointTypeId'''
         data = chart_data(query)
-        print(data, flush = True)
         plt.clf()
         plotUrl = build_piechart('Appointment Types', data.c, data.appoint)
     else:
@@ -715,7 +714,6 @@ def appointmentType_chart(startDay, endDay, id=None):
         WHERE date(startTime) >= '{startDay}' and date(startTime) <= '{endDay}' and userId = {id} and a.appointTypeId = t.appointTypeId
         GROUP BY a.appointTypeId'''
         data = chart_data(query)
-        print(data, flush = True)
         plt.clf()
         plotUrl = build_piechart('Appointment Types', data.c, data.appoint)
 
@@ -730,7 +728,7 @@ def customer_chart(startDay, endDay, id=None):
         GROUP BY DATE_FORMAT(startTime, '%Y-%m-%d')
         ORDER BY d ASC'''
         data = chart_data(query)
-        print(data, flush = True)
+        #print(data, flush = True)
         plt.clf()
         plotUrl = build_barchart('Customers by date', data.d, data.cust)
     else:
@@ -741,12 +739,31 @@ def customer_chart(startDay, endDay, id=None):
         ORDER BY d ASC'''
    
         data = chart_data(query)
-        print(data, flush = True)
+        #print(data, flush = True)
         plt.clf()
         plotUrl = build_barchart('Customers by date', data.d, data.cust)
     
 
     return plotUrl
+
+def percentage_prebooked(startDay, endDay, id):
+    queryOne = f'''SELECT count(*) as cust, customerId
+        FROM Appointment
+        WHERE date(startTime) >= '{startDay}' and date(startTime) <= '{endDay}' and userId = {id}
+        GROUP BY customerId 
+        HAVING cust >= 2'''
+
+    queryTwo = f'''SELECT count(*) as cust, customerId, userId
+        FROM Appointment
+        WHERE date(startTime) >= '{startDay}' and date(startTime) <= '{endDay}' and userId = {id}
+        GROUP BY customerId 
+                '''
+    dataOne = chart_data(queryOne)
+    dataTwo = chart_data(queryTwo)
+
+    percPreBooked = (len(dataOne.cust) / len(dataTwo.cust)) * 100
+
+    return percPreBooked
 
 
 def percentage_prebooked(startDay, endDay, id):
