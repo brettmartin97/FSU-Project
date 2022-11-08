@@ -28,10 +28,10 @@ def booth():
     auth_bool = utils.is_auth(session)
     if not auth_bool: 
         return redirect(url_for('login'))
-    elif session['level'] != 11:
+    elif session['booth'] != 1:
         return redirect(url_for('error'))
     else:
-        return render_template('booth.html')
+        return render_template('booth/base.html')
 
 @app.route('/setup', methods=['GET', 'POST'])
 def setup():
@@ -44,7 +44,7 @@ def setup():
     where = f'username = "{user}"'
     session['level'] = sql.get_attribute_single("roleId", "User", where)
     len(get_table("User"))
-    return render_template('setup.html', error=error)
+    return render_template('admin/setup.html', error=error)
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -66,13 +66,22 @@ def login():
             session['auth'] = True
             session['user'] = user
             where = f'username = "{user}"'
-            app.logger.info(sql.get_attribute_single("roleId", "User", where))
-            session['admin'] = sql.get_attribute_single("management", "User", where)
+            profile = sql.get_all("*", "User", where)[0]
+            app.logger.info(profile)
+            roleid = profile['roleId']
+            where = f'roleId = {roleid}'
+            role = sql.get_all("*", "Role", where)[0]
+            app.logger.info(role)
+            session['admin']  = profile['management']
+            session['booth']  = role['hasBooth']
             if session['admin']:
+                app.logger.info(session)
                 return redirect(url_for('admin'))
-            elif session['admin']:
+            elif session['booth']:
+                app.logger.info('2')
                 return redirect(url_for('booth'))
             else:
+                app.logger.info('3')
                 return redirect(url_for('home'))
     return render_template('login.html', error=error, company=company)
 
@@ -80,24 +89,25 @@ def login():
 @app.route('/admin', methods=['GET', 'POST'])
 def admin():
     error = None
-    auth_bool = utils.is_auth(session)
-    if not auth_bool:
+    auth = utils.is_auth(session)
+    app.logger.info(auth)
+    if auth is False:
         return redirect(url_for('login'))
-    else:
+    elif auth == 2:
         firstname, lastname = sql.get_name(session['user'], app.logger)
         name = firstname + ' ' + lastname
         with open("config/config.yml") as f:
             config = yaml.safe_load(f)
         company = config['site']['company']
-        return render_template('admin.html', error=error, name=name, company=company,  title='admin')
+        return render_template('admin/base.html', error=error, name=name, company=company,  title='admin')
 
 @app.route('/admin/level_management', methods=['GET', 'POST'])
 def role_management():
     error = None
-    auth_bool = utils.is_auth(session)
-    if not auth_bool:
+    auth = utils.is_auth(session)
+    if not auth:
         return redirect(url_for('login'))
-    else:
+    elif auth == 2:
         with open("config/config.yml") as f:
             config = yaml.safe_load(f)
         company = config['site']['company']
@@ -107,18 +117,18 @@ def role_management():
         else:
             roles = sql.get_table('Role')
             app.logger.info(roles)
-            return render_template('role_management.html', error=error, roles=roles, company=company)
+            return render_template('admin/role_management.html', error=error, roles=roles, company=company)
 
 @app.route('/admin/level_management/add_role', methods=['GET', 'POST'])
 def add_role():
     error = None
-    auth_bool = utils.is_auth(session)
     with open("config/config.yml") as f:
         config = yaml.safe_load(f)
     company = config['site']['company']
-    if not auth_bool:
+    auth = utils.is_auth(session)
+    if not auth:
         return redirect(url_for('login'))
-    else:
+    elif auth == 2:
         if request.method == 'POST':
             app.logger.info(request.form)
             roleName = request.form['rolename']
@@ -139,12 +149,12 @@ def add_role():
             else:
                 hasBooth = 0
             if error:
-             return render_template('add_role_ph.html', error=error, roleName=roleName, commission=commission, 
+             return render_template('admin/add_role_ph.html', error=error, roleName=roleName, commission=commission, 
              hourlyRate=hourlyRate, hasGoal=hasGoal, hasBooth=hasBooth, company=company)
             else:
                 sql.insert_Role(roleName, commission, hourlyRate, hasGoal, hasBooth)
             return redirect(url_for('role_management'))
-        return render_template('add_role.html', error=error, company=company)
+        return render_template('admin/add_role.html', error=error, company=company)
 
 """
 There is a bug where hasGoal will not update and will stay as the original value.
@@ -152,10 +162,10 @@ There is a bug where hasGoal will not update and will stay as the original value
 @app.route('/admin/level_management/<roleId>', methods=['GET', 'POST'])
 def edit_role(roleId):
     error = None
-    auth_bool = utils.is_auth(session)
-    if not auth_bool:
+    auth = utils.is_auth(session)
+    if not auth:
         return redirect(url_for('login'))
-    else:
+    elif auth == 2:
         with open("config/config.yml") as f:
             config = yaml.safe_load(f)
         company = config['site']['company']
@@ -195,20 +205,20 @@ def edit_role(roleId):
                     app.logger.info(f"hasBooth = 0")
                     sql.update_table('Role',f"hasBooth = 0", f"roleId = '{roleId}'")
             if error:
-                return render_template('edit_role.html', error=error, role=role, company=company)
+                return render_template('admin/edit_role.html', error=error, role=role, company=company)
             else:
                 return redirect(url_for('role_management'))
         else:
-            return render_template('edit_role.html', error=error, role=role, company=company)
+            return render_template('admin/edit_role.html', error=error, role=role, company=company)
 
 
 @app.route('/admin/user_management', methods=['GET', 'POST'])
 def user_management():
     error = None
-    auth_bool = utils.is_auth(session)
-    if not auth_bool:
+    auth = utils.is_auth(session)
+    if not auth:
         return redirect(url_for('login'))
-    else:
+    elif auth == 2:
         with open("config/config.yml") as f:
             config = yaml.safe_load(f)
         company = config['site']['company']
@@ -218,7 +228,7 @@ def user_management():
         else:
             users = sql.get_table('User')
             roles = sql.get_table('Role')
-            return render_template('user_management.html', error=error, users=users, roles=roles, company=company)
+            return render_template('admin/user_management.html', error=error, users=users, roles=roles, company=company)
 
 """
 There is a bug where management will not update and will stay as the original value.
@@ -226,10 +236,10 @@ There is a bug where management will not update and will stay as the original va
 @app.route('/admin/user_management/<userId>', methods=['GET', 'POST'])
 def edit_user(userId):
     error = None
-    auth_bool = utils.is_auth(session)
-    if not auth_bool:
+    auth = utils.is_auth(session)
+    if not auth:
         return redirect(url_for('login'))
-    else:
+    elif auth == 2:
         with open("config/config.yml") as f:
             config = yaml.safe_load(f)
         company = config['site']['company']
@@ -258,21 +268,21 @@ def edit_user(userId):
                     app.logger.info(f"management = {request.form['management']}")
                     sql.update_user(userId,f"management = 0")
             if error:
-                return render_template('edit_user.html', error=error, user=user, maxRole=maxRole, company=company)
+                return render_template('admin/edit_user.html', error=error, user=user, maxRole=maxRole, company=company)
             else:
                 return redirect(url_for('user_management'))
         else:
             app.logger.info(user)
-            return render_template('edit_user.html', error=error, user=user, maxRole=maxRole, company=company)
+            return render_template('admin/edit_user.html', error=error, user=user, maxRole=maxRole, company=company)
 
 
 @app.route('/admin/site_management', methods=['GET', 'POST'])
 def site_management():
     error = None
-    auth_bool = utils.is_auth(session)
-    if not auth_bool:
+    auth = utils.is_auth(session)
+    if not auth:
         return redirect(url_for('login'))
-    else:
+    elif auth == 2:
         with open("config/config.yml") as f:
             config = yaml.safe_load(f)
         company = config['site']['company']
@@ -291,7 +301,7 @@ def site_management():
             app.logger.info(config)
             startTime = config['site']['open']
             endTime = config['site']['close']
-        return render_template('site_management.html', error=error, startTime=startTime,
+        return render_template('admin/site_management.html', error=error, startTime=startTime,
          endTime=endTime, company=company)
 
 @app.route('/admin/user_management/add_user', methods=['GET', 'POST'])
@@ -301,9 +311,10 @@ def add_user():
     with open("config/config.yml") as f:
         config = yaml.safe_load(f)
     company = config['site']['company']
-    if not auth_bool:
+    auth = utils.is_auth(session)
+    if not auth:
         return redirect(url_for('login'))
-    else:
+    elif auth == 2:
         maxRole = len(sql.get_table('Role'))
         if request.method == 'POST':
             app.logger.info(request.form)
@@ -318,29 +329,29 @@ def add_user():
             phone = re.sub('\D', '', phone)
             role = request.form['stylistlevel']
             if not role.isnumeric():
-                error = "Please select a Stylist Level"
+                error += "Please select a Stylist Level"
             if request.form.get('management'):
                 management = 1
             else:
                 management = 0
             if error:
-             return render_template('add_user_ph.html', error=error, maxRole=maxRole, firstName=firstName, lastName=lastName, 
+             return render_template('admin/add_user_ph.html', error=error, maxRole=maxRole, firstName=firstName, lastName=lastName, 
              email=email, un=un, pwd=pwd, phone=phone, role=role, booth=booth, management=management, company=company)
             else:
                 sql.insert_User(firstName, lastName, email, phone, un, pwd, role, management)
             return redirect(url_for('user_management'))
-        return render_template('add_user.html', error=error, maxRole=maxRole, company=company)
+        return render_template('admin/add_user.html', error=error, maxRole=maxRole, company=company)
 
 @app.route('/admin/customer', methods   =['GET', 'POST'])
 def customer():
     error = None
-    auth_bool = utils.is_auth(session)
     with open("config/config.yml") as f:
         config = yaml.safe_load(f)
     company = config['site']['company']
-    if not auth_bool:
+    auth = utils.is_auth(session)
+    if not auth:
         return redirect(url_for('login'))
-    if request.method == 'POST':
+    elif auth == 2:
         typeId = request.form['typeId']
         app.logger.info(typeId)
         userId = request.form['userId']
@@ -351,9 +362,9 @@ def customer():
         year = request.form['year']
         app.logger.info(time)
         if request.form['submit'] == "New Customer":
-            return render_template('add_customer.html', error=error, company=company, typeId=typeId, userId=userId, day=day, month=month, year=year, time=time)
+            return render_template('admin/add_customer.html', error=error, company=company, typeId=typeId, userId=userId, day=day, month=month, year=year, time=time)
         elif request.form['submit'] == "Existing Customer": 
-            return render_template('search_customer.html', error=error, company=company, typeId=typeId, userId=userId, day=day, month=month, year=year, time=time)
+            return render_template('admin/search_customer.html', error=error, company=company, typeId=typeId, userId=userId, day=day, month=month, year=year, time=time)
         elif request.form['submit'] == "Search Customer":
             if request.form['search_type'] == 'Name':
                 name = request.form['search'].split()
@@ -370,7 +381,7 @@ def customer():
                 phone = request.form['search']
                 customer = sql.get_all('*','Customer',f'phoneNumber = {phone}')
             app.logger.info(customer)
-            return render_template('search_customer.html', customers=customer, company=company, typeId=typeId, userId=userId, day=day, month=month, year=year, time=time)
+            return render_template('admin/search_customer.html', customers=customer, company=company, typeId=typeId, userId=userId, day=day, month=month, year=year, time=time)
     else:
         pass
         return redirect(url_for('calendarDay', day=day, month=month, year=year))
@@ -378,10 +389,10 @@ def customer():
 @app.route('/admin/customer_management', methods=['GET', 'POST'])
 def customers():
     error = None
-    auth_bool = utils.is_auth(session)
-    if not auth_bool:
+    auth = utils.is_auth(session)
+    if not auth:
         return redirect(url_for('login'))
-    else:
+    elif auth == 2:
         with open("config/config.yml") as f:
             config = yaml.safe_load(f)
         company = config['site']['company']
@@ -390,15 +401,15 @@ def customers():
             return redirect(url_for('edit_customer',  customerId=customerId))
         else:
             customers = sql.get_table('Customer')
-            return render_template('customers.html', error=error, customers=customers, company=company)
+            return render_template('admin/customers.html', error=error, customers=customers, company=company)
 
 @app.route('/admin/customer_management/<customerId>', methods=['GET', 'POST'])
 def edit_customer(customerId):
     error = None
-    auth_bool = utils.is_auth(session)
-    if not auth_bool:
+    auth = utils.is_auth(session)
+    if not auth:
         return redirect(url_for('login'))
-    else:
+    elif auth == 2:
         with open("config/config.yml") as f:
             config = yaml.safe_load(f)
         company = config['site']['company']
@@ -415,20 +426,20 @@ def edit_customer(customerId):
             if request.form['phoneNumber'] != customer['phoneNumber']:
                 sql.update_table('Customer',f"phoneNumber = '{request.form['phoneNumber']}'", f"customerId = '{customerId}'")
             if error:
-                return render_template('edit_customer.html', error=error, customer=customer, company=company)
+                return render_template('admin/edit_customer.html', error=error, customer=customer, company=company)
             else:
                 return redirect(url_for('customers'))
         else:
             app.logger.info(customer)
-            return render_template('edit_customer.html', error=error, customer=customer, company=company)
+            return render_template('admin/edit_customer.html', error=error, customer=customer, company=company)
 
 @app.route('/admin/appointments', methods=['GET', 'POST'])
 def appointments():
     error = None
-    auth_bool = utils.is_auth(session)
-    if not auth_bool:
+    auth = utils.is_auth(session)
+    if not auth:
         return redirect(url_for('login'))
-    else:
+    elif auth == 2:
         with open("config/config.yml") as f:
             config = yaml.safe_load(f)
         company = config['site']['company']
@@ -437,19 +448,19 @@ def appointments():
             return redirect(url_for('edit_appointment', appointTypeId=appointTypeId))
         else:
             appointments = sql.get_table('AppointmentType')
-            return render_template('appointments.html', error=error, appointments = appointments, company=company)
+            return render_template('admin/appointments.html', error=error, appointments = appointments, company=company)
 
 # Add new appointment types.
 @app.route('/admin/appointments/add_appointment', methods=['GET', 'POST'])
 def add_appointment():
     error = None
-    auth_bool = utils.is_auth(session)
     with open("config/config.yml") as f:
         config = yaml.safe_load(f)
     company = config['site']['company']
-    if not auth_bool:
+    auth = utils.is_auth(session)
+    if not auth:
         return redirect(url_for('login'))
-    else:
+    elif auth == 2:
         role = sql.get_table('Role')
         if request.method == 'POST':
             typeName = request.form['typeName']
@@ -462,7 +473,7 @@ def add_appointment():
             else:
                 hasHourlyRate = 0
             if error:
-                return render_template('add_appointment_ph.html', error=error, typeName=typeName, description=description, duration=duration,
+                return render_template('admin/add_appointment_ph.html', error=error, typeName=typeName, description=description, duration=duration,
                 hasHourlyRate=hasHourlyRate, company=company, role=role, form=request.form, temp = None)
             else:
                 sql.insert_AppointmentType(typeName, description, duration, hasHourlyRate)
@@ -479,7 +490,7 @@ def add_appointment():
                 sql.insert_Pricing(appoinTypeId, roles, prices)
             return redirect(url_for('appointments'))
         else:
-            return render_template('add_appointment.html', error=error, company=company, role=role)
+            return render_template('admin/add_appointment.html', error=error, company=company, role=role)
 
 """
 Add edit appointment types.
@@ -489,10 +500,10 @@ There is a bug where hasHourlyRate will not update and will stay as the original
 @app.route('/admin/appointments/<appointTypeId>', methods=['GET', 'POST'])
 def edit_appointment(appointTypeId):
     error = None
-    auth_bool = utils.is_auth(session)
-    if not auth_bool:
+    auth = utils.is_auth(session)
+    if not auth:
         return redirect(url_for('login'))
-    else:
+    elif auth == 2:
         role = sql.get_table('Role')
         prices = sql.get_all('*','Pricing',f'appointTypeId = {appointTypeId}')
         with open("config/config.yml") as f:
@@ -524,11 +535,11 @@ def edit_appointment(appointTypeId):
             
             if error:
                 prices = sql.get_all('*','Pricing',f'appointTypeId = {appointTypeId}')
-                return render_template('edit_appointment_type.html', error=error, appointment=appointment, company=company, role=role, prices=prices)
+                return render_template('admin/edit_appointment_type.html', error=error, appointment=appointment, company=company, role=role, prices=prices)
             else:
                 return redirect(url_for('appointments'))
         else:
-            return render_template('edit_appointment_type.html', error=error, appointment=appointment, company=company, role=role, prices=prices)
+            return render_template('admin/edit_appointment_type.html', error=error, appointment=appointment, company=company, role=role, prices=prices)
 
 
 @app.route('/admin/calendar/', methods=['GET', 'POST'])
@@ -537,10 +548,10 @@ def calendar():
         config = yaml.safe_load(f)
     company = config['site']['company']
     error = None
-    auth_bool = utils.is_auth(session)
-    if not auth_bool:
+    auth = utils.is_auth(session)
+    if not auth:
         return redirect(url_for('login'))
-    else:
+    elif auth == 2:
         dt = datetime.today()
         year = dt.year
         month = dt.month
@@ -552,10 +563,10 @@ def book(day,month,year,userid):
     with open("config/config.yml") as f:
         config = yaml.safe_load(f)
     company = config['site']['company']
-    auth_bool = utils.is_auth(session)
-    if not auth_bool:
+    auth = utils.is_auth(session)
+    if not auth:
         return redirect(url_for('login'))
-    else:
+    elif auth == 2:
         date = f'{year}-{month}-{day}'
         if request.method == 'POST':
             if request.form['time']:
@@ -577,7 +588,7 @@ def book(day,month,year,userid):
                     appointmentTypes += sql.get_all('appointTypeId,typeName, description, duration', 'AppointmentType',where)
                 else:
                     appointmentTypes = sql.get_table('AppointmentType')
-                return render_template('booking.html', time=time.strftime("%I:%M %p"), day=day, month=month, 
+                return render_template('admin/booking.html', time=time.strftime("%I:%M %p"), day=day, month=month, 
                 year=year, appointmentTypes = appointmentTypes, userId = userid, company=company)
             else:
                 return redirect(url_for('calendarDay', day=day, month=month, year=year))
@@ -588,10 +599,10 @@ def calendarDay(day,month,year):
         config = yaml.safe_load(f)
     company = config['site']['company']
     error = None
-    auth_bool = utils.is_auth(session)
-    if not auth_bool:
+    auth = utils.is_auth(session)
+    if not auth:
         return redirect(url_for('login'))
-    else:
+    elif auth == 2:
         date = datetime(int(year),int(month),int(day),0,0,0)
         if request.method == 'POST':
             if request.form['submit_button'] == 'Month View':
@@ -641,7 +652,7 @@ def calendarDay(day,month,year):
             closetime = config['site']['close']
             app.logger.info(datetime.strptime(opentime,"%I:%M %p"))
             app.logger.info(datetime.strptime(times[36],"%I:%M %p")) 
-            return render_template('Calendar-Day.html', day=day, month=month, year=year,
+            return render_template('admin/Calendar-Day.html', day=day, month=month, year=year,
             times=times,user_schedule=user_schedule, datetime=datetime, 
             user_booked=user_booked, booked = 0, scroll = 'start', opentime = opentime, closetime = closetime, company=company)
 
@@ -651,10 +662,10 @@ def calendarMonth(month, year):
         config = yaml.safe_load(f)
     company = config['site']['company']
     error = None
-    auth_bool = utils.is_auth(session)
-    if not auth_bool:
+    auth = utils.is_auth(session)
+    if not auth:
         return redirect(url_for('login'))
-    else:
+    elif auth == 2:
         if request.method == 'POST':
             if request.form['submit_button'] == 'Next Month':
                 date = request.form['date']
@@ -680,7 +691,7 @@ def calendarMonth(month, year):
         currentYear = date.year
         firstDay = date.replace(day=1).weekday()
         lastDay = date.replace(day = fcalendar.monthrange(date.year, date.month)[1]).strftime("%d")
-        return render_template('Calendar-Month.html', lastDay = int(lastDay), 
+        return render_template('admin/Calendar-Month.html', lastDay = int(lastDay), 
         firstDay=firstDay, day=currentDay, month=currentMonth, 
         year=currentYear, date=date, error=error, company=company)
 
@@ -690,12 +701,13 @@ def analysis():
         config = yaml.safe_load(f)
     company = config['site']['company']
     error = None
-    auth_bool = utils.is_auth(session)
-    if not auth_bool:
+    auth = utils.is_auth(session)
+    if not auth:
         return redirect(url_for('login'))
-    else:
+    elif auth == 2:
         firstname, lastname = sql.get_name(session['user'], app.logger)
         name = firstname + ' ' + lastname
+
 
         # user viewed charts
         userSales = sql.total_sales('2022-10-17', '2022-10-21', 6)   
@@ -714,11 +726,13 @@ def analysis():
         userAppointments = userAppointments, totalAppointments = totalAppointments, company=company)
 
 
+
 @app.route('/logout', methods=['GET'])
 def logout():
     session['auth'] = None
     session['user'] = None
-    session['level'] = None
+    session['admin'] = None
+    session['booth'] = None
     return redirect(url_for('login'))
 
 @app.route('/error')
