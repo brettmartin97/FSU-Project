@@ -18,6 +18,12 @@
             <input type="checkbox" id = "hasgoal" name = "hasgoal" value="hasgoal" >
             {% endif %}
             <label for="hasgoal">Has Goal</label>
+            {% if hasbooth %}
+            <input type="checkbox" id = "hasbooth" name = "hasbooth" value="hasbooth" checked>
+            {% else %}
+            <input type="checkbox" id = "hasbooth" name = "hasbooth" value="hasbooth" >
+            {% endif %}
+            <label for="hasbooth">Has Booth</label>
         </div>
         <input type="submit" value="Submit">
     </form>

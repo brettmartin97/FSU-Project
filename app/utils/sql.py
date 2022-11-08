@@ -367,20 +367,20 @@ The hGoal variable needs to be a 0 for False or a 1 for True.
 Example call in rest.py:
 sql.insert_Role('Secret Stylist', '99%', 0, 0)
 """
-def insert_Role(rName, com, hRate, hGoal):
+def insert_Role(rName, com, hRate, hGoal, hBooth):
     
     conn = pymysql.connect(host='db',
                            user='root',
                            password="root",
                            db='fsu')
     cursor = conn.cursor(pymysql.cursors.DictCursor)
-    print(rName, com, hRate, hGoal, flush=True)
+    print(rName, com, hRate, hGoal, hBooth, flush=True)
 
-    query = f'''INSERT INTO Role(roleName, commission, hourlyRate, hasGoal) 
-            VALUES (%s, %s, %s, %s)'''
+    query = f'''INSERT INTO Role(roleName, commission, hourlyRate, hasGoal, hasBooth) 
+            VALUES (%s, %s, %s, %s, %s)'''
 
 
-    cursor.execute(query, (rName, com, hRate, hGoal))
+    cursor.execute(query, (rName, com, hRate, hGoal, hBooth))
 
     conn.commit()
 
@@ -602,11 +602,14 @@ def chart_data(query):
 
 
 # bar chart
-def build_barchart(title, x, y):
+def build_barchart(title, x, y, line = None):
     plt.close
     plt.title(title)
     #  x = pd.to_datetime(x).dt.normalize()
-    plt.bar(x, y)
+    if not line:
+        plt.bar(x, y)
+    else:
+        plt.plot(x, y)
     plt.xticks(rotation=75)
     plt.gray()
 
@@ -650,7 +653,7 @@ def appointment_total(startDay, endDay):
 # Creates a chart for showing appointment by date.
 def appointment_by_date(startDay, endDay, id=None):
     if not id:
-        query = f'''SELECT date(startTime) as d, count(date(startTime)) as num 
+        query = f'''SELECT DATE_FORMAT(startTime, '%Y-%m-%d') as d, count(date(startTime)) as num 
         FROM Appointment
         WHERE date(startTime) >= '{startDay}' and date(startTime) <= '{endDay}' 
         GROUP BY d 
@@ -658,7 +661,7 @@ def appointment_by_date(startDay, endDay, id=None):
         data = chart_data(query)
         plotUrl = build_barchart('Appointment by date', data.d, data.num)
     else:
-        query = f'''SELECT date(startTime) as d, count(date(startTime)) as num 
+        query = f'''SELECT DATE_FORMAT(startTime, '%Y-%m-%d') as d, count(date(startTime)) as num 
         FROM Appointment
         WHERE date(startTime) >= '{startDay}' and date(startTime) <= '{endDay}' and userId = {id} 
         GROUP BY d 
@@ -692,19 +695,20 @@ def appointmentType_chart(startDay, endDay, id=None):
 
 def customer_chart(startDay, endDay, id=None):
     if not id:
-        query = f'''SELECT date(startTime) as d, count(customerId) as cust
+        query = f'''SELECT DATE_FORMAT(startTime, '%Y-%m-%d') as d, count(customerId) as cust
         FROM Appointment
         WHERE date(startTime) >= '{startDay}' and date(startTime) <= '{endDay}' 
-        GROUP BY date(startTime)'''
+        GROUP BY DATE_FORMAT(startTime, '%Y-%m-%d')'''
         data = chart_data(query)
         plotUrl = build_barchart('Customers by date', data.d, data.cust)
     else:
-        query = f'''SELECT date(startTime) as d, count(customerId) as cust, userId
+        query = f'''SELECT DATE_FORMAT(startTime, '%Y-%m-%d') as d, count(customerId) as cust, userId
         FROM Appointment
         WHERE date(startTime) >= '{startDay}' and date(startTime) <= '{endDay}' and userId = {id} 
-        GROUP BY date(startTime)'''
+        GROUP BY DATE_FORMAT(startTime, '%Y-%m-%d')'''
         data = chart_data(query)
         plotUrl = build_barchart('Customers by date', data.d, data.cust)
+    
 
     return plotUrl
 
@@ -728,4 +732,33 @@ def percentage_prebooked(startDay, endDay, id):
 
     return percPreBooked
 
+def total_sales(startDay, endDay, id = None):
+    if not id:
+        query = f'''SELECT DATE_FORMAT(startTime, '%Y-%m-%d') as d, SUM(p.price) as sales
+        FROM Appointment as a, Pricing as p
+        WHERE date(startTime) >= '{startDay}' and date(startTime) <= '{endDay}' and a.totalPriceId = p.totalPriceId 
+        GROUP BY DATE_FORMAT(startTime, '%Y-%m-%d')
+        ORDER BY d ASC'''    
+    else:
+        query = f'''SELECT DATE_FORMAT(startTime, '%Y-%m-%d') as d, SUM(p.price) as sales, a.userId
+        FROM Appointment as a, Pricing as p
+        WHERE date(startTime) >= '{startDay}' and date(startTime) <= '{endDay}' and userId = {id} and a.totalPriceId = p.totalPriceId 
+        GROUP BY DATE_FORMAT(startTime, '%Y-%m-%d')
+        ORDER BY d ASC'''
+    data = chart_data(query)
 
+    plt.close()
+    fig, ax = plt.subplots()
+    plt.style.use('grayscale')
+    ax.plot(data.d, data.sales)
+       
+    ax.yaxis.set_major_formatter('${x:1.2f}')
+    plt.title("Total Sales")
+    plt.xticks(rotation=75)
+ 
+    img = BytesIO()
+
+    plt.savefig(img, format='png')
+    plotUrl = base64.b64encode(img.getvalue()).decode('utf8')
+    
+    return plotUrl

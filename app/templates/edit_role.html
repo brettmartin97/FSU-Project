@@ -16,7 +16,13 @@
             {% else %}
             <input type="checkbox" id = "hasGoal" name = "hasGoal" value="hasGoal" >
             {% endif %}
-            <label for="hasGoal">Has Goal:</label>
+            <label for="hasGoal">Has Goal</label>
+            {% if role.hasBooth %}
+            <input type="checkbox" id = "hasBooth" name = "hasBooth" value="hasBooth" checked>
+            {% else %}
+            <input type="checkbox" id = "hasBooth" name = "hasBooth" value="hasBooth" >
+            {% endif %}
+            <label for="hasBooth">Has Booth</label>
         </div>
         <input type="submit" value="Submit">
     </form>

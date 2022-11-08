@@ -125,18 +125,24 @@ def add_role():
             if sql.get_single_role_info(roleName):
                 error = "Role name taken, please choose a  different one"
             commission = request.form['commission']
-            hourlyRate = request.form['hourlyrate']
-            if not hourlyRate.isnumeric():
+            try:
+                hourlyRate = float(request.form['hourlyrate'])
+            except:
                 error = "Please enter a proper hourly rate"
+                hourlyRate = 0
             if request.form.get('hasgoal'):
                 hasGoal = 1
             else:
                 hasGoal = 0
+            if request.form.get('hasbooth'):
+                hasBooth = 1
+            else:
+                hasBooth = 0
             if error:
              return render_template('add_role_ph.html', error=error, roleName=roleName, commission=commission, 
-             hourlyRate=hourlyRate, hasGoal=hasGoal, company=company)
+             hourlyRate=hourlyRate, hasGoal=hasGoal, hasBooth=hasBooth, company=company)
             else:
-                sql.insert_Role(roleName, commission, hourlyRate, hasGoal)
+                sql.insert_Role(roleName, commission, hourlyRate, hasGoal, hasBooth)
             return redirect(url_for('role_management'))
         return render_template('add_role.html', error=error, company=company)
 
@@ -158,14 +164,18 @@ def edit_role(roleId):
             app.logger.info(role)
             app.logger.info(request.form)
             if request.form['roleName'] != role['roleName']:
-                sql.update_table('Role',f"roleName = '{request.form['roleName']}'", f"roleId = '{roleId}'")
+                if sql.get_single_role_info(request.form['roleName']):
+                    error = "Role name taken, please choose a  different one"
+                else:
+                    sql.update_table('Role',f"roleName = '{request.form['roleName']}'", f"roleId = '{roleId}'")
+            
             if request.form['commission'] != role['commission']:
                 sql.update_table('Role',f"commission = '{request.form['commission']}'", f"roleId = '{roleId}'")
             try:
                 rate = float(request.form['hourlyRate'])
                 if rate != role['hourlyRate']:
                     sql.update_table('Role',f"hourlyRate = '{rate}'", f"roleId = '{roleId}'")
-            except exception as e:
+            except:
                 error = "Please enter a valid hourly rate"
             if request.form.get('hasGoal'):
                 if 1 != role['hasGoal']:
@@ -175,6 +185,15 @@ def edit_role(roleId):
                 if 0 != role['hasGoal']:
                     app.logger.info(f"hasGoal = 0")
                     sql.update_table('Role',f"hasGoal = 0", f"roleId = '{roleId}'")
+            
+            if request.form.get('hasBooth'):
+                if 1 != role['hasBooth']:
+                    app.logger.info(f"hasBooth = 1")
+                    sql.update_table('Role',f"hasBooth = 1", f"roleId = '{roleId}'")
+            else:
+                if 0 != role['hasBooth']:
+                    app.logger.info(f"hasBooth = 0")
+                    sql.update_table('Role',f"hasBooth = 0", f"roleId = '{roleId}'")
             if error:
                 return render_template('edit_role.html', error=error, role=role, company=company)
             else:
@@ -677,7 +696,7 @@ def analysis():
     else:
         firstname, lastname = sql.get_name(session['user'], app.logger)
         name = firstname + ' ' + lastname
-        aptChart = sql.appointmentType_chart('2022-10-18', '2022-10-20')
+        aptChart = sql.total_sales('2022-10-17', '2022-10-21')
         return render_template('analysis.html', error=error, aptChart=aptChart, company=company)
 
 

@@ -9,6 +9,7 @@ CREATE TABLE if not exists `Role` (
   `commission` varchar(30),
   `hourlyRate` double,
   `hasGoal` boolean NOT NULL,
+  `hasBooth` boolean NOT NULL,
   PRIMARY KEY (`roleId`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -91,20 +92,20 @@ CREATE TABLE if not exists `Appointment` (
 -- Inserting dummy test data:
 
 -- Insert data into the Role table.
-insert  into `Role`(`roleId`,`roleName`, `commission`, `hourlyRate`, `hasGoal`) values
-(1, 'Level 1 Stylist', '45%', 0, TRUE),
-(2, 'Level 2 Stylist', '45%', 0, TRUE),
-(3, 'Level 3 Stylist', '45%', 0, TRUE),
-(4, 'Level 4 Stylist', '45%', 0, TRUE),
-(5, 'Level 5 Stylist', '50%', 0, TRUE),
-(6, 'Level 6 Stylist', '50%', 0, TRUE),
-(7, 'Level 7 Stylist', '55%', 0, TRUE),
-(8, 'Level 8 Stylist', '60%', 0, TRUE),
-(9, 'Level 9 Stylist', '60%', 0, TRUE),
-(10, 'Level 10 Stylist', '60%', 0, TRUE),
-(11, 'Booth Stylist', '60%', 0, FALSE),
-(12, 'Deskworker', 'N\A', 0, FALSE),
-(13, 'Admin', 'N\A', 0, FALSE);
+insert  into `Role`(`roleId`,`roleName`, `commission`, `hourlyRate`, `hasGoal`, `hasBooth`) values
+(1, 'Level 1 Stylist', '45%', 0, TRUE, FALSE),
+(2, 'Level 2 Stylist', '45%', 0, TRUE, FALSE),
+(3, 'Level 3 Stylist', '45%', 0, TRUE, FALSE),
+(4, 'Level 4 Stylist', '45%', 0, TRUE, FALSE),
+(5, 'Level 5 Stylist', '50%', 0, TRUE, FALSE),
+(6, 'Level 6 Stylist', '50%', 0, TRUE, FALSE),
+(7, 'Level 7 Stylist', '55%', 0, TRUE, FALSE),
+(8, 'Level 8 Stylist', '60%', 0, TRUE, FALSE),
+(9, 'Level 9 Stylist', '60%', 0, TRUE, FALSE),
+(10, 'Level 10 Stylist', '60%', 0, TRUE, FALSE),
+(11, 'Booth Stylist', '60%', 0, FALSE, TRUE),
+(12, 'Deskworker', 'N\A', 0, FALSE, FALSE),
+(13, 'Admin', 'N\A', 0, FALSE, FALSE);
 
 
 -- Insert data into the RoleGoal table.
@@ -475,4 +476,12 @@ insert  into `Appointment`(`appointId`,`userId`,`appointTypeId`,`customerId`,`to
 (30, 11, 4, 8, 43, 'Baked in Temp Appointment30', '2022-10-20 17:00:00'),
 (31, 12, 15, 3, 165, 'Baked in Temp Appointment31', '2022-10-21 10:00:00'),
 (32, 12, 7, 1, 77, 'Baked in Temp Appointment32', '2022-10-21 14:00:00'),
-(33, 12, 3, 15, 33, 'Baked in Temp Appointment33', '2022-10-21 16:00:00');
+(33, 12, 3, 15, 33, 'Baked in Temp Appointment33', '2022-10-21 16:00:00'),
+(34, 6, 16, 14, 170, 'Baked in Temp Appointment14', '2022-10-17 09:30:00'),
+(35, 6, 11, 9, 115, 'Baked in Temp Appointment15', '2022-10-18 10:30:00'),
+(36, 6, 10, 8, 104, 'Baked in Temp Appointment16', '2022-10-19 12:25:00'),
+(37, 6, 4, 7, 104, 'Baked in Temp Appointment17', '2022-10-20 14:45:00'),
+(38, 6, 16, 14, 170, 'Baked in Temp Appointment14', '2022-10-17 09:30:00'),
+(39, 6, 11, 9, 115, 'Baked in Temp Appointment15', '2022-10-18 10:30:00'),
+(40, 6, 10, 8, 104, 'Baked in Temp Appointment16', '2022-10-19 12:25:00'),
+(41, 6, 4, 7, 104, 'Baked in Temp Appointment17', '2022-10-20 14:45:00');
