@@ -367,20 +367,20 @@ The hGoal variable needs to be a 0 for False or a 1 for True.
 Example call in rest.py:
 sql.insert_Role('Secret Stylist', '99%', 0, 0)
 """
-def insert_Role(rName, com, hRate, hGoal):
+def insert_Role(rName, com, hRate, hGoal, hBooth):
     
     conn = pymysql.connect(host='db',
                            user='root',
                            password="root",
                            db='fsu')
     cursor = conn.cursor(pymysql.cursors.DictCursor)
-    print(rName, com, hRate, hGoal, flush=True)
+    print(rName, com, hRate, hGoal, hBooth, flush=True)
 
-    query = f'''INSERT INTO Role(roleName, commission, hourlyRate, hasGoal) 
-            VALUES (%s, %s, %s, %s)'''
+    query = f'''INSERT INTO Role(roleName, commission, hourlyRate, hasGoal, hasBooth) 
+            VALUES (%s, %s, %s, %s, %s)'''
 
 
-    cursor.execute(query, (rName, com, hRate, hGoal))
+    cursor.execute(query, (rName, com, hRate, hGoal, hBooth))
 
     conn.commit()
 

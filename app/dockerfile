@@ -1,6 +1,6 @@
 FROM python:3.10.7-alpine
 RUN apk update \
-    && apk --update add build-base gcc musl-dev python3-dev libffi-dev openssl-dev 
+    && apk --update add build-base gcc musl-dev zlib-dev jpeg-dev python3-dev libffi-dev openssl-dev 
 WORKDIR /app
 COPY requirements.txt requirements.txt
 RUN pip install --upgrade pip

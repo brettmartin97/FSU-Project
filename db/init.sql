@@ -9,6 +9,7 @@ CREATE TABLE if not exists `Role` (
   `commission` varchar(30),
   `hourlyRate` double,
   `hasGoal` boolean NOT NULL,
+  `hasBooth` boolean NOT NULL,
   PRIMARY KEY (`roleId`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -91,20 +92,20 @@ CREATE TABLE if not exists `Appointment` (
 -- Inserting dummy test data:
 
 -- Insert data into the Role table.
-insert  into `Role`(`roleId`,`roleName`, `commission`, `hourlyRate`, `hasGoal`) values
-(1, 'Level 1 Stylist', '45%', 0, TRUE),
-(2, 'Level 2 Stylist', '45%', 0, TRUE),
-(3, 'Level 3 Stylist', '45%', 0, TRUE),
-(4, 'Level 4 Stylist', '45%', 0, TRUE),
-(5, 'Level 5 Stylist', '50%', 0, TRUE),
-(6, 'Level 6 Stylist', '50%', 0, TRUE),
-(7, 'Level 7 Stylist', '55%', 0, TRUE),
-(8, 'Level 8 Stylist', '60%', 0, TRUE),
-(9, 'Level 9 Stylist', '60%', 0, TRUE),
-(10, 'Level 10 Stylist', '60%', 0, TRUE),
-(11, 'Booth Stylist', '60%', 0, FALSE),
-(12, 'Deskworker', 'N\A', 0, FALSE),
-(13, 'Admin', 'N\A', 0, FALSE);
+insert  into `Role`(`roleId`,`roleName`, `commission`, `hourlyRate`, `hasGoal`, `hasBooth`) values
+(1, 'Level 1 Stylist', '45%', 0, TRUE, FALSE),
+(2, 'Level 2 Stylist', '45%', 0, TRUE, FALSE),
+(3, 'Level 3 Stylist', '45%', 0, TRUE, FALSE),
+(4, 'Level 4 Stylist', '45%', 0, TRUE, FALSE),
+(5, 'Level 5 Stylist', '50%', 0, TRUE, FALSE),
+(6, 'Level 6 Stylist', '50%', 0, TRUE, FALSE),
+(7, 'Level 7 Stylist', '55%', 0, TRUE, FALSE),
+(8, 'Level 8 Stylist', '60%', 0, TRUE, FALSE),
+(9, 'Level 9 Stylist', '60%', 0, TRUE, FALSE),
+(10, 'Level 10 Stylist', '60%', 0, TRUE, FALSE),
+(11, 'Booth Stylist', '60%', 0, FALSE, TRUE),
+(12, 'Deskworker', 'N\A', 0, FALSE, FALSE),
+(13, 'Admin', 'N\A', 0, FALSE, FALSE);
 
 
 -- Insert data into the RoleGoal table.
