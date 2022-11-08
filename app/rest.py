@@ -21,7 +21,7 @@ def home():
     if not auth_bool:
         return redirect(url_for('login'))
     else:
-        return render_template('home.html')
+        return render_template('user/base.html')
 
 @app.route('/booth', methods=['GET', 'POST'])
 def booth():
@@ -721,7 +721,7 @@ def analysis():
         allAppointType = sql.appointmentType_chart('2022-10-17', '2022-10-21')
         totalAppointments = sql.appointment_by_date('2022-10-17', '2022-10-21')
 
-        return render_template('analysis.html', error=error, userSales=userSales, totalSales=totalSales, usersales=userSales,
+        return render_template('admin/analysis.html', error=error, userSales=userSales, totalSales=totalSales, usersales=userSales,
         userCustomers = userCustomers, totalCustomers = totalCustomers, appointType = appointType, allAppointType = allAppointType, 
         userAppointments = userAppointments, totalAppointments = totalAppointments, company=company)
 
