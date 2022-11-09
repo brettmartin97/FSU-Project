@@ -68,7 +68,7 @@ def user_customers():
             customers = sql.get_customers_for_user(userId)
             return render_template('user/customers.html', error=error, customers=customers, company=company)
     else:
-        return redirect(url_for('404'))
+        return redirect(url_for('error'))
 
 
 
@@ -91,6 +91,26 @@ def booth():
         return redirect(url_for('error'))
     else:
         return render_template('booth/base.html')
+
+@app.route('/booth/customers')
+def booth_customers():
+    error = None
+    auth = utils.is_auth(session)
+    if not auth:
+        return redirect(url_for('login'))
+    elif auth == 3:
+        with open("config/config.yml") as f:
+            config = yaml.safe_load(f)
+        company = config['site']['company']
+        if request.method == 'POST':
+            customerId = request.form['customerId']
+            return redirect(url_for('booth_edit_customer',  customerId=customerId))
+        else:
+            userId = session['userId']
+            customers = sql.get_customers_for_user(userId)
+            return render_template('booth/customers.html', error=error, customers=customers, company=company)
+    else:
+        return redirect(url_for('error'))
 
 @app.route('/setup', methods=['GET', 'POST'])
 def setup():
