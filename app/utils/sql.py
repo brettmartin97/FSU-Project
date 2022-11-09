@@ -30,7 +30,7 @@ def set_password(user, password):
     conn.close()
 
 """
-Validate that the password of a user is hashed.
+Validates password in the DB is the same as the one input .
 """
 def validate_password(user, password):
     validationSQL = f'SELECT password FROM User WHERE username = "{user}"'

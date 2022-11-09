@@ -40,6 +40,12 @@ div {
     font-family: 'Courier New', Courier, monospace;
 }
 
+div.sticky {
+  position: -webkit-sticky; /* Safari */
+  position: sticky;
+  top: 0;
+}
+
 h1 {
   text-align: center;
 }
@@ -408,7 +414,16 @@ tr.closed-schedule-no-border {
     background-color: #FF69B4;
     border-style:groove;
   }
-
+  button.available {
+    background-color: #FF69B4;
+    padding: 0px;
+    margin: 0px;
+    border: None
+  }
+  button.available:hover {
+    background-color: #ff48a3;
+  }
+  
   td.No-Line {
     border-style:groove;
   }

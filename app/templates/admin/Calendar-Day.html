@@ -2,7 +2,7 @@
 
 {% block content %}
 
-<div class="container">
+<div class="sticky">
   <header>
     <form  action="" method="post">
       <input type="hidden" name="submit_button" value="Prev Day">
@@ -72,7 +72,13 @@
   
           {% endfor %}
           {% if vars['booked'] == 1 %}
-            <td class=booked></td>
+            <td class=booked>
+            <form  method = "POST" action="/admin/calendar/{{ day }}-{{ month }}-{{ year }}/book-{{ u.userId }}">
+              <input type=hidden name=time id=time value='{{ times[i] }}'>
+              <button class=booked type=submit>
+              </button>
+            </form>
+            </td>
           {% else %}
           <form  method = "POST" action="/admin/calendar/{{ day }}-{{ month }}-{{ year }}/book-{{ u.userId }}">
             <td class=available>
