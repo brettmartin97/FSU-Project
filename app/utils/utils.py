@@ -1,7 +1,7 @@
 def is_auth(session):
     if len(session) != 0:
         if session['auth']:
-            if not session['admin'] and not session['auth']:
+            if not session['admin'] and not session['booth']:
                 return True
             else:
                 if session['admin']:
