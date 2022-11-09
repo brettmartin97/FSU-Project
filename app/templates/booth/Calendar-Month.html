@@ -1,0 +1,78 @@
+{% extends "base_templates/admin_base.html" %}
+
+{% block content %}
+
+<div class="calendar">
+  <header>
+    <form  action="" method="post">
+      <input type="hidden" name="submit_button" value="Prev Month">
+      </input>
+      <input type="hidden" name="date" value={{ date }}>
+
+      <input class="btn btn-default" type="submit" value="&larr;"></input>
+    </input>
+    </form>
+  <h1>{{ month }} {{ year }}</h1>
+    <form  action="" method="post">
+      <input type="hidden" name="submit_button" value="Next Month">
+      </input>
+      <input type="hidden" name="date" value={{ date }}>
+
+      <input class="btn btn-default" type="submit" value="&rarr;"/></input>
+    </input>
+    </form>
+  </header>
+
+  <ul class="weekdays">
+    <li>
+      <abbr title="S">Sunday</abbr>
+    </li>
+    <li>
+      <abbr title="M">Monday</abbr>
+    </li>
+    <li>
+      <abbr title="T">Tuesday</abbr>
+    </li>
+    <li>
+      <abbr title="W">Wednesday</abbr>
+    </li>
+    <li>
+      <abbr title="T">Thursday</abbr>
+    </li>
+    <li>
+      <abbr title="F">Friday</abbr>
+    </li>
+    <li>
+      <abbr title="S">Saturday</abbr>
+    </li>
+  </ul>
+
+ <!-- <ol class="day-grid"> -->
+    <div class="day-grid">
+      {% for n in range(42) %}
+        {% if n > firstDay and n <= lastDay + firstDay -%}
+        <form  class="days" action="" method="post">
+          <input type="hidden" name="submit_button" value="{{ n - firstDay }}">
+            <input type="hidden" name="month" value={{ month }}>
+              <input type="hidden" name="year" value="{{ year }}">
+                <button type="submit">{{ n - firstDay }}</button>
+            </input>
+          </input>
+        </input>
+        </form>
+        {% else -%}
+        <li class="othermonth"></li>
+        {% endif %}
+      
+      {% endfor %}
+    </div>
+ <!--  </ol> -->
+    
+</div>
+  
+
+
+<script type=text/javascript src="{{
+  url_for('static', filename='js/CalendarPicker.js')
+}}"></script>
+{% endblock %}

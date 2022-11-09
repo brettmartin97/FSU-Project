@@ -414,13 +414,13 @@ tr.closed-schedule-no-border {
     background-color: #FF69B4;
     border-style:groove;
   }
-  button.available {
+  button.booked {
     background-color: #FF69B4;
     padding: 0px;
     margin: 0px;
     border: None
   }
-  button.available:hover {
+  button.booked:hover {
     background-color: #ff48a3;
   }
   
