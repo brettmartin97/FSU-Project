@@ -274,6 +274,17 @@ def get_user_role(id):
 
     return run_update(update)
 
+def get_customers_for_user(userId):
+    query = f'SELECT * from Customer where customerId in (SELECT customerId FROM Appointment WHERE userId = {userId}) ORDER by 1'
+    conn = pymysql.connect(host='db',
+                           user='root',
+                           password="root",
+                           db='fsu')
+    cursor = conn.cursor(pymysql.cursors.DictCursor)
+    cursor.execute(query)
+    data = cursor.fetchall()
+    return data
+
 """
 Updates user data.
 """

@@ -15,7 +15,66 @@ import yaml
 import re
 
 @app.route('/')
+def root():
+    auth_bool = utils.is_auth(session)
+
+    if not auth_bool:
+        return redirect(url_for('login'))
+    else:
+        return redirect(url_for('home'))
+
+@app.route('/user')
 def home():
+    auth_bool = utils.is_auth(session)
+
+    app.logger.info('1')
+    if auth_bool == 0:
+        app.logger.info('2')
+        return redirect(url_for('login'))
+    elif auth_bool == 2:
+        app.logger.info('3')
+        return redirect(url_for('admin'))
+    elif auth_bool == 3:
+        app.logger.info('4')
+        return redirect(url_for('booth'))
+    else:
+        app.logger.info('5')
+        return render_template('user/base.html')
+
+@app.route('/user/analysis')
+def user_analysis():
+    auth_bool = utils.is_auth(session)
+
+    if not auth_bool:
+        return redirect(url_for('login'))
+    else:
+        return render_template('user/base.html')
+
+@app.route('/user/customers')
+def user_customers():
+    error = None
+    auth = utils.is_auth(session)
+    if not auth:
+        return redirect(url_for('login'))
+    elif auth == 1:
+        with open("config/config.yml") as f:
+            config = yaml.safe_load(f)
+        company = config['site']['company']
+        if request.method == 'POST':
+            customerId = request.form['customerId']
+            return redirect(url_for('user_edit_customer',  customerId=customerId))
+        else:
+            userId = session['userId']
+            customers = sql.get_customers_for_user(userId)
+            return render_template('user/customers.html', error=error, customers=customers, company=company)
+    else:
+        return redirect(url_for('error'))
+
+
+
+
+@app.route('/user/schedule')
+def user_schedule():
     auth_bool = utils.is_auth(session)
 
     if not auth_bool:
@@ -32,6 +91,26 @@ def booth():
         return redirect(url_for('error'))
     else:
         return render_template('booth/base.html')
+
+@app.route('/booth/customers')
+def booth_customers():
+    error = None
+    auth = utils.is_auth(session)
+    if not auth:
+        return redirect(url_for('login'))
+    elif auth == 3:
+        with open("config/config.yml") as f:
+            config = yaml.safe_load(f)
+        company = config['site']['company']
+        if request.method == 'POST':
+            customerId = request.form['customerId']
+            return redirect(url_for('booth_edit_customer',  customerId=customerId))
+        else:
+            userId = session['userId']
+            customers = sql.get_customers_for_user(userId)
+            return render_template('booth/customers.html', error=error, customers=customers, company=company)
+    else:
+        return redirect(url_for('error'))
 
 @app.route('/setup', methods=['GET', 'POST'])
 def setup():
@@ -68,6 +147,7 @@ def login():
             where = f'username = "{user}"'
             profile = sql.get_all("*", "User", where)[0]
             app.logger.info(profile)
+            session['userId'] = profile['userId']
             roleid = profile['roleId']
             where = f'roleId = {roleid}'
             role = sql.get_all("*", "Role", where)[0]
