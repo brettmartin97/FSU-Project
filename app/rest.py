@@ -332,10 +332,15 @@ def edit_user(userId):
         maxRole = len(sql.get_table('Role'))
         if request.method == 'POST':
             if request.form['submit'] == 'Delete':
-                table = 'User'
-                where = f'userId = {userId}'
-                sql.delete_data(table,where)
-                return redirect(url_for('user_management'))
+                app.logger.info(userId)
+                app.logger.info(session['userId'])
+                if int(userId) == int(session['userId']):
+                    error = 'Cannot delete current user' 
+                else:
+                    table = 'User'
+                    where = f'userId = {userId}'
+                    sql.delete_data(table,where)
+                    return redirect(url_for('user_management'))
             app.logger.info(user)
             app.logger.info(request.form)
             if request.form['firstName'] != user['firstName'] :
