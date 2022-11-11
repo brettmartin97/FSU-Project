@@ -251,6 +251,11 @@ def edit_role(roleId):
         company = config['site']['company']
         role = sql.get_all('*','Role',f"roleId = {roleId}")[0]
         if request.method == 'POST':
+            if request.form['submit'] == 'Delete':
+                table = 'Role'
+                where = f'roleId = {roleId}'
+                sql.delete_data(table,where)
+                return redirect(url_for('role_management'))
             app.logger.info(role)
             app.logger.info(request.form)
             if request.form['roleName'] != role['roleName']:
@@ -326,6 +331,11 @@ def edit_user(userId):
         user = sql.get_user(userId)[0]
         maxRole = len(sql.get_table('Role'))
         if request.method == 'POST':
+            if request.form['submit'] == 'Delete':
+                table = 'User'
+                where = f'userId = {userId}'
+                sql.delete_data(table,where)
+                return redirect(url_for('user_management'))
             app.logger.info(user)
             app.logger.info(request.form)
             if request.form['firstName'] != user['firstName'] :
@@ -495,6 +505,12 @@ def edit_customer(customerId):
         company = config['site']['company']
         customer = sql.get_all('*','Customer',f"customerId = {customerId}")[0]
         if request.method == 'POST':
+            if request.form['submit'] == 'Delete':
+                table = 'Customer'
+                where = f'customerId = {customerId}'
+                sql.delete_data(table,where)
+                return redirect(url_for('customers'))
+           
             app.logger.info(customer)
             app.logger.info(request.form)
             if request.form['firstName'] != customer['firstName'] :
@@ -591,6 +607,12 @@ def edit_appointment(appointTypeId):
         company = config['site']['company']
         appointment = sql.get_all('*','AppointmentType',f"appointTypeId = {appointTypeId}")[0]
         if request.method == 'POST':
+            if request.form['submit'] == 'Delete':
+                table = 'AppointmentType'
+                where = f'appointTypeId = {appointTypeId}'
+                sql.delete_data(table,where)
+                return redirect(url_for('appointments'))
+           
             app.logger.info(appointment)
             app.logger.info(request.form)
             if request.form['typeName'] != appointment['typeName']:
