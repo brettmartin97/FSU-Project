@@ -7,6 +7,7 @@ button.dropbtn {
   color: white;
   font-family: inherit;
   border: none;
+  border-radius: revert;
   font-size: inherit;
   padding: inherit;
 }
@@ -22,6 +23,7 @@ button.dropbtn {
 .dropdown {
   position: relative;
   display: inline-block;
+  padding: revert;
 }
 
 .dropdown:hover .dropdown-content {
@@ -37,11 +39,13 @@ button.dropbtn {
 div {
     background-color: transparent;
     color: rgb(0, 119, 0);
+    padding: 0;
     font-family: 'Courier New', Courier, monospace;
 }
 
 h1 {
   text-align: center;
+  font-size: xx-large;
 }
 
 div.halfleft {
@@ -277,6 +281,8 @@ header {
     height: 150%;
     width: 100%;
     margin-left: 0;
+    border-radius: 25px;
+    background-color: rgb(0, 119, 0);
     font-size: calc(16px + (21 - 16) * ((100vw - 300px) / (1600 - 300)));
   }
   
@@ -386,21 +392,25 @@ tr.closed-schedule-no-border {
   }
 
   td.available {
-    background-color: #F8C8DC;
+    background-color: rgb(0, 119, 0);
     height:18px;
+    contain: content;
     border-style:groove;
   }
   button.available {
-    background-color: #F8C8DC;
+    background-color: rgb(0, 119, 0);
     padding: 0px;
     margin: 0px;
+    border-radius: revert;
     border: None
   }
   button.available:hover {
-    background-color: #f7a8c9;
+    background-color: white;
+
   }
   td.unavailable {
-    background-color: #C9A9A6;
+    background-color: darkgrey;
+    contain: content;
     border-style:groove;
   }
 
