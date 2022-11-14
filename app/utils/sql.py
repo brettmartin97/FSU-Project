@@ -30,7 +30,7 @@ def set_password(user, password):
     conn.close()
 
 """
-Validate that the password of a user is hashed.
+Validates password in the DB is the same as the one input .
 """
 def validate_password(user, password):
     validationSQL = f'SELECT password FROM User WHERE username = "{user}"'
@@ -273,6 +273,17 @@ def get_user_role(id):
     update = f'SELECT * FROM User as u, Role as r WHERE u.roleId = r.roleId and u.userId = {id}'
 
     return run_update(update)
+
+def get_customers_for_user(userId):
+    query = f'SELECT * from Customer where customerId in (SELECT customerId FROM Appointment WHERE userId = {userId}) ORDER by 1'
+    conn = pymysql.connect(host='db',
+                           user='root',
+                           password="root",
+                           db='fsu')
+    cursor = conn.cursor(pymysql.cursors.DictCursor)
+    cursor.execute(query)
+    data = cursor.fetchall()
+    return data
 
 """
 Updates user data.

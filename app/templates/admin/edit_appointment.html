@@ -1,0 +1,37 @@
+{% extends "base_templates/admin_base.html" %}
+
+    {% block content %}
+    <div class = "container">
+        <h1>Add appointment</h1>
+        <form class="add_role" method="POST"> 
+            <div class="halfleft">
+                <input type="text" id="typeName" name="typeName" placeholder="Appointment Name" required>
+                <input type="text" id="description" name="description" placeholder="Description" required>
+            </div>
+            <div class="halfright">
+              <input type="text" id="duration" name="duration" placeholder="Duration" required>
+              <input type="checkbox" id = "hasHourlyRate" name = "hasHourlyRate" value="hasHourlyRate" >
+              <label for="hasHourlyRate">Has Hourly Rate</label>
+            </div>
+        <table>
+            <thead>
+                <tr> 
+                    <th>Stylist Level</th>
+                    <th>Cost (USD)</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for i in role %}
+                    <tr>
+                        <td>{{ i.roleName }} - {{ i.roleId }}</td>
+                        <td><input type = "number"  min="0.00" max="10000.00" step="0.01" name="rate_{{i.roleId}}" required></td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <input type="submit" name="submit" value="Submit">
+        <input type="submit" name="submit" class="Delete" value="Delete">
+
+    </form>
+    </div>
+    {% endblock %}
