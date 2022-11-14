@@ -1,5 +1,7 @@
+
 dropdown:hover .dropbtn {
   color: rgb(0, 119, 0);
+  cursor: pointer;
 }
 
 button.dropbtn {
@@ -295,6 +297,7 @@ header {
   button:hover {
     background-color: grey;
     color: #eaeaea;
+    cursor: pointer;
 }
 
 button.left{
@@ -340,6 +343,7 @@ tbody {
   table, th, tr, td {
     border: 1px solid;
     color: black;
+    text-align: center;
     width: -webkit-fill-available;
     padding: 1px;
   }
@@ -365,7 +369,11 @@ tr.closed-schedule-no-border {
 
   tr:nth-child(even) {background-color: #f2f2f2;}
 
-
+  select.dropbtn:hover {
+    background-color: darkgrey;
+    color: white;
+    cursor: pointer;
+  }
   /*display must be block for add user form to function correctly*/
   input[type=text], input[type=password],  input[type=email], select {
     width: 100%;
