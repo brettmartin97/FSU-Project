@@ -1,5 +1,7 @@
+
 dropdown:hover .dropbtn {
   color: rgb(0, 119, 0);
+  cursor: pointer;
 }
 
 button.dropbtn {
@@ -7,6 +9,7 @@ button.dropbtn {
   color: white;
   font-family: inherit;
   border: none;
+  border-radius: revert;
   font-size: inherit;
   padding: inherit;
 }
@@ -22,6 +25,7 @@ button.dropbtn {
 .dropdown {
   position: relative;
   display: inline-block;
+  padding: revert;
 }
 
 .dropdown:hover .dropdown-content {
@@ -37,6 +41,7 @@ button.dropbtn {
 div {
     background-color: transparent;
     color: rgb(0, 119, 0);
+    padding: 0;
     font-family: 'Courier New', Courier, monospace;
 }
 
@@ -48,6 +53,7 @@ div.sticky {
 
 h1 {
   text-align: center;
+  font-size: xx-large;
 }
 
 div.halfleft {
@@ -283,12 +289,15 @@ header {
     height: 150%;
     width: 100%;
     margin-left: 0;
+    border-radius: 25px;
+    background-color: rgb(0, 119, 0);
     font-size: calc(16px + (21 - 16) * ((100vw - 300px) / (1600 - 300)));
   }
   
   button:hover {
     background-color: grey;
     color: #eaeaea;
+    cursor: pointer;
 }
 
 button.left{
@@ -334,6 +343,7 @@ tbody {
   table, th, tr, td {
     border: 1px solid;
     color: black;
+    text-align: center;
     width: -webkit-fill-available;
     padding: 1px;
   }
@@ -359,7 +369,11 @@ tr.closed-schedule-no-border {
 
   tr:nth-child(even) {background-color: #f2f2f2;}
 
-
+  select.dropbtn:hover {
+    background-color: darkgrey;
+    color: white;
+    cursor: pointer;
+  }
   /*display must be block for add user form to function correctly*/
   input[type=text], input[type=password],  input[type=email], select {
     width: 100%;
@@ -392,21 +406,25 @@ tr.closed-schedule-no-border {
   }
 
   td.available {
-    background-color: #F8C8DC;
+    background-color: rgb(0, 119, 0);
     height:18px;
+    contain: content;
     border-style:groove;
   }
   button.available {
-    background-color: #F8C8DC;
+    background-color: rgb(0, 119, 0);
     padding: 0px;
     margin: 0px;
+    border-radius: revert;
     border: None
   }
   button.available:hover {
-    background-color: #f7a8c9;
+    background-color: white;
+
   }
   td.unavailable {
-    background-color: #C9A9A6;
+    background-color: darkgrey;
+    contain: content;
     border-style:groove;
   }
 
