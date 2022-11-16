@@ -80,7 +80,7 @@ def user_schedule():
     if not auth_bool:
         return redirect(url_for('login'))
     else:
-        return render_template('user/base.html')
+        return render_template('user/schedule.html')
 
 @app.route('/booth', methods=['GET', 'POST'])
 def booth():
@@ -802,7 +802,25 @@ def calendarMonth(month, year):
         firstDay=firstDay, day=currentDay, month=currentMonth, 
         year=currentYear, date=date, error=error, company=company)
 
-@app.route('/admin/analysis', methods=['GET', 'POST'])
+@app.route('/admin/scheduling', methods=['GET', 'POST'])
+def scheduling():
+    error = None
+    auth = utils.is_auth(session)
+    if not auth:
+        return redirect(url_for('login'))
+    elif auth == 2:
+        with open("config/config.yml") as f:
+            config = yaml.safe_load(f)
+        company = config['site']['company']
+        if request.method == 'POST':
+            userId = request.form['userId']
+            return redirect(url_for('edit_user',  userId=userId))
+        else:
+            users = sql.get_table('User')
+            schedule = sql.get_schedule('Schedule', i.userId)
+            return render_template('admin/user_management.html', error=error, users=users, roles=roles, company=company)
+
+pp.route('/admin/analysis', methods=['GET', 'POST'])
 def analysis():
     with open("config/config.yml") as f:
         config = yaml.safe_load(f)
