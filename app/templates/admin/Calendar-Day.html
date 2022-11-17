@@ -30,7 +30,7 @@
   </input>
   </form>
   </header>
-  <table>
+  <table class="calendar">
     <tr><th>Time</th>
       {% for i in user_schedule %}
       <th>{{ i.firstName }} {{ i.lastName }}</th>
@@ -78,7 +78,7 @@
               <button class=booked type=submit>
               </button>
             </td>
-            </form>
+          </form>
           {% else %}
           <form  method = "POST" action="/admin/calendar/{{ day }}-{{ month }}-{{ year }}/book-{{ u.userId }}">
             <td class=available>
