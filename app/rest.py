@@ -455,11 +455,12 @@ def customer():
         day = request.form['day']
         month = request.form['month']
         year = request.form['year']
+        notes = request.form['notes']
         app.logger.info(time)
         if request.form['submit'] == "New Customer":
-            return render_template('admin/add_customer.html', error=error, company=company, typeId=typeId, userId=userId, day=day, month=month, year=year, time=time)
+            return render_template('admin/add_customer.html', error=error, company=company, typeId=typeId, userId=userId, day=day, month=month, year=year, time=time, notes=notes)
         elif request.form['submit'] == "Existing Customer": 
-            return render_template('admin/search_customer.html', error=error, company=company, typeId=typeId, userId=userId, day=day, month=month, year=year, time=time)
+            return render_template('admin/search_customer.html', error=error, company=company, typeId=typeId, userId=userId, day=day, month=month, year=year, time=time, notes=notes)
         elif request.form['submit'] == "Search Customer":
             if request.form['search_type'] == 'Name':
                 name = request.form['search'].split()
@@ -726,10 +727,20 @@ def calendarDay(day,month,year):
                 month = dt.month
                 day = dt.day
                 return redirect(url_for('calendarDay', day=day, month=month, year=year))
-            if request.form['submit_button'] == 'Select Customer':
+            if request.form['submit_button'] == 'Select Customer' or request.form['submit_button'] == 'Submit':
+                if request.form['submit_button'] == 'Submit':
+                    fName = request.form['firstname']
+                    lName = request.form['lastname']
+                    phone = request.form['phone']
+                    email = request.form['email']
+                    sql.insert_Customer(fName,lName,email,phone)
+                    where = f"firstName = '{fName}' and lastName = '{lName}' and phoneNumber = '{phone}' and email = '{email}'"
+                    customerId = sql.get_attribute_single('customerId','Customer',where)
+                else:
+                    customerId = request.form['customerId']
                 typeId = request.form['typeId']
                 userId = request.form['userId']
-                customerId = request.form['customerId']
+                notes = request.form['notes']
                 time = request.form['time']
                 day = request.form['day']
                 month = request.form['month']
@@ -737,7 +748,7 @@ def calendarDay(day,month,year):
                 startTime=f"{ year }-{ month }-{ day } { time }"
                 app.logger.info(startTime)
                 app.logger.info(userId)
-                sql.insert_Appointment(userId, typeId, customerId, "",startTime, app.logger)
+                sql.insert_Appointment(userId, typeId, customerId, notes,startTime, app.logger)
                 return redirect(url_for('calendarDay', day=day, month=month, year=year))
         else:
             times = []
