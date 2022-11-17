@@ -430,6 +430,7 @@ tr.closed-schedule-no-border {
 
   td.booked {
     background-color: #FF69B4;
+    height:18px;
     border-style:groove;
   }
   button.booked {
