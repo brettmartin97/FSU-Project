@@ -80,7 +80,7 @@ def user_schedule():
     if not auth_bool:
         return redirect(url_for('login'))
     else:
-        return render_template('user/base.html')
+        return render_template('user/schedule.html')
 
 @app.route('/booth', methods=['GET', 'POST'])
 def booth():
@@ -801,6 +801,181 @@ def calendarMonth(month, year):
         return render_template('admin/Calendar-Month.html', lastDay = int(lastDay), 
         firstDay=firstDay, day=currentDay, month=currentMonth, 
         year=currentYear, date=date, error=error, company=company)
+
+@app.route('/admin/scheduling', methods=['GET', 'POST'])
+def scheduling():
+    error = None
+    auth = utils.is_auth(session)
+    if not auth:
+        return redirect(url_for('login'))
+    elif auth == 2:
+        with open("config/config.yml") as f:
+            config = yaml.safe_load(f)
+        company = config['site']['company']
+        if request.method == 'POST':
+            users = sql.get_table('User')
+            app.logger.info(request.form)
+            frm = request.form
+            for i in users:
+                schedule = sql.get_user_schedule(i['userId'])
+                app.logger.info(schedule)
+                if frm[f'Monday_start_{i["userId"]}']:
+                    if frm[f'Monday_end_{i["userId"]}']:
+                        found = 0 
+                        for i in schedule:
+                            if i['dayId'] == 1 :
+                                found = 1
+                                if frm[f'Monday_start_{i["userId"]}'] != i['startTime'] or frm[f'Monday_end_{i["userId"]}'] != i['endTime']:
+                                    update = f'''startTime = '{frm[f"Monday_start_{i['userId']}"]}', endTime = '{frm[f"Monday_end_{i['userId']}"]}' '''
+                                    where = f'userId = {i["userId"]} and dayId = 1'
+                                    sql.update_table('Schedule',update, where)
+                        if not found:
+                            sql.insert_Schedule(1,i['userId'],frm[f'Monday_start_{i["userId"]}'],frm[f'Monday_end_{i["userId"]}'])                 
+                    else:
+                        error = 'All times need start and end times'
+                else:
+                    where = f'userId = {i["userId"]} and dayId = 1'    
+                    sql.delete_data('Schedule', where)
+                if frm[f'Tuesday_start_{i["userId"]}']:
+                    if frm[f'Tuesday_end_{i["userId"]}']:
+                        found = 0 
+                        for i in schedule:
+                            if i['dayId'] == 2:
+                                found = 1
+                                if frm[f'Tuesday_start_{i["userId"]}'] != i['startTime'] or frm[f'Tuesday_end_{i["userId"]}'] != i['endTime']: 
+                                    update = f'''startTime = '{frm[f"Tuesday_start_{i['userId']}"]}', endTime = '{frm[f"Tuesday_end_{i['userId']}"]}' '''
+                                    where = f'userId = {i["userId"]} and dayId = 2'
+                                    sql.update_table('Schedule',update, where)
+                        if not found:
+                            sql.insert_Schedule(2,i['userId'],frm[f'Tuesday_start_{i["userId"]}'],frm[f'Tuesday_end_{i["userId"]}'])                 
+                    else:
+                        error = 'All times need start and end times'
+                else:
+                    where = f'userId = {i["userId"]} and dayId = 2'    
+                    sql.delete_data('Schedule', where)
+                if frm[f'Wednesday_start_{i["userId"]}']:
+                    if frm[f'Wednesday_end_{i["userId"]}']:
+                        found = 0 
+                        for i in schedule:
+                            if i['dayId'] == 3:
+                                found = 1
+                                if frm[f'Wednesday_start_{i["userId"]}'] != i['startTime'] or frm[f'Wednesday_end_{i["userId"]}'] != i['endTime']:                        
+                                    update = f'''startTime = '{frm[f"Wednesday_start_{i['userId']}"]}', endTime = '{frm[f"Wednesday_end_{i['userId']}"]}' '''
+                                    where = f'userId = {i["userId"]} and dayId = 3'
+                                    sql.update_table('Schedule',update, where)
+                        if not found:
+                            sql.insert_Schedule(3,i['userId'],frm[f'Wednesday_start_{i["userId"]}'],frm[f'Wednesday_end_{i["userId"]}'])                 
+                   
+                    else:
+                        error = 'All times need start and end times'
+                else:
+                    where = f'userId = {i["userId"]} and dayId = 3'    
+                    sql.delete_data('Schedule', where)
+                if frm[f'Thursday_start_{i["userId"]}']:
+                    if frm[f'Thursday_end_{i["userId"]}']:
+                        found = 0 
+                        for i in schedule:
+                            if i['dayId'] == 4:
+                                found = 1
+                                if frm[f'Thursday_start_{i["userId"]}'] != i['startTime'] or frm[f'Thursday_end_{i["userId"]}'] != i['endTime']:
+                                    
+                                    update = f'''startTime = '{frm[f"Thursday_start_{i['userId']}"]}', endTime = '{frm[f"Thursday_end_{i['userId']}"]}' '''
+                                    where = f'userId = {i["userId"]} and dayId = 4'
+                                    sql.update_table('Schedule',update, where)
+                        if not found:
+                            sql.insert_Schedule(4,i['userId'],frm[f'Thursday_start_{i["userId"]}'],frm[f'Thursday_end_{i["userId"]}'])                 
+                   
+                    else:
+                        error = 'All times need start and end times'
+                else:
+                    where = f'userId = {i["userId"]} and dayId = 4'    
+                    sql.delete_data('Schedule', where)
+                if frm[f'Friday_start_{i["userId"]}']:
+                    if frm[f'Friday_end_{i["userId"]}']:
+                        found = 0 
+                        for i in schedule:
+                            if i['dayId'] == 5:
+                                found = 1
+                                if frm[f'Friday_start_{i["userId"]}'] != i['startTime'] or frm[f'Friday_end_{i["userId"]}'] != i['endTime']:    
+                                    update = f'''startTime = '{frm[f"Friday_start_{i['userId']}"]}', endTime = '{frm[f"Friday_end_{i['userId']}"]}' '''
+                                    where = f'userId = {i["userId"]} and dayId = 5'
+                                    sql.update_table('Schedule',update, where)
+                        if not found:
+                            sql.insert_Schedule(5,i['userId'],frm[f'Friday_start_{i["userId"]}'],frm[f'Friday_end_{i["userId"]}'])                 
+                   
+                    else:
+                        error = 'All times need start and end times'
+                else:
+                    where = f'userId = {i["userId"]} and dayId = 5'    
+                    sql.delete_data('Schedule', where)
+                if frm[f'Saturday_start_{i["userId"]}']:
+                    if frm[f'Saturday_end_{i["userId"]}']:
+                        found = 0 
+                        for i in schedule:
+                            if i['dayId'] == 6:
+                                found = 1
+                                if frm[f'Saturday_start_{i["userId"]}'] != i['startTime'] or frm[f'Saturday_end_{i["userId"]}'] != i['endTime']:          
+                                    update = f'''startTime = '{frm[f"Saturday_start_{i['userId']}"]}', endTime = '{frm[f"Saturday_end_{i['userId']}"]}' '''
+                                    where = f'userId = {i["userId"]} and dayId = 6'
+                                    sql.update_table('Schedule',update, where)
+                        if not found:
+                            sql.insert_Schedule(6,i['userId'],frm[f'Saturday_start_{i["userId"]}'],frm[f'Saturday_end_{i["userId"]}'])                 
+                   
+                    else:
+                        error = 'All times need start and end times'
+                else:
+                    where = f'userId = {i["userId"]} and dayId = 6'    
+                    sql.delete_data('Schedule', where)
+                if frm[f'Sunday_start_{i["userId"]}']:
+                    if frm[f'Sunday_end_{i["userId"]}']:
+                        found = 0 
+                        for i in schedule:
+                            if i['dayId'] == 7 :
+                                found = 1
+                                if frm[f'Sunday_start_{i["userId"]}'] != i['startTime'] or frm[f'Sunday_end_{i["userId"]}'] != i['endTime']:   
+                                    update = f'''startTime = '{frm[f"Sunday_start_{i['userId']}"]}', endTime = '{frm[f"Sunday_end_{i['userId']}"]}' '''
+                                    where = f'userId = {i["userId"]} and dayId = 7'
+                                    sql.update_table('Schedule',update, where)
+                        if not found:
+                            sql.insert_Schedule(7,i['userId'],frm[f'Sunday_start_{i["userId"]}'],frm[f'Sunday_end_{i["userId"]}'])                 
+                   
+                    else:
+                        error = 'All times need start and end times'
+                else:
+                    where = f'userId = {i["userId"]} and dayId = 7'    
+                    sql.delete_data('Schedule', where)
+            return redirect(url_for('scheduling'))
+        else:
+            users = sql.get_table('User')
+            for i in users:
+                if not i.get('start') and not i.get('start') :
+                    i['start'] = {
+                        1:None,
+                        2:None,
+                        3:None,
+                        4:None,
+                        5:None,
+                        6:None,
+                        7:None,
+                    }
+                    i['end'] = {
+                        1:None,
+                        2:None,
+                        3:None,
+                        4:None,
+                        5:None,
+                        6:None,
+                        7:None,
+                    }
+                schedule = sql.get_user_schedule(i['userId'])
+                app.logger.info(schedule)
+                for j in schedule:
+                    i['start'][j['dayId']] = j['startTime']
+                    i['end'][j['dayId']] = j['endTime']
+                app.logger.info(schedule)
+            app.logger.info(users)
+
+            return render_template('admin/scheduling.html', error=error, users=users, schedule=schedule, company=company)
 
 @app.route('/admin/analysis', methods=['GET', 'POST'])
 def analysis():

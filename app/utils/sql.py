@@ -314,12 +314,33 @@ def delete_data(table, where):
     query = f'DELETE FROM {table} WHERE {where}'
 
     return run_update(query)
-
 """
 Get the schedule of a user.
 """
+def get_user_schedule(userId):
+    query = f'''SELECT u.userId, u.firstName, u.lastName, 
+    TIME_FORMAT(startTime, "%H:%i:%s") as  startTime, 
+    TIME_FORMAT(endTime, "%H:%i:%s") as endTime,dayId  
+    FROM User u JOIN Schedule s on u.userId = s.userId 
+    where u.userId = {userId} ORDER by u.firstName'''
+    conn = pymysql.connect(host='db',
+                           user='root',
+                           password="root",
+                           db='fsu')
+    cursor = conn.cursor(pymysql.cursors.DictCursor)
+    cursor.execute(query)
+    data = cursor.fetchall()
+    return data
+
+
+"""
+Get the schedule of all users.
+"""
 def get_schedule(weekday):
-    query = f'SELECT u.userId, u.firstName, u.lastName, TIME_FORMAT(startTime, "%I:%i %p") as  startTime, TIME_FORMAT(endTime, "%I:%i %p") as endTime,dayId  FROM User u JOIN Schedule s on u.userId = s.userId where s.dayId = {weekday} ORDER by u.firstName'
+    query = f'''SELECT u.userId, u.firstName, u.lastName, TIME_FORMAT(startTime, "%I:%i %p") as  startTime, 
+    TIME_FORMAT(endTime, "%I:%i %p") as endTime,dayId  
+    FROM User u JOIN Schedule s on u.userId = s.userId 
+    where s.dayId = {weekday} ORDER by u.firstName'''
     conn = pymysql.connect(host='db',
                            user='root',
                            password="root",

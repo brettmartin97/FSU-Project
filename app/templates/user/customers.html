@@ -14,13 +14,13 @@
         </tr>
     </thead>
     <tbody>
-      {% for i in customers %}
+      {% for i in customers %
       <tr>
         <td>{{ i.firstName }}</td>
         <td>{{ i.lastName }}</td>
         <td>{{ i.email }}</td>
         <td>{{ i.phoneNumber }}</td>
-        <td><form method="POST"><input type='hidden' id="customerId" name="customerId" value="{{ i.customerId }}"><input type="Submit" value="Edit"></form></td>
+        <td><form method="POST"><input type='hidden' id="customerId" name="customerId" value="{{ i.customerId }}"><input type="Submit" value="View"></form></td>
       </tr>
       {% endfor %}
     </tbody>
