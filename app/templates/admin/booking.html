@@ -16,6 +16,8 @@
           <option value={{ i.appointTypeId }}>{{ i.typeName }} - {{ i.description }} - {{ i.duration }}</option>
         {% endfor %}
       </select>
+      <label for="notes">Appointment Notes</label>
+      <textarea name="notes" id="notes"  rows="4" cols="50"> </textarea>
         <p></p>
         <button class="left" type="submit" id="submit" name="submit" value="New Customer">New Customer</button>  
         <button class="left" ype="submit" id="submit"  name="submit" value="Existing Customer">Existing Customer</button>
