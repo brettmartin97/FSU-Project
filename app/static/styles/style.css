@@ -407,11 +407,13 @@ tr.closed-schedule-no-border {
   }
   td.unavailable {
     background-color: #C9A9A6;
+    height:18px;
     border-style:groove;
   }
 
   td.booked {
     background-color: #FF69B4;
+    height:18px;
     border-style:groove;
   }
   button.booked {

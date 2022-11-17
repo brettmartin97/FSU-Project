@@ -701,6 +701,41 @@ def book(day,month,year,userid):
             else:
                 return redirect(url_for('calendarDay', day=day, month=month, year=year))
         
+@app.route('/admin/calendar/<day>-<month>-<year>/editbook-<userid>', methods   =['GET', 'POST'])
+def edit_booking(day,month,year,userid):
+    with open("config/config.yml") as f:
+        config = yaml.safe_load(f)
+    company = config['site']['company']
+    auth = utils.is_auth(session)
+    if not auth:
+        return redirect(url_for('login'))
+    elif auth == 2:
+        date = f'{year}-{month}-{day}'
+        if request.method == 'POST':
+            if request.form['time']:
+                time = f'{request.form["time"]}'
+                app.logger.info(time)
+                time = datetime.strptime(time, '%I:%M %p').replace(year=int(year),month=int(month),day=int(day))
+                next_appt = sql.get_next_appt(date, time, userid)
+                if next_appt:
+                    next_appt = next_appt['startTime']
+                    app.logger.info(time)
+                    app.logger.info(next_appt)
+                    maxDur = next_appt - time
+                    maxDur = maxDur.total_seconds() / 60
+                    app.logger.info(maxDur)
+                    where = f'duration < {maxDur} AND hasHourlyRate = 0 ORDER BY 1'
+                    appointmentTypes = sql.get_all('typeName, description, duration', 'AppointmentType',where)
+                    maxDur = maxDur / 60
+                    where = f'duration < {maxDur} AND hasHourlyRate = 1 ORDER BY 1'
+                    appointmentTypes += sql.get_all('appointTypeId,typeName, description, duration', 'AppointmentType',where)
+                else:
+                    appointmentTypes = sql.get_table('AppointmentType')
+                return render_template('admin/edit_booking.html', time=time.strftime("%I:%M %p"), day=day, month=month, 
+                year=year, appointmentTypes = appointmentTypes, userId = userid, company=company)
+            else:
+                return redirect(url_for('calendarDay', day=day, month=month, year=year))
+        
 @app.route('/admin/calendar/<day>-<month>-<year>', methods   =['GET', 'POST'])
 def calendarDay(day,month,year):
     with open("config/config.yml") as f:
