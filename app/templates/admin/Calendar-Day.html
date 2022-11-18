@@ -72,7 +72,7 @@
   
           {% endfor %}
           {% if vars['booked'] == 1 %}
-            <form  method = "POST" action="/admin/calendar/{{ day }}-{{ month }}-{{ year }}/book-{{ u.userId }}">
+            <form  method = "POST" action="/admin/calendar/{{ day }}-{{ month }}-{{ year }}/editbook-{{ u.userId }}">
               <td class=booked>
               <input type=hidden name=time id=time value='{{ times[i] }}'>
               <button class=booked type=submit>
