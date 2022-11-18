@@ -5,7 +5,6 @@
     <div class="container">
       <h1>Add Role</h1>
     <form class="add_role" method="POST"> 
-        {%if error%}<h3 class="error">Error: {{ error }}</h3>{%endif%}
         <div class="halfleft">
           <input type="text" id="rname" name="rolename" value="{{ roleName }}" required>
           <input type="text" id="com" name="commission" value="{{ commission }}" required>

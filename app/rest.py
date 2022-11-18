@@ -228,9 +228,7 @@ def setup():
 
     with open("config/config.yml") as f:
         config = yaml.safe_load(f)
-    where = f'username = "{user}"'
-    session['level'] = sql.get_attribute_single("roleId", "User", where)
-    len(get_table("User"))
+    len(sql.get_table("User"))
     return render_template('admin/setup.html', error=error)
 
 @app.route('/login', methods=['GET', 'POST'])
