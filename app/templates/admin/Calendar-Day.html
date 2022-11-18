@@ -30,7 +30,7 @@
   </input>
   </form>
   </header>
-  <table>
+  <table class="calendar">
     <tr><th>Time</th>
       {% for i in user_schedule %}
       <th>{{ i.firstName }} {{ i.lastName }}</th>
@@ -72,13 +72,13 @@
   
           {% endfor %}
           {% if vars['booked'] == 1 %}
-            <form  method = "POST" action="/admin/calendar/{{ day }}-{{ month }}-{{ year }}/book-{{ u.userId }}">
+            <form  method = "POST" action="/admin/calendar/{{ day }}-{{ month }}-{{ year }}/editbook-{{ u.userId }}">
               <td class=booked>
               <input type=hidden name=time id=time value='{{ times[i] }}'>
               <button class=booked type=submit>
               </button>
             </td>
-            </form>
+          </form>
           {% else %}
           <form  method = "POST" action="/admin/calendar/{{ day }}-{{ month }}-{{ year }}/book-{{ u.userId }}">
             <td class=available>

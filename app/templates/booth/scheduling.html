@@ -1,4 +1,4 @@
-{% extends "base_templates/admin_base.html" %}
+{% extends "base_templates/booth_base.html" %}
 
 {% block content %}
 <table>
@@ -12,7 +12,6 @@
     <th colspan="2">Saturday</th>
     <th colspan="2">Sunday</th>
   </tr>
-  <form method="POST">
   {% for i in users %}
   <tr>
     <td colspan="2">{{ i.firstName }} {{ i.lastName }}</td>
@@ -67,10 +66,6 @@
     {% endif %}
   </tr> 
   {% endfor %}
-  <div class="centersubmit">
-  <input class="center" name="submit" id="submit" type="submit" value="Update">
-  </div>
-</form>
 </table>
 
 {% endblock %}

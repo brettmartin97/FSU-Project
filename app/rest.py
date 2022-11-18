@@ -17,6 +17,9 @@ import re
 @app.route('/')
 def root():
     auth_bool = utils.is_auth(session)
+    with open("config/config.yml") as f:
+        config = yaml.safe_load(f)
+    company = config['site']['company']
 
     if not auth_bool:
         return redirect(url_for('login'))
@@ -26,6 +29,9 @@ def root():
 @app.route('/user')
 def home():
     auth_bool = utils.is_auth(session)
+    with open("config/config.yml") as f:
+        config = yaml.safe_load(f)
+    company = config['site']['company']
 
     app.logger.info('1')
     if auth_bool == 0:
@@ -43,12 +49,24 @@ def home():
 
 @app.route('/user/analysis')
 def user_analysis():
-    auth_bool = utils.is_auth(session)
+    auth = utils.is_auth(session)
+    with open("config/config.yml") as f:
+        config = yaml.safe_load(f)
+    company = config['site']['company']
 
-    if not auth_bool:
+    if not auth:
         return redirect(url_for('login'))
+    elif auth == 1:
+        userId = int(session['userId'])
+        # user viewed charts
+        userSales = sql.total_sales('2022-10-17', '2022-10-21', userId)   
+        userCustomers = sql.customer_chart('2022-10-17', '2022-10-21', userId)
+        appointType = sql.appointmentType_chart('2022-10-17', '2022-10-21', userId)
+        userAppointments = sql.appointment_by_date('2022-10-17', '2022-10-21', userId)
+        return render_template('user/analysis.html', error=error, userSales=userSales, usersales=userSales,
+        userCustomers = userCustomers, appointType = appointType, userAppointments = userAppointments, company=company)
     else:
-        return render_template('user/base.html')
+        return redirect(url_for('error'))
 
 @app.route('/user/customers')
 def user_customers():
@@ -73,14 +91,45 @@ def user_customers():
 
 
 
-@app.route('/user/schedule')
-def user_schedule():
-    auth_bool = utils.is_auth(session)
-
-    if not auth_bool:
+@app.route('/user/schedule', methods=['GET'])
+def user_scheduling():
+    error = None
+    auth = utils.is_auth(session)
+    if not auth:
         return redirect(url_for('login'))
+    elif auth == 1:
+        with open("config/config.yml") as f:
+            config = yaml.safe_load(f)
+        company = config['site']['company']
+        users = sql.get_table('User')
+        for i in users:
+            i['start'] = {
+                1:None,
+                2:None,
+                3:None,
+                4:None,
+                5:None,
+                6:None,
+                7:None
+            }
+            i['end'] = {
+                1:None,
+                2:None,
+                3:None,
+                4:None,
+                5:None,
+                6:None,
+                7:None
+            }
+            schedule = sql.get_user_schedule(i['userId'])
+            for j in schedule:
+                i['start'][j['dayId']] = j['startTime']
+                i['end'][j['dayId']] = j['endTime']
+
+        app.logger.info(users)
+        return render_template('user/scheduling.html', error=error, users=users, schedule=schedule, company=company)
     else:
-        return render_template('user/schedule.html')
+        return redirect(url_for('error'))
 
 @app.route('/booth', methods=['GET', 'POST'])
 def booth():
@@ -109,6 +158,65 @@ def booth_customers():
             userId = session['userId']
             customers = sql.get_customers_for_user(userId)
             return render_template('booth/customers.html', error=error, customers=customers, company=company)
+    else:
+        return redirect(url_for('error'))
+
+@app.route('/booth/scheduling', methods=['GET'])
+def booth_scheduling():
+    error = None
+    auth = utils.is_auth(session)
+    if not auth:
+        return redirect(url_for('login'))
+    elif auth == 3:
+        with open("config/config.yml") as f:
+            config = yaml.safe_load(f)
+        company = config['site']['company']
+        users = sql.get_table('User')
+        for i in users:
+            if not i.get('start') and not i.get('end') :
+                i['start'] = {
+                    1:None,
+                    2:None,
+                    3:None,
+                    4:None,
+                    5:None,
+                    6:None,
+                    7:None
+                }
+                i['end'] = {
+                    1:None,
+                    2:None,
+                    3:None,
+                    4:None,
+                    5:None,
+                    6:None,
+                    7:None
+                }
+            schedule = sql.get_user_schedule(i['userId'])
+            for j in schedule:
+                i['start'][j['dayId']] = j['startTime']
+                i['end'][j['dayId']] = j['endTime']
+        return render_template('admin/scheduling.html', error=error, users=users, schedule=schedule, company=company)
+    else:
+        return redirect(url_for('error'))
+@app.route('/booth/analysis')
+def booth_analysis():
+    auth = utils.is_auth(session)
+    with open("config/config.yml") as f:
+        config = yaml.safe_load(f)
+    company = config['site']['company']
+
+    if not auth:
+        return redirect(url_for('login'))
+    elif auth == 3:
+        userId = int(session['userId'])
+        # user viewed charts
+        userSales = sql.total_sales('2022-10-17', '2022-10-21', userId)   
+        userCustomers = sql.customer_chart('2022-10-17', '2022-10-21', userId)
+        appointType = sql.appointmentType_chart('2022-10-17', '2022-10-21', userId)
+        userAppointments = sql.appointment_by_date('2022-10-17', '2022-10-21', userId)
+        return render_template('booth/analysis.html', error=error, userSales=userSales, usersales=userSales,
+        userCustomers = userCustomers, appointType = appointType, userAppointments = userAppointments, company=company)
     else:
         return redirect(url_for('error'))
 
@@ -455,11 +563,12 @@ def customer():
         day = request.form['day']
         month = request.form['month']
         year = request.form['year']
+        notes = request.form['notes']
         app.logger.info(time)
         if request.form['submit'] == "New Customer":
-            return render_template('admin/add_customer.html', error=error, company=company, typeId=typeId, userId=userId, day=day, month=month, year=year, time=time)
+            return render_template('admin/add_customer.html', error=error, company=company, typeId=typeId, userId=userId, day=day, month=month, year=year, time=time, notes=notes)
         elif request.form['submit'] == "Existing Customer": 
-            return render_template('admin/search_customer.html', error=error, company=company, typeId=typeId, userId=userId, day=day, month=month, year=year, time=time)
+            return render_template('admin/search_customer.html', error=error, company=company, typeId=typeId, userId=userId, day=day, month=month, year=year, time=time, notes=notes)
         elif request.form['submit'] == "Search Customer":
             if request.form['search_type'] == 'Name':
                 name = request.form['search'].split()
@@ -700,6 +809,41 @@ def book(day,month,year,userid):
             else:
                 return redirect(url_for('calendarDay', day=day, month=month, year=year))
         
+@app.route('/admin/calendar/<day>-<month>-<year>/editbook-<userid>', methods   =['GET', 'POST'])
+def edit_booking(day,month,year,userid):
+    with open("config/config.yml") as f:
+        config = yaml.safe_load(f)
+    company = config['site']['company']
+    auth = utils.is_auth(session)
+    if not auth:
+        return redirect(url_for('login'))
+    elif auth == 2:
+        date = f'{year}-{month}-{day}'
+        if request.method == 'POST':
+            if request.form['time']:
+                time = f'{request.form["time"]}'
+                app.logger.info(time)
+                time = datetime.strptime(time, '%I:%M %p').replace(year=int(year),month=int(month),day=int(day))
+                next_appt = sql.get_next_appt(date, time, userid)
+                if next_appt:
+                    next_appt = next_appt['startTime']
+                    app.logger.info(time)
+                    app.logger.info(next_appt)
+                    maxDur = next_appt - time
+                    maxDur = maxDur.total_seconds() / 60
+                    app.logger.info(maxDur)
+                    where = f'duration < {maxDur} AND hasHourlyRate = 0 ORDER BY 1'
+                    appointmentTypes = sql.get_all('typeName, description, duration', 'AppointmentType',where)
+                    maxDur = maxDur / 60
+                    where = f'duration < {maxDur} AND hasHourlyRate = 1 ORDER BY 1'
+                    appointmentTypes += sql.get_all('appointTypeId,typeName, description, duration', 'AppointmentType',where)
+                else:
+                    appointmentTypes = sql.get_table('AppointmentType')
+                return render_template('admin/edit_booking.html', time=time.strftime("%I:%M %p"), day=day, month=month, 
+                year=year, appointmentTypes = appointmentTypes, userId = userid, company=company)
+            else:
+                return redirect(url_for('calendarDay', day=day, month=month, year=year))
+        
 @app.route('/admin/calendar/<day>-<month>-<year>', methods   =['GET', 'POST'])
 def calendarDay(day,month,year):
     with open("config/config.yml") as f:
@@ -726,10 +870,20 @@ def calendarDay(day,month,year):
                 month = dt.month
                 day = dt.day
                 return redirect(url_for('calendarDay', day=day, month=month, year=year))
-            if request.form['submit_button'] == 'Select Customer':
+            if request.form['submit_button'] == 'Select Customer' or request.form['submit_button'] == 'Submit':
+                if request.form['submit_button'] == 'Submit':
+                    fName = request.form['firstname']
+                    lName = request.form['lastname']
+                    phone = request.form['phone']
+                    email = request.form['email']
+                    sql.insert_Customer(fName,lName,email,phone)
+                    where = f"firstName = '{fName}' and lastName = '{lName}' and phoneNumber = '{phone}' and email = '{email}'"
+                    customerId = sql.get_attribute_single('customerId','Customer',where)
+                else:
+                    customerId = request.form['customerId']
                 typeId = request.form['typeId']
                 userId = request.form['userId']
-                customerId = request.form['customerId']
+                notes = request.form['notes']
                 time = request.form['time']
                 day = request.form['day']
                 month = request.form['month']
@@ -737,7 +891,7 @@ def calendarDay(day,month,year):
                 startTime=f"{ year }-{ month }-{ day } { time }"
                 app.logger.info(startTime)
                 app.logger.info(userId)
-                sql.insert_Appointment(userId, typeId, customerId, "",startTime, app.logger)
+                sql.insert_Appointment(userId, typeId, customerId, notes,startTime, app.logger)
                 return redirect(url_for('calendarDay', day=day, month=month, year=year))
         else:
             times = []
@@ -948,7 +1102,7 @@ def scheduling():
         else:
             users = sql.get_table('User')
             for i in users:
-                if not i.get('start') and not i.get('start') :
+                if not i.get('start') and not i.get('end') :
                     i['start'] = {
                         1:None,
                         2:None,
@@ -956,7 +1110,7 @@ def scheduling():
                         4:None,
                         5:None,
                         6:None,
-                        7:None,
+                        7:None
                     }
                     i['end'] = {
                         1:None,
@@ -965,7 +1119,7 @@ def scheduling():
                         4:None,
                         5:None,
                         6:None,
-                        7:None,
+                        7:None
                     }
                 schedule = sql.get_user_schedule(i['userId'])
                 app.logger.info(schedule)

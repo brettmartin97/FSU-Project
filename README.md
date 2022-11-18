@@ -1,23 +1,35 @@
 # FSU-Project
 
-Setup Container run:
+## Prequisites
+[Docker Installation](https://www.docker.com/products/docker-desktop/)
+
+[Git Installation](https://git-scm.com/book/en/v2/Getting-Started-Installing-Git)
+
+## Clone Repo:
+
+Open Command Line Tool, navigate to location where repository should be placed and run:
+
+**git clone https://github.com/brettmartin97/FSU-Project.git**
+
+## Setup Container to run:
+
+Open a terminal session and run the following command on your localhost in the project folder (location with docker-compose.yml):
 
 **docker-compose up --build**
+
+Note: Due to matplotlib download and install, expect the first build to take ~30 minutes
 
 Navigate to:
 
 **http://localhost**
 
-pull request testgvn /.,
-
-
+## Docker Notes
+#### Docker Storage Management
 docker container ls
 
-CONTAINER ID   IMAGE             COMMAND                  CREATED        STATUS          PORTS                                NAMES
-6f1011bcdfe9   fsu-project-app   "python rest.py"         23 hours ago   Up 16 seconds   0.0.0.0:80->5000/tcp                 fsu-project-app-1
-427d81e0c15d   mysql:8.0.21      "docker-entrypoint.s…"   26 hours ago   Up 17 seconds   33060/tcp, 0.0.0.0:30000->3306/tcp   fsu-project-db-1 
+docker [builder/image/container] prune 
 
-
+#### Docker Container Interation
 docker exec -it fsu-project-db-1 bash
 
 mysql -u root -p

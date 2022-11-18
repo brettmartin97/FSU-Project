@@ -1,0 +1,71 @@
+{% extends "base_templates/user_base.html" %}
+
+{% block content %}
+<table>
+  <tr>
+    <th colspan="2">Employee</th>
+    <th colspan="2">Monday</th>
+    <th colspan="2">Tuesday</th>
+    <th colspan="2">Wednesday</th>
+    <th colspan="2">Thursady</th>
+    <th colspan="2">Friday</th>
+    <th colspan="2">Saturday</th>
+    <th colspan="2">Sunday</th>
+  </tr>
+  {% for i in users %}
+  <tr>
+    <td colspan="2">{{ i.firstName }} {{ i.lastName }}</td>
+    {% if i.get('start').get(1) %}
+      <td>{{ i.start.1 }}</td>
+      <td>{{ i.end.1 }}</td>
+    {% else %}
+      <td></td>
+      <td></td>
+    {% endif %}
+    {% if i.get('start').get(2) %}
+    <td>{{ i.start.2 }}</td>
+    <td>{{ i.end.2 }}</td>
+  {% else %}
+    <td></td>
+    <td></td>
+    {% endif %}
+    {% if i.get('start').get(3) %}
+    <td>{{ i.start.3 }}</td>
+    <td>{{ i.end.3 }}</td>
+  {% else %}
+    <td></td>
+    <td></td>
+    {% endif %}
+    {% if i.get('start').get(4) %}
+    <td>{{ i.start.4 }}</td>
+    <td>{{ i.end.4 }}</td>
+  {% else %}
+    <td></td>
+    <td></td>
+    {% endif %}
+    {% if i.get('start').get(5) %}
+    <td>{{ i.start.5 }}</td>
+    <td>{{ i.end.5 }}</td>
+  {% else %}
+    <td></td>
+    <td></td>
+    {% endif %}
+    {% if i.get('start').get(6) %}
+    <td>{{ i.start.6 }}</td>
+    <td>{{ i.end.6 }}</td>
+  {% else %}
+    <td></td>
+    <td></td>
+    {% endif %}
+    {% if i.get('start').get(7) %}
+    <td>{{ i.start.7 }}</td>
+    <td>{{ i.end.7 }}</td>
+  {% else %}
+    <td></td>
+    <td></td>
+    {% endif %}
+  </tr> 
+  {% endfor %}
+</table>
+
+{% endblock %}
