@@ -10,8 +10,8 @@
     <input type="hidden" name="month" value={{ month }}>
     <input type="hidden" name="year" value={{ year }}>
     <input type="hidden" name="time" value='{{ time }}'>
-    <label for="typeId">Booking Type</label>
-     <select name="typeId" id="typeId" required>
+    <label for="typeId" >Appointment Type</label>
+     <select class="dropbtn" name="typeId" id="typeId" required>
          {% for i in appointmentTypes %}
           <option value={{ i.appointTypeId }}>{{ i.typeName }} - {{ i.description }} - {{ i.duration }}</option>
         {% endfor %}
