@@ -6,19 +6,19 @@
   </head>
   <body>
 <div class="header">
-  <h1>{{ company }}</h1>
   <a href="/booth">Home</a>
   <a href="/booth/scheduling">Scheduling</a>
   <a href="/booth/booking">Booking</a>
   <a href="/user/analysis">Analysis</a>
   <a href="/booth/customers" >Customer Management</a>
   <a class="logout" href="/logout" >Logout</a>
+  <h1>{{ company }}</h1>
 </div>
-
-
-{% if error %}
-<p class="error"><strong>Error:</strong> {{ error }}
-{% endif %}
+<div class="content">
+  {% if error %}
+  <p class="error"><strong>Error:</strong> {{ error }}
+  {% endif %}
+  {% block content %} {% endblock %}
 </div>
 </body>
 </html>

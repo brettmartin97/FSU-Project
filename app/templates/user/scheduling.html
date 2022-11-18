@@ -1,4 +1,4 @@
-{% extends "base_templates/admin_base.html" %}
+{% extends "base_templates/user_base.html" %}
 
 {% block content %}
 <table>
@@ -12,63 +12,60 @@
     <th colspan="2">Saturday</th>
     <th colspan="2">Sunday</th>
   </tr>
-  <form method="POST">
   {% for i in users %}
   <tr>
     <td colspan="2">{{ i.firstName }} {{ i.lastName }}</td>
     {% if i.get('start').get(1) %}
-      <td><input type='time' name="Monday_start_{{ i.userId }}" value={{ i.start.1 }}></td>
-      <td><input type='time' name="Monday_end_{{ i.userId }}" value={{ i.end.1 }}></td>
+      <td>{{ i.start.1 }}</td>
+      <td>{{ i.end.1 }}</td>
     {% else %}
-      <td><input type='time' name="Monday_start_{{ i.userId }}" value=""></td>
-      <td><input type='time' name="Monday_end_{{ i.userId }}" value=""></td>
+      <td></td>
+      <td></td>
     {% endif %}
     {% if i.get('start').get(2) %}
-      <td><input type='time' name="Tuesday_start_{{ i.userId }}" value={{ i.start.2 }}></td>
-      <td><input type='time' name="Tuesday_end_{{ i.userId }}" value={{ i.end.2 }}></td>
-    {% else %}
-      <td><input type='time' name="Tuesday_start_{{ i.userId }}" value=""></td>
-      <td><input type='time' name="Tuesday_end_{{ i.userId }}" value=""></td>
+    <td>{{ i.start.2 }}</td>
+    <td>{{ i.end.2 }}</td>
+  {% else %}
+    <td></td>
+    <td></td>
     {% endif %}
     {% if i.get('start').get(3) %}
-      <td><input type='time' name="Wednesday_start_{{ i.userId }}" value={{ i.start.3 }}></td>
-      <td><input type='time' name="Wednesday_end_{{ i.userId }}" value={{ i.end.3 }}></td>
-    {% else %}
-      <td><input type='time' name="Wednesday_start_{{ i.userId }}" value=""></td>
-      <td><input type='time' name="Wednesday_end_{{ i.userId }}" value=""></td>
+    <td>{{ i.start.3 }}</td>
+    <td>{{ i.end.3 }}</td>
+  {% else %}
+    <td></td>
+    <td></td>
     {% endif %}
     {% if i.get('start').get(4) %}
-      <td><input type='time' name="Thursday_start_{{ i.userId }}" value={{ i.start.4 }}></td>
-      <td><input type='time' name="Thursday_end_{{ i.userId }}" value={{ i.end.4 }}></td>
-    {% else %}
-      <td><input type='time' name="Thursday_start_{{ i.userId }}" value=""></td>
-      <td><input type='time' name="Thursday_end_{{ i.userId }}" value=""></td>
+    <td>{{ i.start.4 }}</td>
+    <td>{{ i.end.4 }}</td>
+  {% else %}
+    <td></td>
+    <td></td>
     {% endif %}
     {% if i.get('start').get(5) %}
-      <td><input type='time' name="Friday_start_{{ i.userId }}" value={{ i.start.5 }}></td>
-      <td><input type='time' name="Friday_end_{{ i.userId }}" value={{ i.end.5 }}></td>
-    {% else %}
-      <td><input type='time' name="Friday_start_{{ i.userId }}" value=""></td>
-      <td><input type='time' name="Friday_end_{{ i.userId }}" value=""></td>
+    <td>{{ i.start.5 }}</td>
+    <td>{{ i.end.5 }}</td>
+  {% else %}
+    <td></td>
+    <td></td>
     {% endif %}
     {% if i.get('start').get(6) %}
-      <td><input type='time' name="Saturday_start_{{ i.userId }}" value={{ i.start.6 }}></td>
-      <td><input type='time' name="Saturday_end_{{ i.userId }}" value={{ i.end.6 }}></td>
-    {% else %}
-      <td><input type='time' name="Saturday_start_{{ i.userId }}" value=""></td>
-      <td><input type='time' name="Saturday_end_{{ i.userId }}" value=""></td>
+    <td>{{ i.start.6 }}</td>
+    <td>{{ i.end.6 }}</td>
+  {% else %}
+    <td></td>
+    <td></td>
     {% endif %}
     {% if i.get('start').get(7) %}
-      <td><input type='time' name="Sunday_start_{{ i.userId }}" value={{ i.start.7 }}></td>
-      <td><input type='time' name="Sunday_end_{{ i.userId }}" value={{ i.end.7 }}></td>
-    {% else %}
-      <td><input type='time' name="Sunday_start_{{ i.userId }}" value=""></td>
-      <td><input type='time' name="Sunday_end_{{ i.userId }}" value=""></td>
+    <td>{{ i.start.7 }}</td>
+    <td>{{ i.end.7 }}</td>
+  {% else %}
+    <td></td>
+    <td></td>
     {% endif %}
   </tr> 
   {% endfor %}
-  <input name="submit" id="submit" type="submit" value="Update">
-</form>
 </table>
 
 {% endblock %}

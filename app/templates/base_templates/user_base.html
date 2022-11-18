@@ -6,18 +6,18 @@
   </head>
   <body>
 <div class="header">
-  <h1>{{ company }}</h1>
   <a href="/user">Home</a>
   <a href="/user/schedule">My Schedule</a>
   <a href="/user/analysis">Analysis</a>
   <a href="/user/customers">Customer Management</a>
   <a class="logout" href="/logout" >Logout</a>
+  <h1>{{ company }}</h1>
 </div>
-
-
-{% if error %}
-<p class="error"><strong>Error:</strong> {{ error }}
-{% endif %}
+<div class="content">
+  {% if error %}
+  <p class="error"><strong>Error:</strong> {{ error }}
+  {% endif %}
+  {% block content %} {% endblock %}
 </div>
 </body>
 </html>

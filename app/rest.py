@@ -17,6 +17,9 @@ import re
 @app.route('/')
 def root():
     auth_bool = utils.is_auth(session)
+    with open("config/config.yml") as f:
+        config = yaml.safe_load(f)
+    company = config['site']['company']
 
     if not auth_bool:
         return redirect(url_for('login'))
@@ -26,6 +29,9 @@ def root():
 @app.route('/user')
 def home():
     auth_bool = utils.is_auth(session)
+    with open("config/config.yml") as f:
+        config = yaml.safe_load(f)
+    company = config['site']['company']
 
     app.logger.info('1')
     if auth_bool == 0:
@@ -43,12 +49,24 @@ def home():
 
 @app.route('/user/analysis')
 def user_analysis():
-    auth_bool = utils.is_auth(session)
+    auth = utils.is_auth(session)
+    with open("config/config.yml") as f:
+        config = yaml.safe_load(f)
+    company = config['site']['company']
 
-    if not auth_bool:
+    if not auth:
         return redirect(url_for('login'))
+    elif auth == 1:
+        userId = int(session['userId'])
+        # user viewed charts
+        userSales = sql.total_sales('2022-10-17', '2022-10-21', userId)   
+        userCustomers = sql.customer_chart('2022-10-17', '2022-10-21', userId)
+        appointType = sql.appointmentType_chart('2022-10-17', '2022-10-21', userId)
+        userAppointments = sql.appointment_by_date('2022-10-17', '2022-10-21', userId)
+        return render_template('user/analysis.html', error=error, userSales=userSales, usersales=userSales,
+        userCustomers = userCustomers, appointType = appointType, userAppointments = userAppointments, company=company)
     else:
-        return render_template('user/base.html')
+        return redirect(url_for('error'))
 
 @app.route('/user/customers')
 def user_customers():
@@ -73,14 +91,45 @@ def user_customers():
 
 
 
-@app.route('/user/schedule')
-def user_schedule():
-    auth_bool = utils.is_auth(session)
-
-    if not auth_bool:
+@app.route('/user/schedule', methods=['GET'])
+def user_scheduling():
+    error = None
+    auth = utils.is_auth(session)
+    if not auth:
         return redirect(url_for('login'))
+    elif auth == 1:
+        with open("config/config.yml") as f:
+            config = yaml.safe_load(f)
+        company = config['site']['company']
+        users = sql.get_table('User')
+        for i in users:
+            i['start'] = {
+                1:None,
+                2:None,
+                3:None,
+                4:None,
+                5:None,
+                6:None,
+                7:None
+            }
+            i['end'] = {
+                1:None,
+                2:None,
+                3:None,
+                4:None,
+                5:None,
+                6:None,
+                7:None
+            }
+            schedule = sql.get_user_schedule(i['userId'])
+            for j in schedule:
+                i['start'][j['dayId']] = j['startTime']
+                i['end'][j['dayId']] = j['endTime']
+
+        app.logger.info(users)
+        return render_template('user/scheduling.html', error=error, users=users, schedule=schedule, company=company)
     else:
-        return render_template('user/schedule.html')
+        return redirect(url_for('error'))
 
 @app.route('/booth', methods=['GET', 'POST'])
 def booth():
@@ -109,6 +158,65 @@ def booth_customers():
             userId = session['userId']
             customers = sql.get_customers_for_user(userId)
             return render_template('booth/customers.html', error=error, customers=customers, company=company)
+    else:
+        return redirect(url_for('error'))
+
+@app.route('/booth/scheduling', methods=['GET'])
+def booth_scheduling():
+    error = None
+    auth = utils.is_auth(session)
+    if not auth:
+        return redirect(url_for('login'))
+    elif auth == 3:
+        with open("config/config.yml") as f:
+            config = yaml.safe_load(f)
+        company = config['site']['company']
+        users = sql.get_table('User')
+        for i in users:
+            if not i.get('start') and not i.get('end') :
+                i['start'] = {
+                    1:None,
+                    2:None,
+                    3:None,
+                    4:None,
+                    5:None,
+                    6:None,
+                    7:None
+                }
+                i['end'] = {
+                    1:None,
+                    2:None,
+                    3:None,
+                    4:None,
+                    5:None,
+                    6:None,
+                    7:None
+                }
+            schedule = sql.get_user_schedule(i['userId'])
+            for j in schedule:
+                i['start'][j['dayId']] = j['startTime']
+                i['end'][j['dayId']] = j['endTime']
+        return render_template('admin/scheduling.html', error=error, users=users, schedule=schedule, company=company)
+    else:
+        return redirect(url_for('error'))
+@app.route('/booth/analysis')
+def booth_analysis():
+    auth = utils.is_auth(session)
+    with open("config/config.yml") as f:
+        config = yaml.safe_load(f)
+    company = config['site']['company']
+
+    if not auth:
+        return redirect(url_for('login'))
+    elif auth == 3:
+        userId = int(session['userId'])
+        # user viewed charts
+        userSales = sql.total_sales('2022-10-17', '2022-10-21', userId)   
+        userCustomers = sql.customer_chart('2022-10-17', '2022-10-21', userId)
+        appointType = sql.appointmentType_chart('2022-10-17', '2022-10-21', userId)
+        userAppointments = sql.appointment_by_date('2022-10-17', '2022-10-21', userId)
+        return render_template('booth/analysis.html', error=error, userSales=userSales, usersales=userSales,
+        userCustomers = userCustomers, appointType = appointType, userAppointments = userAppointments, company=company)
     else:
         return redirect(url_for('error'))
 
@@ -994,7 +1102,7 @@ def scheduling():
         else:
             users = sql.get_table('User')
             for i in users:
-                if not i.get('start') and not i.get('start') :
+                if not i.get('start') and not i.get('end') :
                     i['start'] = {
                         1:None,
                         2:None,
@@ -1002,7 +1110,7 @@ def scheduling():
                         4:None,
                         5:None,
                         6:None,
-                        7:None,
+                        7:None
                     }
                     i['end'] = {
                         1:None,
@@ -1011,7 +1119,7 @@ def scheduling():
                         4:None,
                         5:None,
                         6:None,
-                        7:None,
+                        7:None
                     }
                 schedule = sql.get_user_schedule(i['userId'])
                 app.logger.info(schedule)
