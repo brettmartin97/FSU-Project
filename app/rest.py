@@ -103,30 +103,31 @@ def user_scheduling():
         company = config['site']['company']
         users = sql.get_table('User')
         for i in users:
-            if not i.get('start') and not i.get('start') :
-                i['start'] = {
-                    1:None,
-                    2:None,
-                    3:None,
-                    4:None,
-                    5:None,
-                    6:None,
-                    7:None,
-                }
-                i['end'] = {
-                    1:None,
-                    2:None,
-                    3:None,
-                    4:None,
-                    5:None,
-                    6:None,
-                    7:None,
-                }
+            i['start'] = {
+                1:None,
+                2:None,
+                3:None,
+                4:None,
+                5:None,
+                6:None,
+                7:None
+            }
+            i['end'] = {
+                1:None,
+                2:None,
+                3:None,
+                4:None,
+                5:None,
+                6:None,
+                7:None
+            }
             schedule = sql.get_user_schedule(i['userId'])
             for j in schedule:
                 i['start'][j['dayId']] = j['startTime']
                 i['end'][j['dayId']] = j['endTime']
-            return render_template('user/scheduling.html', error=error, users=users, schedule=schedule, company=company)
+
+        app.logger.info(users)
+        return render_template('user/scheduling.html', error=error, users=users, schedule=schedule, company=company)
     else:
         return redirect(url_for('error'))
 
@@ -172,7 +173,7 @@ def booth_scheduling():
         company = config['site']['company']
         users = sql.get_table('User')
         for i in users:
-            if not i.get('start') and not i.get('start') :
+            if not i.get('start') and not i.get('end') :
                 i['start'] = {
                     1:None,
                     2:None,
@@ -180,7 +181,7 @@ def booth_scheduling():
                     4:None,
                     5:None,
                     6:None,
-                    7:None,
+                    7:None
                 }
                 i['end'] = {
                     1:None,
@@ -189,13 +190,13 @@ def booth_scheduling():
                     4:None,
                     5:None,
                     6:None,
-                    7:None,
+                    7:None
                 }
             schedule = sql.get_user_schedule(i['userId'])
             for j in schedule:
                 i['start'][j['dayId']] = j['startTime']
                 i['end'][j['dayId']] = j['endTime']
-            return render_template('admin/scheduling.html', error=error, users=users, schedule=schedule, company=company)
+        return render_template('admin/scheduling.html', error=error, users=users, schedule=schedule, company=company)
     else:
         return redirect(url_for('error'))
 @app.route('/booth/analysis')
@@ -1101,7 +1102,7 @@ def scheduling():
         else:
             users = sql.get_table('User')
             for i in users:
-                if not i.get('start') and not i.get('start') :
+                if not i.get('start') and not i.get('end') :
                     i['start'] = {
                         1:None,
                         2:None,
@@ -1109,7 +1110,7 @@ def scheduling():
                         4:None,
                         5:None,
                         6:None,
-                        7:None,
+                        7:None
                     }
                     i['end'] = {
                         1:None,
@@ -1118,7 +1119,7 @@ def scheduling():
                         4:None,
                         5:None,
                         6:None,
-                        7:None,
+                        7:None
                     }
                 schedule = sql.get_user_schedule(i['userId'])
                 app.logger.info(schedule)
