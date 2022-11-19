@@ -5,7 +5,6 @@
     <div class="container"></div>
       <h1>Add User</h1>
     <form class="add_user" method="POST"> 
-        {%if error%}<h3 class="error">Error: {{ error }}</h3>{%endif%}
         <div class="halfleft">
           <input type="text" id="fname" name="firstname" value="{{ firstName }}" required>
           <input type="email" id="email" name="email" value="{{ email }}" required>
@@ -13,7 +12,7 @@
           <input type="password" id="password" name="password" value="{{ pwd }}"  minlength="8" required>
           <label for="stylistlevel">Select Stylist Level:</label>
           <select id="stylistlevel" name="stylistlevel" required>
-            <option value="N/A">N/A</option>
+            <option value="N/A" disabled selected value>N/A</option>
             {% for i in range(1,maxRole+1) %}
                 <option value="{{ i }}">{{ i }}</option>
             {% endfor %}

@@ -4,7 +4,6 @@
     <div class = "container">
         <h1>Add Appointment</h1>
         <form class="add_appointment" method="POST"> 
-            {%if error%}<h3 class="error">Error: {{ error }}</h3>{%endif%}
             <div class="halfleft">
                 <input type="text" id="typeName" name="typeName" value="{{ typeName }}" required>
                 <input type="text" id="description" name="description" value="{{ description }}" required>

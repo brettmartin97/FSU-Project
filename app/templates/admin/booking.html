@@ -12,6 +12,7 @@
     <input type="hidden" name="time" value='{{ time }}'>
     <label for="typeId" >Appointment Type</label>
      <select class="dropbtn" name="typeId" id="typeId" required>
+      <option value=None disabled selected value> Please select an Appointment Type</option>
          {% for i in appointmentTypes %}
           <option value={{ i.appointTypeId }}>{{ i.typeName }} - {{ i.description }} - {{ i.duration }}</option>
         {% endfor %}

@@ -3,7 +3,7 @@
 
     {% block content %}
     <div class="container">
-      <h1>Add User</h1>
+      <h1>Edit Customer</h1>
     <form class="add_customer" method="POST"> 
         <div class="halfleft">
         <input type="text" id="firstName" name="firstName" value={{ customer.firstName }} required>
@@ -15,8 +15,23 @@
         </div>
         <input type="submit" name="submit" value="Submit">
         <input type="submit" name="submit" class="Delete" value="Delete">
-
     </form>
+    <div class="notes">
+        <table>
+            <thead>
+                <tr>
+                <th>Notes</th>
+                </tr>
+            </thead>
+            <tbody>
+        {% for i in notes %}
+            <tr>
+                <td>{{ i.notes }}</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+        </table>
+    </div>
 </div>
 
     {% endblock %}

@@ -7,9 +7,41 @@
       </div>
       <div class="container analysis_home halfleft">
           <h2>Analysis Overview</h2>
+          <img src="data:image/png;base64, {{ totalSales }}">
+          <img src="data:image/png;base64, {{ allAppointType }}">
       </div>
       <div class="container customer_management_home halfright">
         <h2>Customer Management Overview</h2>
+        
+    <form action= "" class="search_customer" method="POST"> 
+      <label for="search_type">Search customer by:</label>
+        <select id="search_type" name="search_type" required>
+            <option value="Name">Name</option>
+            <option value="Phone Number">Phone Number</option>
+            <option value="Email Address">Email Address</option>
+        </select>
+        <input type="search" name="search">
+        <input type="submit" name="submit" value="Search Customer" value="Search">
+    </form>
+        <table>
+          <thead>
+            <tr>
+              <th>Customer Name</th>
+              <th>Stylist Name</th>
+              <th>Booking Time</th>
+              <th>Phone Number</th>
+            </tr>
+        </thead>
+        <tbody>
+          {% for i in customers %}
+          <tr>
+            <td>{{ i.firstName }} {{ i.lastName }}</td>
+            <td>{{ i.sfirstName }} {{ i.slastName }}</td>
+            <td>{{ i.startTime }}</td>
+            <td>{{ i.phoneNumber }}</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
       </div>
 
       {% endblock %}

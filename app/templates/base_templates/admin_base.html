@@ -26,9 +26,7 @@
     <h1>{{ company }}</h1>
 </div>
 <div class="content">
-  {% if error %}
-  <p class="error"><strong>Error:</strong> {{ error }}
-  {% endif %}
+  {%if error%}<h3 class="error">Error: {{ error }}</h3>{%endif%}
   {% block content %} {% endblock %}
 </div>
 </div>
