@@ -302,6 +302,21 @@ def get_appointment_data():
     data = cursor.fetchall()
     return data
 
+def get_customer_notes(customerId):
+    query = f'''SELECT notes from Customer c 
+    join Appointment a on a.customerId = c.customerId
+    where c.customerId = {customerId}
+    ORDER by a.startTime desc'''
+
+    conn = pymysql.connect(host='db',
+                           user='root',
+                           password="root",
+                           db='fsu')
+    cursor = conn.cursor(pymysql.cursors.DictCursor)
+    cursor.execute(query)
+    data = cursor.fetchall()
+    return data
+
 """
 Updates user data.
 """

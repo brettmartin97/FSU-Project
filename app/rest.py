@@ -635,6 +635,7 @@ def edit_customer(customerId):
     if not auth:
         return redirect(url_for('login'))
     elif auth == 2:
+        notes = sql.get_customer_notes(customerId)
         with open("config/config.yml") as f:
             config = yaml.safe_load(f)
         company = config['site']['company']
@@ -657,12 +658,12 @@ def edit_customer(customerId):
             if request.form['phoneNumber'] != customer['phoneNumber']:
                 sql.update_table('Customer',f"phoneNumber = '{request.form['phoneNumber']}'", f"customerId = '{customerId}'")
             if error:
-                return render_template('admin/edit_customer.html', error=error, customer=customer, company=company)
+                return render_template('admin/edit_customer.html', notes=notes, error=error, customer=customer, company=company)
             else:
                 return redirect(url_for('customers'))
         else:
             app.logger.info(customer)
-            return render_template('admin/edit_customer.html', error=error, customer=customer, company=company)
+            return render_template('admin/edit_customer.html', notes=notes, error=error, customer=customer, company=company)
 
 @app.route('/admin/appointments', methods=['GET', 'POST'])
 def appointments():
