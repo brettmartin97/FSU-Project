@@ -285,6 +285,23 @@ def get_customers_for_user(userId):
     data = cursor.fetchall()
     return data
 
+def get_appointment_data():
+    query = f'''SELECT c.firstName as firstName, c.lastName as lastName,
+    c.phoneNumber as phoneNumber, a. startTime as startTime, u.firstName as sfirstName, u.lastName as slastName
+    from Customer c 
+    join Appointment a on a.customerId = c.customerId
+    join User u on a.userId = u.userId
+     ORDER by a.startTime desc 
+     LIMIT 50'''
+    conn = pymysql.connect(host='db',
+                           user='root',
+                           password="root",
+                           db='fsu')
+    cursor = conn.cursor(pymysql.cursors.DictCursor)
+    cursor.execute(query)
+    data = cursor.fetchall()
+    return data
+
 """
 Updates user data.
 """

@@ -280,12 +280,35 @@ def admin():
     if auth is False:
         return redirect(url_for('login'))
     elif auth == 2:
-        firstname, lastname = sql.get_name(session['user'], app.logger)
-        name = firstname + ' ' + lastname
         with open("config/config.yml") as f:
             config = yaml.safe_load(f)
         company = config['site']['company']
-        return render_template('admin/base.html', error=error, name=name, company=company,  title='admin')
+        if request.method == 'POST':
+            if request.form['submit'] == "Search Customer":
+                if request.form['search_type'] == 'Name':
+                    name = request.form['search'].split()
+                    if len(name) > 1:
+                        customer = sql.get_all('*','Customer',f'(firstName like "%{name[0]}%" and lastName like "%{name[-1]}%") or (firstName like "%{name[-1]}%" and lastName like "%{name[0]}%")')
+                    elif len(name) == 1:
+                        customer = sql.get_all('*','Customer',f'(firstName like "%{name[0]}%") or (lastName like "%{name[0]}%")')
+                    else:
+                        error = "Invalid Input, Please Input a Name"
+                elif request.form['search_type'] == 'Email Address':
+                    email = request.form['search']
+                    customer = sql.get_all('*','Customer',f'email like "%{email}%"')
+                elif request.form['search_type'] == 'Phone Number':
+                    phone = request.form['search']
+                    customer = sql.get_all('*','Customer',f'phoneNumber = {phone}')
+                app.logger.info(customer)
+                return render_template('admin/search_customer.html', customers=customer, company=company)
+        totalSales = sql.total_sales('2022-10-17', '2022-10-21')
+        allAppointType = sql.appointmentType_chart('2022-10-17', '2022-10-21')
+        firstname, lastname = sql.get_name(session['user'], app.logger)
+        name = firstname + ' ' + lastname
+        customers = sql.get_appointment_data()
+        return render_template('admin/base.html', totalSales=totalSales, 
+        allAppointType=allAppointType, customers=customers, 
+        error=error, name=name, company=company,  title='admin')
 
 @app.route('/admin/level_management', methods=['GET', 'POST'])
 def role_management():
@@ -576,10 +599,10 @@ def customer():
                     customer = sql.get_all('*','Customer',f'(firstName like "%{name[0]}%") or (lastName like "%{name[0]}%")')
                 else:
                     error = "Invalid Input, Please Input a Name"
-            elif request.form['search_type'] == 'Phone Number':
-                email = request.form['search']
-                customer = sql.get_all('*','Customer',f'email = {email}')
             elif request.form['search_type'] == 'Email Address':
+                email = request.form['search']
+                customer = sql.get_all('*','Customer',f'email like "%{email}%"')
+            elif request.form['search_type'] == 'Phone Number':
                 phone = request.form['search']
                 customer = sql.get_all('*','Customer',f'phoneNumber = {phone}')
             app.logger.info(customer)
