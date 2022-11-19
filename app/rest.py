@@ -607,7 +607,7 @@ def customer():
                 phone = request.form['search']
                 customer = sql.get_all('*','Customer',f'phoneNumber = {phone}')
             app.logger.info(customer)
-            return render_template('admin/search_customer.html', customers=customer, company=company, typeId=typeId, userId=userId, day=day, month=month, year=year, time=time)
+            return render_template('admin/search_customer.html', customers=customer, company=company, typeId=typeId, userId=userId, day=day, month=month, year=year, time=time, notes=notes)
     else:
         pass
         return redirect(url_for('calendarDay', day=day, month=month, year=year))
@@ -899,6 +899,7 @@ def calendarDay(day,month,year):
                     lName = request.form['lastname']
                     phone = request.form['phone']
                     email = request.form['email']
+                    app.logger.info(request.form)
                     sql.insert_Customer(fName,lName,email,phone)
                     where = f"firstName = '{fName}' and lastName = '{lName}' and phoneNumber = '{phone}' and email = '{email}'"
                     customerId = sql.get_attribute_single('customerId','Customer',where)

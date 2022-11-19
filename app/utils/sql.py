@@ -630,7 +630,7 @@ def insert_Appointment(uId, apptId, cusId, note, sTime,logger):
     temp = cursor.fetchone()
     rId = temp['roleId']
 
-    query = f'SELECT totalPriceId FROM Pricing WHERE appointTypeId = {apptId} AND roleId = {rId}'
+    query = f'SELECT totalPriceId FROM Pricing WHERE appointTypeId = "{apptId}" AND roleId = "{rId}"'
     
     logger.info(query)
     cursor.execute(query)
