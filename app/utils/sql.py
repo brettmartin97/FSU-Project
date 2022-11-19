@@ -700,7 +700,6 @@ def total_appointments(startDay, endDay, id = None):
 
     totalAppoint =  0
     totalAppoint = len(data.appointId)
-    print(totalAppoint, flush=True)
 
     return totalAppoint
 
@@ -712,7 +711,7 @@ def appointment_by_date(startDay, endDay, id=None):
         FROM Appointment
         WHERE date(startTime) >= '{startDay}' and date(startTime) <= '{endDay}' 
         GROUP BY d 
-        ORDER BY d ASC'''
+        ORDER BY d ASC'''   
         data = chart_data(query)
         plt.close()
         plotUrl = build_barchart('Appointment by date', data.d, data.num)
@@ -760,7 +759,6 @@ def customer_chart(startDay, endDay, id=None):
         GROUP BY DATE_FORMAT(startTime, '%Y-%m-%d')
         ORDER BY d ASC'''
         data = chart_data(query)
-        #print(data, flush = True)
         plt.clf()
         plotUrl = build_barchart('Customers by date', data.d, data.cust)
     else:
@@ -769,9 +767,8 @@ def customer_chart(startDay, endDay, id=None):
         WHERE date(startTime) >= '{startDay}' and date(startTime) <= '{endDay}' and userId = {id} 
         GROUP BY DATE_FORMAT(startTime, '%Y-%m-%d')
         ORDER BY d ASC'''
-   
+
         data = chart_data(query)
-        #print(data, flush = True)
         plt.clf()
         plotUrl = build_barchart('Customers by date', data.d, data.cust)
     
@@ -830,12 +827,15 @@ def total_sales(startDay, endDay, id = None):
         WHERE date(startTime) >= '{startDay}' and date(startTime) <= '{endDay}' and userId = {id} and a.totalPriceId = p.totalPriceId 
         GROUP BY DATE_FORMAT(startTime, '%Y-%m-%d')
         ORDER BY d ASC'''
-    data = chart_data(query)
 
+    data = chart_data(query)
     plt.clf()
     fig, ax = plt.subplots()
     plt.style.use('grayscale')
-    ax.plot(data.d, data.sales)
+    if len(data['d']) > 1:
+        ax.plot(data.d, data.sales)
+    else:
+        ax.bar(data.d, data.sales)
        
     ax.yaxis.set_major_formatter('${x:1.2f}')
     plt.title("Total Sales")

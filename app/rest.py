@@ -53,7 +53,7 @@ def user_analysis():
     with open("config/config.yml") as f:
         config = yaml.safe_load(f)
     company = config['site']['company']
-
+    error = None
     if not auth:
         return redirect(url_for('login'))
     elif auth == 1:
@@ -63,8 +63,9 @@ def user_analysis():
         userCustomers = sql.customer_chart('2022-10-17', '2022-10-21', userId)
         appointType = sql.appointmentType_chart('2022-10-17', '2022-10-21', userId)
         userAppointments = sql.appointment_by_date('2022-10-17', '2022-10-21', userId)
-        return render_template('user/analysis.html', error=error, userSales=userSales, usersales=userSales,
-        userCustomers = userCustomers, appointType = appointType, userAppointments = userAppointments, company=company)
+        
+        return render_template('user/analysis.html', error=error, userSales = userSales, userCustomers = userCustomers, 
+        appointType = appointType, userAppointments = userAppointments, company=company)
     else:
         return redirect(url_for('error'))
 
@@ -205,7 +206,7 @@ def booth_analysis():
     with open("config/config.yml") as f:
         config = yaml.safe_load(f)
     company = config['site']['company']
-
+    error = None
     if not auth:
         return redirect(url_for('login'))
     elif auth == 3:
@@ -215,8 +216,8 @@ def booth_analysis():
         userCustomers = sql.customer_chart('2022-10-17', '2022-10-21', userId)
         appointType = sql.appointmentType_chart('2022-10-17', '2022-10-21', userId)
         userAppointments = sql.appointment_by_date('2022-10-17', '2022-10-21', userId)
-        return render_template('booth/analysis.html', error=error, userSales=userSales, usersales=userSales,
-        userCustomers = userCustomers, appointType = appointType, userAppointments = userAppointments, company=company)
+        return render_template('booth/analysis.html', error=error, userSales=userSales, userCustomers = userCustomers, 
+        appointType = appointType, userAppointments = userAppointments, company=company)
     else:
         return redirect(url_for('error'))
 
@@ -1151,7 +1152,7 @@ def analysis():
         appointType = sql.appointmentType_chart('2022-10-17', '2022-10-21', 6)
         userAppointments = sql.appointment_by_date('2022-10-17', '2022-10-21', 6)
 
-        #managment viewed charts
+        # #managment viewed charts
         totalCustomers = sql.customer_chart('2022-10-17', '2022-10-21')
         totalSales = sql.total_sales('2022-10-17', '2022-10-21')
         allAppointType = sql.appointmentType_chart('2022-10-17', '2022-10-21')
