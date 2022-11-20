@@ -677,14 +677,15 @@ True for line if want the chart to be a line chart
 Example call in rest.py:
 sql.build_barchart(data.days, data.sales) or sql.build_barchart(data.days, data.sales, line = True)
 """
-def build_barchart(title, x, y, line = None):
+def build_barchart(title, x, y, goal=None):
     plt.clf()
     plt.title(title)
     #  x = pd.to_datetime(x).dt.normalize()
     plt.bar(x, y)
     plt.xticks(rotation=75)
     plt.gray()
-
+    if goal:
+        plt.axhline(goal)
     img = BytesIO()
 
     plt.savefig(img, format='png', cmap='grayscale')
@@ -762,7 +763,7 @@ def appointment_by_date(startDay, endDay, id=None):
 
 
 # pie chart that shows appointment type for managment.
-def appointmentType_chart(startDay, endDay, id=None):
+def appointmentType_chart(startDay, endDay, id=None, goal=None):
     if not id:
         query = f'''SELECT a.appointTypeId as appoint, count(a.appointId) as c
         FROM Appointment as a, AppointmentType as t
@@ -770,6 +771,7 @@ def appointmentType_chart(startDay, endDay, id=None):
         GROUP BY a.appointTypeId'''
         data = chart_data(query)
         plt.clf()
+    
         plotUrl = build_piechart('Appointment Types', data.c, data.appoint)
     else:
         query = f'''SELECT a.appointTypeId as appoint, count(a.appointId) as c
@@ -778,12 +780,12 @@ def appointmentType_chart(startDay, endDay, id=None):
         GROUP BY a.appointTypeId'''
         data = chart_data(query)
         plt.clf()
-        plotUrl = build_piechart('Appointment Types', data.c, data.appoint)
 
+        plotUrl = build_piechart('Appointment Types', data.c, data.appoint)
     return plotUrl
 
 
-def customer_chart(startDay, endDay, id=None):
+def customer_chart(startDay, endDay, id=None, goal = None):
     if not id:
         query = f'''SELECT DATE_FORMAT(startTime, '%Y-%m-%d') as d, count(DISTINCT(customerId)) as cust
         FROM Appointment
@@ -792,7 +794,12 @@ def customer_chart(startDay, endDay, id=None):
         ORDER BY d ASC'''
         data = chart_data(query)
         plt.clf()
-        plotUrl = build_barchart('Customers by date', data.d, data.cust)
+
+        if not goal:
+            plotUrl = build_barchart('Customers by date', data.d, data.cust)
+        else:
+            plotUrl = build_barchart('Customers by date', data.d, data.cust, goal)
+
     else:
         query = f'''SELECT DATE_FORMAT(startTime, '%Y-%m-%d') as d, count(DISTINCT(customerId)) as cust, userId
         FROM Appointment
@@ -802,9 +809,12 @@ def customer_chart(startDay, endDay, id=None):
 
         data = chart_data(query)
         plt.clf()
-        plotUrl = build_barchart('Customers by date', data.d, data.cust)
-    
 
+        if not goal:
+            plotUrl = build_barchart('Customers by date', data.d, data.cust)
+        else:
+            plotUrl = build_barchart('Customers by date', data.d, data.cust, goal)
+    
     return plotUrl
 
 def percentage_prebooked(startDay, endDay, id):
@@ -846,7 +856,7 @@ def percentage_prebooked(startDay, endDay, id):
 
     return percPreBooked
 
-def total_sales(startDay, endDay, id = None):
+def total_sales(startDay, endDay, id = None, goal = None):
     if not id:
         query = f'''SELECT DATE_FORMAT(startTime, '%Y-%m-%d') as d, SUM(p.price) as sales
         FROM Appointment as a, Pricing as p
@@ -868,6 +878,9 @@ def total_sales(startDay, endDay, id = None):
         ax.plot(data.d, data.sales)
     else:
         ax.bar(data.d, data.sales)
+
+    if goal:
+        plt.axhline(goal)
        
     ax.yaxis.set_major_formatter('${x:1.2f}')
     plt.title("Total Sales")
