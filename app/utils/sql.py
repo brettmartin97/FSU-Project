@@ -683,7 +683,7 @@ def build_barchart(title, x, y, goal=None):
     #  x = pd.to_datetime(x).dt.normalize()
     plt.bar(x, y)
     plt.xticks(rotation=75)
-    plt.gray()
+    #plt.gray()
     if goal:
         plt.axhline(goal)
     img = BytesIO()
@@ -705,8 +705,8 @@ sql.build_piechart('Appointments', data.appointments, data.typeName)
 def build_piechart(title, x, l):
     plt.clf()
     plt.title(title)
-    plt.pie(x, labels=l)
-    plt.xticks(rotation=75)
+    plt.pie(x, labels=l, rotatelabels=True, textprops={'fontsize': 8}, radius=.6)
+    plt.xticks(rotation=180)
 
     img = BytesIO()
 
@@ -747,6 +747,7 @@ def appointment_by_date(startDay, endDay, id=None):
         ORDER BY d ASC'''   
         data = chart_data(query)
         plt.close()
+
         plotUrl = build_barchart('Appointment by date', data.d, data.num)
     else:
         query = f'''SELECT DATE_FORMAT(startTime, '%Y-%m-%d') as d, count(date(startTime)) as num, userId
@@ -765,23 +766,26 @@ def appointment_by_date(startDay, endDay, id=None):
 # pie chart that shows appointment type for managment.
 def appointmentType_chart(startDay, endDay, id=None, goal=None):
     if not id:
-        query = f'''SELECT a.appointTypeId as appoint, count(a.appointId) as c
+        query = f'''SELECT a.appointTypeId as appoint, count(a.appointId) as c, t.typeName
         FROM Appointment as a, AppointmentType as t
         WHERE date(startTime) >= '{startDay}' and date(startTime) <= '{endDay}' and a.appointTypeId = t.appointTypeId
-        GROUP BY a.appointTypeId'''
+        GROUP BY a.appointTypeId, t.typeName'''
         data = chart_data(query)
+
         plt.clf()
     
-        plotUrl = build_piechart('Appointment Types', data.c, data.appoint)
+        plotUrl = build_piechart('Appointment Types', data.c, data.typeName)
     else:
-        query = f'''SELECT a.appointTypeId as appoint, count(a.appointId) as c
+        query = f'''SELECT a.appointTypeId as appoint, count(a.appointId) as c, t.typeName
         FROM Appointment as a, AppointmentType as t
         WHERE date(startTime) >= '{startDay}' and date(startTime) <= '{endDay}' and userId = {id} and a.appointTypeId = t.appointTypeId
-        GROUP BY a.appointTypeId'''
+        GROUP BY a.appointTypeId, t.typeName'''
+
         data = chart_data(query)
+        
         plt.clf()
 
-        plotUrl = build_piechart('Appointment Types', data.c, data.appoint)
+        plotUrl = build_piechart('Appointment Types', data.c, data.typeName)
     return plotUrl
 
 
