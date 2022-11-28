@@ -6,7 +6,7 @@
     <form class="add_role" method="POST"> 
         {%if error%}<h3 class="error">Error: {{ error }}</h3>{%endif%}
         <div class="halfleft">
-          <input type="text" id="roleName" name="roleName" value={{ role.roleName }} required>
+          <input type="text" id="roleName" name="roleName" value="{{ role.roleName }}" required>
           <input type="text" id="commission" name="commission" value={{ role.commission }} required>
         </div>
          <div class="halfright">
@@ -24,6 +24,7 @@
             {% endif %}
             <label for="hasBooth">Has Booth</label>
         </div>
+        <input type="submit" name="submit" value="Modify Goals">
         <input type="submit" name="submit" value="Submit">
         <input type="submit" name="submit" class="Delete" value="Delete">
 

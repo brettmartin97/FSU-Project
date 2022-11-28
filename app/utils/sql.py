@@ -448,7 +448,7 @@ def insert_Role(rName, com, hRate, hGoal, hBooth):
 
     conn.commit()
 
-    return True
+    return cursor.lastrowid
 
 
 """

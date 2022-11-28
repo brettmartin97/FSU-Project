@@ -1,0 +1,16 @@
+
+    {% extends "base_templates/admin_base.html" %}
+
+    {% block content %}
+    <div class="container">
+      <h1>Set Goals for {{roleName}}</h1>
+    <form class="goals" method="POST">
+      <input type="hidden" name="ID" value = {{roleId}}> 
+          <input type="number" min="0.01" step="0.01" id="Sales" name="Sales" placeholder="Monthly Sales"><br/>
+          <input type="number" min="1" step="1" max="2500" id="Customers" name="Customers" placeholder="Monthly Customer Count" ><br/>
+          <input type="number" min="1" step="1" max="2500" id="Appointments" name="Appointments" placeholder="Monthly Appointments">
+        <input type="submit" name="submit" value="Submit Goals">
+    </form>
+</div>
+
+    {% endblock %}

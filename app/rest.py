@@ -340,6 +340,14 @@ def add_role():
         return redirect(url_for('login'))
     elif auth == 2:
         if request.method == 'POST':
+            if request.form['submit'] == 'Submit Goals':
+                if request.form.get("Sales"):
+                    sql.insert_RoleGoal(request.form['ID'], "Monthly Sales",request.form['Sales'])
+                if request.form.get("Customers"):
+                    sql.insert_RoleGoal(request.form['ID'], "Monthly Customers",request.form['Customers'])
+                if request.form.get("Appointments"):         
+                    sql.insert_RoleGoal(request.form['ID'], "Monthly Appointments",request.form['Appointments'])    
+                return redirect(url_for('role_management'))
             app.logger.info(request.form)
             roleName = request.form['rolename']
             if sql.get_single_role_info(roleName):
@@ -350,7 +358,7 @@ def add_role():
             except:
                 error = "Please enter a proper hourly rate"
                 hourlyRate = 0
-            if request.form.get('hasgoal'):
+            if request.form.get('hasgoal') or request.form['submit'] == "Modify Goals":
                 hasGoal = 1
             else:
                 hasGoal = 0
@@ -359,11 +367,15 @@ def add_role():
             else:
                 hasBooth = 0
             if error:
-             return render_template('admin/add_role_ph.html', error=error, roleName=roleName, commission=commission, 
-             hourlyRate=hourlyRate, hasGoal=hasGoal, hasBooth=hasBooth, company=company)
+                return render_template('admin/add_role_ph.html', error=error, roleName=roleName, commission=commission, 
+                hourlyRate=hourlyRate, hasGoal=hasGoal, hasBooth=hasBooth, company=company)
             else:
-                sql.insert_Role(roleName, commission, hourlyRate, hasGoal, hasBooth)
+                roleId = sql.insert_Role(roleName, commission, hourlyRate, hasGoal, hasBooth)
+                if request.form['submit'] == "Modify Goals":
+                    return render_template('admin/goals.html', error=error, roleName=roleName, roleId=roleId)
+            
             return redirect(url_for('role_management'))
+
         return render_template('admin/add_role.html', error=error, company=company)
 
 """
@@ -385,6 +397,17 @@ def edit_role(roleId):
                 table = 'Role'
                 where = f'roleId = {roleId}'
                 sql.delete_data(table,where)
+                return redirect(url_for('role_management'))
+            if request.form['submit'] == 'Submit Goals':
+                table = 'RoleGoal'
+                where = f'roleId = {roleId}'
+                sql.delete_data(table,where)
+                if request.form.get("Sales"):
+                    sql.insert_RoleGoal(roleId, "Monthly Sales",request.form['Sales'])
+                if request.form.get("Customers"):
+                    sql.insert_RoleGoal(roleId, "Monthly Customers",request.form['Customers'])
+                if request.form.get("Appointments"):         
+                    sql.insert_RoleGoal(roleId, "Monthly Appointments",request.form['Appointments'])
                 return redirect(url_for('role_management'))
             app.logger.info(role)
             app.logger.info(request.form)
@@ -421,6 +444,8 @@ def edit_role(roleId):
                     sql.update_table('Role',f"hasBooth = 0", f"roleId = '{roleId}'")
             if error:
                 return render_template('admin/edit_role.html', error=error, role=role, company=company)
+            elif request.form['submit'] == "Modify Goals":
+                return render_template('admin/goals.html', error=error, roleName=request.form['roleName'], roleId=roleId)
             else:
                 return redirect(url_for('role_management'))
         else:
