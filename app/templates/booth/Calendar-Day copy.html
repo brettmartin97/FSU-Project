@@ -1,8 +1,35 @@
-{% extends "base_templates/user_base.html" %}
+{% extends "base_templates/admin_base.html" %}
+
 {% block content %}
-<h1>{% block title %} {% endblock %}</h1>
-<div class="container">
+
+<div class="sticky">
+  <header>
+    <form  action="" method="post">
+      <input type="hidden" name="submit_button" value="Prev Day">
+      </input>
+      <input type="hidden" name="date" value={{ date }}>
+
+      <input class="btn btn-default" type="submit" value="&larr;"></input>
+    </input>
+    </form>
   <h1>{{ year }}-{{ month }}-{{ day }} </h1>
+  <form  action="" method="post">
+    <input type="hidden" name="submit_button" value="Next Day">
+    </input>
+    <input type="hidden" name="date" value={{ date }}>
+
+    <input class="btn btn-default" type="submit" value="&rarr;"></input>
+  </input>
+  </form>
+  <form  action="" method="post">
+    <input type="hidden" name="submit_button" value="Month View">
+    </input>
+    <input type="hidden" name="date" value={{ date }}>
+
+    <button class="btn btn-default" type="submit" value="Month View">Month View</button>
+  </input>
+  </form>
+  </header>
   <table class="calendar">
     <tr><th>Time</th>
       {% for i in user_schedule %}
@@ -69,6 +96,7 @@
     {% endfor %}
     </tr>
   </table> 
+    
 </div>
-
+  
 {% endblock %}

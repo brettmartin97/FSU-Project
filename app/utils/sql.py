@@ -368,11 +368,20 @@ def get_user_schedule(userId):
 """
 Get the schedule of all users.
 """
-def get_schedule(weekday):
-    query = f'''SELECT u.userId, u.firstName, u.lastName, TIME_FORMAT(startTime, "%I:%i %p") as  startTime, 
-    TIME_FORMAT(endTime, "%I:%i %p") as endTime,dayId  
-    FROM User u JOIN Schedule s on u.userId = s.userId 
-    where s.dayId = {weekday} ORDER by u.firstName'''
+def get_schedule(weekday, user=0):
+    if user:
+        query = f'''SELECT u.userId, u.firstName, u.lastName, TIME_FORMAT(startTime, "%I:%i %p") as  startTime, 
+        TIME_FORMAT(endTime, "%I:%i %p") as endTime,dayId  
+        FROM User u JOIN Schedule s on u.userId = s.userId 
+        where s.dayId = {weekday} and u.userId = {user} 
+        ORDER by u.firstName'''
+
+    else:
+        query = f'''SELECT u.userId, u.firstName, u.lastName, TIME_FORMAT(startTime, "%I:%i %p") as  startTime, 
+        TIME_FORMAT(endTime, "%I:%i %p") as endTime,dayId  
+        FROM User u JOIN Schedule s on u.userId = s.userId 
+        where s.dayId = {weekday}
+        ORDER by u.firstName'''
     conn = pymysql.connect(host='db',
                            user='root',
                            password="root",
@@ -385,13 +394,26 @@ def get_schedule(weekday):
 """
 Get the booking data.
 """
-def get_bookings(date, logger):
-    query = f'''SELECT userId, TIME_FORMAT(startTime, "%I:%i %p") as startTime,
-    CASE 
-    WHEN at.hasHourlyRate THEN TIME_FORMAT(TIME(DATE_ADD(a.startTime, INTERVAL at.duration HOUR)), "%I:%i %p") 
-    ELSE TIME_FORMAT(TIME(DATE_ADD(a.startTime, INTERVAL at.duration MINUTE)), "%I:%i %p") 
-    END as endTime, at.appointTypeId, at.description
-    FROM Appointment a JOIN AppointmentType at on a.appointTypeId = at.appointTypeId where startTime between '{date} 00:00:00' and '{date} 23:59:59' ORDER by a.userID'''
+def get_bookings(date, logger, user=0):
+    
+    if user:
+        query = f'''SELECT userId, TIME_FORMAT(startTime, "%I:%i %p") as startTime,
+        CASE 
+        WHEN at.hasHourlyRate THEN TIME_FORMAT(TIME(DATE_ADD(a.startTime, INTERVAL at.duration HOUR)), "%I:%i %p") 
+        ELSE TIME_FORMAT(TIME(DATE_ADD(a.startTime, INTERVAL at.duration MINUTE)), "%I:%i %p") 
+        END as endTime, at.appointTypeId, at.description
+        FROM Appointment a JOIN AppointmentType at on a.appointTypeId = at.appointTypeId 
+        where startTime between '{date} 00:00:00' and '{date} 23:59:59' 
+        and userId = {user} ORDER by a.userID'''
+    
+    else:
+        query = f'''SELECT userId, TIME_FORMAT(startTime, "%I:%i %p") as startTime,
+        CASE 
+        WHEN at.hasHourlyRate THEN TIME_FORMAT(TIME(DATE_ADD(a.startTime, INTERVAL at.duration HOUR)), "%I:%i %p") 
+        ELSE TIME_FORMAT(TIME(DATE_ADD(a.startTime, INTERVAL at.duration MINUTE)), "%I:%i %p") 
+        END as endTime, at.appointTypeId, at.description
+        FROM Appointment a JOIN AppointmentType at on a.appointTypeId = at.appointTypeId 
+        where startTime between '{date} 00:00:00' and '{date} 23:59:59' ORDER by a.userID'''
     
     logger.info(query)
     conn = pymysql.connect(host='db',
