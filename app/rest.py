@@ -20,7 +20,6 @@ def root():
     with open("config/config.yml") as f:
         config = yaml.safe_load(f)
     company = config['site']['company']
-
     if not auth_bool:
         return redirect(url_for('login'))
     else:
@@ -44,8 +43,34 @@ def home():
         app.logger.info('4')
         return redirect(url_for('booth'))
     else:
-        app.logger.info('5')
-        return render_template('user/base.html')
+        date = datetime.now()
+        year = date.year
+        month = date.month
+        day = date.day
+        date = datetime(int(year),int(month),int(day),0,0,0)
+        times = []
+        formatedtime = date.strftime("%I:%M %p")
+        times.append(formatedtime)
+        weekday = date.weekday()+1
+        day_sql = date.strftime('%Y-%m-%d')
+        user_schedule = sql.get_schedule(weekday,session['userId'])
+        app.logger.info(user_schedule)
+        user_booked = sql.get_bookings(day_sql,app.logger,session['userId'])
+        app.logger.info(user_booked)
+        for i in range(96): 
+            date += timedelta(minutes=15)
+            formatedtime = date.strftime("%I:%M %p")
+            times.append(formatedtime)
+        with open("config/config.yml") as f:
+            config = yaml.safe_load(f)
+        opentime = config['site']['open']
+        closetime = config['site']['close']
+        app.logger.info(datetime.strptime(opentime,"%I:%M %p"))
+        app.logger.info(datetime.strptime(times[36],"%I:%M %p")) 
+        return render_template('user/base.html', day=day, month=month, year=year,
+        times=times,user_schedule=user_schedule, datetime=datetime, 
+        user_booked=user_booked, booked = 0, scroll = 'start', opentime = opentime, closetime = closetime, company=company)
+
 
 @app.route('/user/analysis')
 def user_analysis():
@@ -89,9 +114,6 @@ def user_customers():
     else:
         return redirect(url_for('error'))
 
-
-
-
 @app.route('/user/schedule', methods=['GET'])
 def user_scheduling():
     error = None
@@ -134,13 +156,43 @@ def user_scheduling():
 
 @app.route('/booth', methods=['GET', 'POST'])
 def booth():
+    with open("config/config.yml") as f:
+        config = yaml.safe_load(f)
+    company = config['site']['company']
+    error = None
     auth_bool = utils.is_auth(session)
     if not auth_bool: 
         return redirect(url_for('login'))
     elif session['booth'] != 1:
         return redirect(url_for('error'))
     else:
-        return render_template('booth/base.html')
+        date = datetime.now()
+        year = date.year
+        month = date.month
+        day = date.day
+        date = datetime(int(year),int(month),int(day),0,0,0)
+        times = []
+        formatedtime = date.strftime("%I:%M %p")
+        times.append(formatedtime)
+        weekday = date.weekday()+1
+        day_sql = date.strftime('%Y-%m-%d')
+        user_schedule = sql.get_schedule(weekday,session['userId'])
+        app.logger.info(user_schedule)
+        user_booked = sql.get_bookings(day_sql,app.logger,session['userId'])
+        app.logger.info(user_booked)
+        for i in range(96): 
+            date += timedelta(minutes=15)
+            formatedtime = date.strftime("%I:%M %p")
+            times.append(formatedtime)
+        with open("config/config.yml") as f:
+            config = yaml.safe_load(f)
+        opentime = config['site']['open']
+        closetime = config['site']['close']
+        app.logger.info(datetime.strptime(opentime,"%I:%M %p"))
+        app.logger.info(datetime.strptime(times[36],"%I:%M %p")) 
+        return render_template('booth/base.html', day=day, month=month, year=year,
+        times=times,user_schedule=user_schedule, datetime=datetime, 
+        user_booked=user_booked, booked = 0, scroll = 'start', opentime = opentime, closetime = closetime, company=company)
 
 @app.route('/booth/customers')
 def booth_customers():
@@ -162,7 +214,7 @@ def booth_customers():
     else:
         return redirect(url_for('error'))
 
-@app.route('/booth/scheduling', methods=['GET'])
+@app.route('/booth/scheduling', methods=['GET','POST'   ])
 def booth_scheduling():
     error = None
     auth = utils.is_auth(session)
@@ -173,6 +225,139 @@ def booth_scheduling():
             config = yaml.safe_load(f)
         company = config['site']['company']
         users = sql.get_table('User')
+        if request.method == 'POST':
+            users = sql.get_table('User')
+            app.logger.info(request.form)
+            frm = request.form
+            for i in users:
+                schedule = sql.get_user_schedule(i['userId'])
+                app.logger.info(schedule)
+                if frm[f'Monday_start_{i["userId"]}']:
+                    if frm[f'Monday_end_{i["userId"]}']:
+                        found = 0 
+                        for i in schedule:
+                            if i['dayId'] == 1 :
+                                found = 1
+                                if frm[f'Monday_start_{i["userId"]}'] != i['startTime'] or frm[f'Monday_end_{i["userId"]}'] != i['endTime']:
+                                    update = f'''startTime = '{frm[f"Monday_start_{i['userId']}"]}', endTime = '{frm[f"Monday_end_{i['userId']}"]}' '''
+                                    where = f'userId = {i["userId"]} and dayId = 1'
+                                    sql.update_table('Schedule',update, where)
+                        if not found:
+                            sql.insert_Schedule(1,i['userId'],frm[f'Monday_start_{i["userId"]}'],frm[f'Monday_end_{i["userId"]}'])                 
+                    else:
+                        error = 'All times need start and end times'
+                else:
+                    where = f'userId = {i["userId"]} and dayId = 1'    
+                    sql.delete_data('Schedule', where)
+                if frm[f'Tuesday_start_{i["userId"]}']:
+                    if frm[f'Tuesday_end_{i["userId"]}']:
+                        found = 0 
+                        for i in schedule:
+                            if i['dayId'] == 2:
+                                found = 1
+                                if frm[f'Tuesday_start_{i["userId"]}'] != i['startTime'] or frm[f'Tuesday_end_{i["userId"]}'] != i['endTime']: 
+                                    update = f'''startTime = '{frm[f"Tuesday_start_{i['userId']}"]}', endTime = '{frm[f"Tuesday_end_{i['userId']}"]}' '''
+                                    where = f'userId = {i["userId"]} and dayId = 2'
+                                    sql.update_table('Schedule',update, where)
+                        if not found:
+                            sql.insert_Schedule(2,i['userId'],frm[f'Tuesday_start_{i["userId"]}'],frm[f'Tuesday_end_{i["userId"]}'])                 
+                    else:
+                        error = 'All times need start and end times'
+                else:
+                    where = f'userId = {i["userId"]} and dayId = 2'    
+                    sql.delete_data('Schedule', where)
+                if frm[f'Wednesday_start_{i["userId"]}']:
+                    if frm[f'Wednesday_end_{i["userId"]}']:
+                        found = 0 
+                        for i in schedule:
+                            if i['dayId'] == 3:
+                                found = 1
+                                if frm[f'Wednesday_start_{i["userId"]}'] != i['startTime'] or frm[f'Wednesday_end_{i["userId"]}'] != i['endTime']:                        
+                                    update = f'''startTime = '{frm[f"Wednesday_start_{i['userId']}"]}', endTime = '{frm[f"Wednesday_end_{i['userId']}"]}' '''
+                                    where = f'userId = {i["userId"]} and dayId = 3'
+                                    sql.update_table('Schedule',update, where)
+                        if not found:
+                            sql.insert_Schedule(3,i['userId'],frm[f'Wednesday_start_{i["userId"]}'],frm[f'Wednesday_end_{i["userId"]}'])                 
+                   
+                    else:
+                        error = 'All times need start and end times'
+                else:
+                    where = f'userId = {i["userId"]} and dayId = 3'    
+                    sql.delete_data('Schedule', where)
+                if frm[f'Thursday_start_{i["userId"]}']:
+                    if frm[f'Thursday_end_{i["userId"]}']:
+                        found = 0 
+                        for i in schedule:
+                            if i['dayId'] == 4:
+                                found = 1
+                                if frm[f'Thursday_start_{i["userId"]}'] != i['startTime'] or frm[f'Thursday_end_{i["userId"]}'] != i['endTime']:
+                                    
+                                    update = f'''startTime = '{frm[f"Thursday_start_{i['userId']}"]}', endTime = '{frm[f"Thursday_end_{i['userId']}"]}' '''
+                                    where = f'userId = {i["userId"]} and dayId = 4'
+                                    sql.update_table('Schedule',update, where)
+                        if not found:
+                            sql.insert_Schedule(4,i['userId'],frm[f'Thursday_start_{i["userId"]}'],frm[f'Thursday_end_{i["userId"]}'])                 
+                   
+                    else:
+                        error = 'All times need start and end times'
+                else:
+                    where = f'userId = {i["userId"]} and dayId = 4'    
+                    sql.delete_data('Schedule', where)
+                if frm[f'Friday_start_{i["userId"]}']:
+                    if frm[f'Friday_end_{i["userId"]}']:
+                        found = 0 
+                        for i in schedule:
+                            if i['dayId'] == 5:
+                                found = 1
+                                if frm[f'Friday_start_{i["userId"]}'] != i['startTime'] or frm[f'Friday_end_{i["userId"]}'] != i['endTime']:    
+                                    update = f'''startTime = '{frm[f"Friday_start_{i['userId']}"]}', endTime = '{frm[f"Friday_end_{i['userId']}"]}' '''
+                                    where = f'userId = {i["userId"]} and dayId = 5'
+                                    sql.update_table('Schedule',update, where)
+                        if not found:
+                            sql.insert_Schedule(5,i['userId'],frm[f'Friday_start_{i["userId"]}'],frm[f'Friday_end_{i["userId"]}'])                 
+                   
+                    else:
+                        error = 'All times need start and end times'
+                else:
+                    where = f'userId = {i["userId"]} and dayId = 5'    
+                    sql.delete_data('Schedule', where)
+                if frm[f'Saturday_start_{i["userId"]}']:
+                    if frm[f'Saturday_end_{i["userId"]}']:
+                        found = 0 
+                        for i in schedule:
+                            if i['dayId'] == 6:
+                                found = 1
+                                if frm[f'Saturday_start_{i["userId"]}'] != i['startTime'] or frm[f'Saturday_end_{i["userId"]}'] != i['endTime']:          
+                                    update = f'''startTime = '{frm[f"Saturday_start_{i['userId']}"]}', endTime = '{frm[f"Saturday_end_{i['userId']}"]}' '''
+                                    where = f'userId = {i["userId"]} and dayId = 6'
+                                    sql.update_table('Schedule',update, where)
+                        if not found:
+                            sql.insert_Schedule(6,i['userId'],frm[f'Saturday_start_{i["userId"]}'],frm[f'Saturday_end_{i["userId"]}'])                 
+                   
+                    else:
+                        error = 'All times need start and end times'
+                else:
+                    where = f'userId = {i["userId"]} and dayId = 6'    
+                    sql.delete_data('Schedule', where)
+                if frm[f'Sunday_start_{i["userId"]}']:
+                    if frm[f'Sunday_end_{i["userId"]}']:
+                        found = 0 
+                        for i in schedule:
+                            if i['dayId'] == 7 :
+                                found = 1
+                                if frm[f'Sunday_start_{i["userId"]}'] != i['startTime'] or frm[f'Sunday_end_{i["userId"]}'] != i['endTime']:   
+                                    update = f'''startTime = '{frm[f"Sunday_start_{i['userId']}"]}', endTime = '{frm[f"Sunday_end_{i['userId']}"]}' '''
+                                    where = f'userId = {i["userId"]} and dayId = 7'
+                                    sql.update_table('Schedule',update, where)
+                        if not found:
+                            sql.insert_Schedule(7,i['userId'],frm[f'Sunday_start_{i["userId"]}'],frm[f'Sunday_end_{i["userId"]}'])                 
+                   
+                    else:
+                        error = 'All times need start and end times'
+                else:
+                    where = f'userId = {i["userId"]} and dayId = 7'    
+                    sql.delete_data('Schedule', where)
+            return redirect(url_for('booth_scheduling'))
         for i in users:
             if not i.get('start') and not i.get('end') :
                 i['start'] = {
@@ -197,9 +382,11 @@ def booth_scheduling():
             for j in schedule:
                 i['start'][j['dayId']] = j['startTime']
                 i['end'][j['dayId']] = j['endTime']
-        return render_template('admin/scheduling.html', error=error, users=users, schedule=schedule, company=company)
+        return render_template('booth/scheduling.html', error=error, users=users, schedule=schedule, 
+        company=company, userId = session['userId'])
     else:
         return redirect(url_for('error'))
+
 @app.route('/booth/analysis')
 def booth_analysis():
     auth = utils.is_auth(session)
@@ -261,6 +448,7 @@ def login():
             app.logger.info(role)
             session['admin']  = profile['management']
             session['booth']  = role['hasBooth']
+            session['roleId']  = role['roleId']
             if session['admin']:
                 app.logger.info(session)
                 return redirect(url_for('admin'))
@@ -340,6 +528,14 @@ def add_role():
         return redirect(url_for('login'))
     elif auth == 2:
         if request.method == 'POST':
+            if request.form['submit'] == 'Submit Goals':
+                if request.form.get("Sales"):
+                    sql.insert_RoleGoal(request.form['ID'], "Monthly Sales",request.form['Sales'])
+                if request.form.get("Customers"):
+                    sql.insert_RoleGoal(request.form['ID'], "Monthly Customers",request.form['Customers'])
+                if request.form.get("Appointments"):         
+                    sql.insert_RoleGoal(request.form['ID'], "Monthly Appointments",request.form['Appointments'])    
+                return redirect(url_for('role_management'))
             app.logger.info(request.form)
             roleName = request.form['rolename']
             if sql.get_single_role_info(roleName):
@@ -350,7 +546,7 @@ def add_role():
             except:
                 error = "Please enter a proper hourly rate"
                 hourlyRate = 0
-            if request.form.get('hasgoal'):
+            if request.form.get('hasgoal') or request.form['submit'] == "Modify Goals":
                 hasGoal = 1
             else:
                 hasGoal = 0
@@ -359,11 +555,15 @@ def add_role():
             else:
                 hasBooth = 0
             if error:
-             return render_template('admin/add_role_ph.html', error=error, roleName=roleName, commission=commission, 
-             hourlyRate=hourlyRate, hasGoal=hasGoal, hasBooth=hasBooth, company=company)
+                return render_template('admin/add_role_ph.html', error=error, roleName=roleName, commission=commission, 
+                hourlyRate=hourlyRate, hasGoal=hasGoal, hasBooth=hasBooth, company=company)
             else:
-                sql.insert_Role(roleName, commission, hourlyRate, hasGoal, hasBooth)
+                roleId = sql.insert_Role(roleName, commission, hourlyRate, hasGoal, hasBooth)
+                if request.form['submit'] == "Modify Goals":
+                    return render_template('admin/goals.html', error=error, roleName=roleName, roleId=roleId)
+            
             return redirect(url_for('role_management'))
+
         return render_template('admin/add_role.html', error=error, company=company)
 
 """
@@ -385,6 +585,17 @@ def edit_role(roleId):
                 table = 'Role'
                 where = f'roleId = {roleId}'
                 sql.delete_data(table,where)
+                return redirect(url_for('role_management'))
+            if request.form['submit'] == 'Submit Goals':
+                table = 'RoleGoal'
+                where = f'roleId = {roleId}'
+                sql.delete_data(table,where)
+                if request.form.get("Sales"):
+                    sql.insert_RoleGoal(roleId, "Monthly Sales",request.form['Sales'])
+                if request.form.get("Customers"):
+                    sql.insert_RoleGoal(roleId, "Monthly Customers",request.form['Customers'])
+                if request.form.get("Appointments"):         
+                    sql.insert_RoleGoal(roleId, "Monthly Appointments",request.form['Appointments'])
                 return redirect(url_for('role_management'))
             app.logger.info(role)
             app.logger.info(request.form)
@@ -421,6 +632,8 @@ def edit_role(roleId):
                     sql.update_table('Role',f"hasBooth = 0", f"roleId = '{roleId}'")
             if error:
                 return render_template('admin/edit_role.html', error=error, role=role, company=company)
+            elif request.form['submit'] == "Modify Goals":
+                return render_template('admin/goals.html', error=error, roleName=request.form['roleName'], roleId=roleId)
             else:
                 return redirect(url_for('role_management'))
         else:

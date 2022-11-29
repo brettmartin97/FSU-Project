@@ -11,6 +11,7 @@
     <table>
       <thead>
         <tr>
+          <th>Role Id</th>
           <th>Role Name</th>
           <th>Commission</th>
           <th>Houly Rate</th>
@@ -22,6 +23,7 @@
       <tbody>
         {% for i in roles %}
         <tr>
+          <td>{{ i.roleId }}</td>
           <td>{{ i.roleName }}</td>
           <td>{{ i.commission }}</td>
           <td>{{ i.hourlyRate }}</td>
