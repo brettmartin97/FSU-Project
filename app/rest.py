@@ -1170,14 +1170,14 @@ def analysis():
 
 
         # user viewed charts
-        userSales = sql.total_sales('2022-10-17', '2022-10-21', 6)   
-        userCustomers = sql.customer_chart('2022-10-17', '2022-10-21', 6)
+        userSales = sql.total_sales('2022-10-17', '2022-10-21', 6, 100)   
+        userCustomers = sql.customer_chart('2022-10-17', '2022-10-21', 6, 2)
         appointType = sql.appointmentType_chart('2022-10-17', '2022-10-21', 6)
         userAppointments = sql.appointment_by_date('2022-10-17', '2022-10-21', 6)
 
         # #managment viewed charts
-        totalCustomers = sql.customer_chart('2022-10-17', '2022-10-21')
-        totalSales = sql.total_sales('2022-10-17', '2022-10-21')
+        totalCustomers = sql.customer_chart('2022-10-17', '2022-10-21', goal=4)
+        totalSales = sql.total_sales('2022-10-17', '2022-10-21', goal = 300)
         allAppointType = sql.appointmentType_chart('2022-10-17', '2022-10-21')
         totalAppointments = sql.appointment_by_date('2022-10-17', '2022-10-21')
 
