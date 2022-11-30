@@ -401,7 +401,7 @@ def get_bookings(date, logger, user=0):
         CASE 
         WHEN at.hasHourlyRate THEN TIME_FORMAT(TIME(DATE_ADD(a.startTime, INTERVAL at.duration HOUR)), "%I:%i %p") 
         ELSE TIME_FORMAT(TIME(DATE_ADD(a.startTime, INTERVAL at.duration MINUTE)), "%I:%i %p") 
-        END as endTime, at.appointTypeId, at.description
+        END as endTime, a.appointId as appointmentId, at.appointTypeId, at.description
         FROM Appointment a JOIN AppointmentType at on a.appointTypeId = at.appointTypeId 
         where startTime between '{date} 00:00:00' and '{date} 23:59:59' 
         and userId = {user} ORDER by a.userID'''
@@ -411,7 +411,7 @@ def get_bookings(date, logger, user=0):
         CASE 
         WHEN at.hasHourlyRate THEN TIME_FORMAT(TIME(DATE_ADD(a.startTime, INTERVAL at.duration HOUR)), "%I:%i %p") 
         ELSE TIME_FORMAT(TIME(DATE_ADD(a.startTime, INTERVAL at.duration MINUTE)), "%I:%i %p") 
-        END as endTime, at.appointTypeId, at.description
+        END as endTime, a.appointId as appointmentId, at.appointTypeId, at.description
         FROM Appointment a JOIN AppointmentType at on a.appointTypeId = at.appointTypeId 
         where startTime between '{date} 00:00:00' and '{date} 23:59:59' ORDER by a.userID'''
     
