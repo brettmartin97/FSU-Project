@@ -6,15 +6,15 @@
         <h1>Welcome {{ name }} </h1>
       </div>
       <div class="container analysis_home halfleft">
-          <h2>Analysis Overview</h2>
+          <h2 class="home">Analysis Overview</h2>
           <img src="data:image/png;base64, {{ totalSales }}">
           <img src="data:image/png;base64, {{ allAppointType }}">
       </div>
       <div class="container customer_management_home halfright">
-        <h2>Customer Management Overview</h2>
+        <h2 class="home">Customer Management Overview</h2>
         
     <form action= "" class="search_customer" method="POST"> 
-      <label for="search_type">Search customer by:</label>
+      <label class="search" for="search_type">Search customer by:</label>
         <select id="search_type" name="search_type" required>
             <option value="Name">Name</option>
             <option value="Phone Number">Phone Number</option>
