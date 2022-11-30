@@ -68,7 +68,7 @@ def home():
         app.logger.info(datetime.strptime(opentime,"%I:%M %p"))
         app.logger.info(datetime.strptime(times[36],"%I:%M %p")) 
         return render_template('user/base.html', day=day, month=month, year=year,
-        times=times,user_schedule=user_schedule, datetime=datetime, 
+        times=times,user_schedule=user_schedule, datetime=datetime, appoint = '',
         user_booked=user_booked, booked = 0, scroll = 'start', opentime = opentime, closetime = closetime, company=company)
 
 
@@ -191,7 +191,7 @@ def booth():
         app.logger.info(datetime.strptime(opentime,"%I:%M %p"))
         app.logger.info(datetime.strptime(times[36],"%I:%M %p")) 
         return render_template('booth/base.html', day=day, month=month, year=year,
-        times=times,user_schedule=user_schedule, datetime=datetime, 
+        times=times,user_schedule=user_schedule, datetime=datetime,  appoint = '',
         user_booked=user_booked, booked = 0, scroll = 'start', opentime = opentime, closetime = closetime, company=company)
 
 @app.route('/booth/customers')
