@@ -68,14 +68,15 @@
           {% for bookings in user_booked %}
             {% if bookings.userId == u.userId and datetime.strptime(times[i],"%I:%M %p")  >= datetime.strptime(bookings.startTime,"%I:%M %p") and datetime.strptime(times[i],"%I:%M %p")  <= datetime.strptime(bookings.endTime, "%I:%M %p") %}
              {% set vars.booked = 1 %}
+             {% set vars.appid = bookings['appointmentId'] %}
             {% endif %}
   
           {% endfor %}
           {% if vars['booked'] == 1 %}
-            <form  method = "POST" action="/admin/calendar/{{ day }}-{{ month }}-{{ year }}/editbook-{{ u.userId }}">
+            <form  method = "POST" action="/admin/calendar/{{ day }}-{{ month }}-{{ year }}/editbook/{{ u.userId }}/{{vars['appid']}}">
               <td class=booked>
               <input type=hidden name=time id=time value='{{ times[i] }}'>
-              <button class=booked type=submit>
+              <button class=booked name="submit" type=submit>
               </button>
             </td>
           </form>
@@ -83,7 +84,7 @@
           <form  method = "POST" action="/admin/calendar/{{ day }}-{{ month }}-{{ year }}/book-{{ u.userId }}">
             <td class=available>
               <input type=hidden name=time id=time value='{{ times[i] }}'>
-              <button class=available type=submit>
+              <button class=available  name="submit" type=submit>
               </button>
             </td>
           </form>

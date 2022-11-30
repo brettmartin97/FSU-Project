@@ -2,54 +2,27 @@
     {% extends "base_templates/admin_base.html" %}
 
     {% block content %}
-    <div class="container">
-      <h1>Add User</h1>
-    <form class="add_user" method="POST"> 
-        <div class="halfleft">
-          <input type="text" id="fname" name="firstname" placeholder="First Name" required>
-          <input type="email" id="email" name="email" placeholder="Email Address" required>
-          <input type="text" id="username" name="username" placeholder="User Name" required>
-          <input type="password" id="password" name="password" placeholder="Password" required>
-          <label for="stylistlevel">Select Stylist Level:</label>
-          <select id="stylistlevel" name="stylistlevel" required>
-            <option value="N/A">N/A</option>
-            <option value="1">1</option>
-            <option value="2">2</option>
-            <option value="3">3</option>
-            <option value="4">4</option>
-            <option value="5">5</option>
-            <option value="6">6</option>
-            <option value="7">7</option>
-            <option value="8">8</option>
-            <option value="9">9</option>
-            <option value="10">10</option>
-        </select>
-        </div>
-         <div class="halfright">
-            <input type="text" id="lname" name="lastname" placeholder="Last Name" required>
-            <input type="text" id="phone" name="phone" placeholder="Phone Number" required>
-            <label for="role">Role:</label>
-            <select id="role" name="role" required>
-                <option value="1">1</option>
-                <option value="2">2</option>
-                <option value="3">3</option>
-                <option value="4">4</option>
-                <option value="5">5</option>
-                <option value="6">6</option>
-                <option value="7">7</option>
-                <option value="8">8</option>
-                <option value="9">9</option>
-                <option value="10">10</option>
-                <option value="11">11</option>
-                <option value="12">12</option>
-                <option value="13">13</option>
-            </select>
-            <input type="text" id="booth" name="booth" placeholder="Booth">
-        </div>
-        <input type="submit" name="submit" value="Submit">
-        <input type="submit" name="submit" class="Delete" value="Delete">
-
+    <div class=book>
+        <h1>Booking Appointment At {{ time }}</h1>
+        <form method="POST">
+          <input type="hidden" name="bookingId" value={{ bookingId }}>
+          <input type="hidden" name="userId" value={{ userId }}>
+          <input type="hidden" name="day" value={{ day }}>
+          <input type="hidden" name="month" value={{ month }}>
+          <input type="hidden" name="year" value={{ year }}>
+          <input type="hidden" name="time" value='{{ time }}'>
+          <input type="hidden" name="typeId" value='{{ appointmentType.appointTypeId }}'>
+          <h3>Appointment for {{customer['firstName'] }} {{ customer['lastName']}}</h3>
+                <p>{{ appointmentType.typeName }} - {{ appointmentType.description }} - {{ appointmentType.duration }}</p>
+            <label for="notes">Appointment Notes</label>
+            <textarea name="notes" id="notes"  rows="4" cols="50">{{appointment.notes}}</textarea>
+              <p></p>
+              <button class="left center" type="submit" id="submit" name="submit" value="Update">Update</button>  
+              <button class="left center" ype="submit" id="submit"  name="submit" value="Delete">Delete</button>
+        <h3>Previous Notes:</h3>
+        {% for i in notes %}
+            <p>{{i.notes}}</p><br>
+        {% endfor %}
     </form>
-</div>
-
+      </div>
     {% endblock %}

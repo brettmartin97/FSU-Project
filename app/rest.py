@@ -68,7 +68,7 @@ def home():
         app.logger.info(datetime.strptime(opentime,"%I:%M %p"))
         app.logger.info(datetime.strptime(times[36],"%I:%M %p")) 
         return render_template('user/base.html', day=day, month=month, year=year,
-        times=times,user_schedule=user_schedule, datetime=datetime, 
+        times=times,user_schedule=user_schedule, datetime=datetime, appoint = '',
         user_booked=user_booked, booked = 0, scroll = 'start', opentime = opentime, closetime = closetime, company=company)
 
 
@@ -191,7 +191,7 @@ def booth():
         app.logger.info(datetime.strptime(opentime,"%I:%M %p"))
         app.logger.info(datetime.strptime(times[36],"%I:%M %p")) 
         return render_template('booth/base.html', day=day, month=month, year=year,
-        times=times,user_schedule=user_schedule, datetime=datetime, 
+        times=times,user_schedule=user_schedule, datetime=datetime,  appoint = '',
         user_booked=user_booked, booked = 0, scroll = 'start', opentime = opentime, closetime = closetime, company=company)
 
 @app.route('/booth/customers')
@@ -1008,7 +1008,7 @@ def calendar():
         year = dt.year
         month = dt.month
         day = dt.day
-        return redirect(url_for('calendarDay', day=day, month=month, year=year))
+        return redirect(url_for('calendarDay', day=day, month=month, year=year,company=company,error=error))
 
 @app.route('/admin/calendar/<day>-<month>-<year>/book-<userid>', methods   =['GET', 'POST'])
 def book(day,month,year,userid):
@@ -1045,8 +1045,8 @@ def book(day,month,year,userid):
             else:
                 return redirect(url_for('calendarDay', day=day, month=month, year=year))
         
-@app.route('/admin/calendar/<day>-<month>-<year>/editbook-<userid>', methods   =['GET', 'POST'])
-def edit_booking(day,month,year,userid):
+@app.route('/admin/calendar/<day>-<month>-<year>/editbook/<userid>/<appointmentid>', methods   =['GET', 'POST'])
+def edit_booking(day,month,year,userid,appointmentid):
     with open("config/config.yml") as f:
         config = yaml.safe_load(f)
     company = config['site']['company']
@@ -1056,29 +1056,34 @@ def edit_booking(day,month,year,userid):
     elif auth == 2:
         date = f'{year}-{month}-{day}'
         if request.method == 'POST':
-            if request.form['time']:
-                time = f'{request.form["time"]}'
-                app.logger.info(time)
-                time = datetime.strptime(time, '%I:%M %p').replace(year=int(year),month=int(month),day=int(day))
-                next_appt = sql.get_next_appt(date, time, userid)
-                if next_appt:
-                    next_appt = next_appt['startTime']
-                    app.logger.info(time)
-                    app.logger.info(next_appt)
-                    maxDur = next_appt - time
-                    maxDur = maxDur.total_seconds() / 60
-                    app.logger.info(maxDur)
-                    where = f'duration < {maxDur} AND hasHourlyRate = 0 ORDER BY 1'
-                    appointmentTypes = sql.get_all('typeName, description, duration', 'AppointmentType',where)
-                    maxDur = maxDur / 60
-                    where = f'duration < {maxDur} AND hasHourlyRate = 1 ORDER BY 1'
-                    appointmentTypes += sql.get_all('appointTypeId,typeName, description, duration', 'AppointmentType',where)
-                else:
-                    appointmentTypes = sql.get_table('AppointmentType')
-                return render_template('admin/edit_booking.html', time=time.strftime("%I:%M %p"), day=day, month=month, 
-                year=year, appointmentTypes = appointmentTypes, userId = userid, company=company)
-            else:
+            if request.form['submit'] == 'Update':
+                notes = request.form['notes']
+                set = f"notes = '{notes}'"
+                where = f'AppointId = {appointmentid}'
+                sql.update_table('Appointment',set,where)
                 return redirect(url_for('calendarDay', day=day, month=month, year=year))
+            if request.form['submit'] == 'Delete':
+                sql.delete_data('Appointment',f'AppointId = {appointmentid}')
+                return redirect(url_for('calendarDay', day=day, month=month, year=year))
+            
+            else:
+                time = f'{request.form["time"]}'
+                where = f"appointId = {appointmentid}"
+                appointment = sql.get_all('*','Appointment',where)[0]
+                where = f"customerId = {appointment['customerId']}"
+                customer = sql.get_all('*','Customer',where)[0]
+                time = datetime.strptime(time, '%I:%M %p').replace(year=int(year),month=int(month),day=int(day))
+                appointmentTypeId = appointment['appointTypeId']
+                app.logger.info(appointment)
+                where = f'appointTypeId = {appointmentTypeId}'
+                appointmentType = sql.get_all('*', 'AppointmentType',where)[0]
+                app.logger.info(appointmentType)
+                app.logger.info(where)
+                notes = sql.get_customer_notes(customer['customerId'])
+                return render_template('admin/edit_booking.html', time=time.strftime("%I:%M %p"), day=day, month=month, notes = notes,
+                year=year, customer = customer, appointmentType = appointmentType, userId = userid, appointmentid = appointmentid, appointment = appointment, company=company)
+        
+        return redirect(url_for('calendarDay', day=day, month=month, year=year))
         
 @app.route('/admin/calendar/<day>-<month>-<year>', methods   =['GET', 'POST'])
 def calendarDay(day,month,year):
@@ -1152,7 +1157,7 @@ def calendarDay(day,month,year):
             app.logger.info(datetime.strptime(times[36],"%I:%M %p")) 
             return render_template('admin/Calendar-Day.html', day=day, month=month, year=year,
             times=times,user_schedule=user_schedule, datetime=datetime, 
-            user_booked=user_booked, booked = 0, scroll = 'start', opentime = opentime, closetime = closetime, company=company)
+            user_booked=user_booked, booked = 0, appid = '', scroll = 'start', opentime = opentime, closetime = closetime, company=company)
 
 @app.route('/admin/calendar/<month>-<year>', methods=['GET', 'POST'])
 def calendarMonth(month, year):
