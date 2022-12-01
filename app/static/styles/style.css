@@ -51,6 +51,30 @@ div.sticky {
   top: 0;
 }
 
+label.search {
+  position: absolute;
+  padding-top: 20px;
+}
+
+form.search_customer {
+  border: solid;
+  border-color: black;
+  border-radius: 9px;
+  padding-left: 7px;
+  padding-right: 7px;
+}
+
+select#search_type {
+  width: 50%;
+  height: 43px;
+  float: right;
+}
+
+input[type="search"] {
+  width: -webkit-fill-available;
+  height: 30px;
+}
+
 .centersubmit {
   text-align: -webkit-center;
 }
@@ -64,21 +88,33 @@ h1 {
   font-size: xx-large;
 }
 
+h2.home {
+  background: rgb(2 119 1);
+  color: white;
+  text-align: -webkit-center;
+  border-radius: 9px;
+}
+
 div.halfleft {
   float: left; 
   left: 0;
-  width: 45%;
+  width: 48%;
   z-index: 1;
   overflow-x: hidden;
   padding-top: 20px;
+  padding-left: 15px;
+  background: transparent;
 }
 div.halfright {
   float: right; 
-  width: 45%;
+  width: 48%;
+  padding-left: 5px;
   right: 0;
   z-index: 1;
   overflow-x: hidden;
   padding-top: 20px;
+  padding-right: 15px;
+  background: transparent;
 }
 
 div.centered {
