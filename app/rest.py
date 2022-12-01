@@ -25,7 +25,7 @@ def root():
     else:
         return redirect(url_for('home'))
 
-@app.route('/user')
+@app.route('/user',methods =['GET', 'POST'])
 def home():
     auth_bool = utils.is_auth(session)
     with open("config/config.yml") as f:
@@ -43,7 +43,22 @@ def home():
         app.logger.info('4')
         return redirect(url_for('booth'))
     else:
-        date = datetime.now()
+        if request.method == 'POST':
+            if request.form['submit_button'] == 'Next Day':
+                date = request.form['date']
+                date = date + timedelta(days=1)
+            elif request.form['submit_button'] == 'Prev Day':
+                date = request.form['date']
+                date = date - timedelta(days=1)
+            else:
+                day = int(request.form['submit_button'])
+                month = request.form['month']
+                intmonth = datetime.strptime(month, "%B")
+                month = int(intmonth.month)
+                year = int(request.form['year'])
+                return redirect(url_for('user_calendarDay', day=day, month=month, year=year))
+        elif request.method == 'GET':
+            date = datetime.now()
         year = date.year
         month = date.month
         day = date.day
@@ -70,6 +85,96 @@ def home():
         return render_template('user/base.html', day=day, month=month, year=year,
         times=times,user_schedule=user_schedule, datetime=datetime, appoint = '',
         user_booked=user_booked, booked = 0, scroll = 'start', opentime = opentime, closetime = closetime, company=company)
+
+@app.route('/user/calendar/<month>-<year>', methods=['GET', 'POST'])
+def user_calendarMonth(month, year):
+    with open("config/config.yml") as f:
+        config = yaml.safe_load(f)
+    company = config['site']['company']
+    error = None
+    auth = utils.is_auth(session)
+    if not auth:
+        return redirect(url_for('login'))
+    elif auth == 2:
+        if request.method == 'POST':
+            if request.form['submit_button'] == 'Next Month':
+                date = request.form['date']
+                date = datetime.strptime(date, '%Y-%m-%d')
+                last = date.replace(day = fcalendar.monthrange(date.year, date.month)[1])
+                date = last + timedelta(days=1)
+            elif request.form['submit_button'] == 'Prev Month':
+                date = request.form['date']
+                date = datetime.strptime(date, '%Y-%m-%d')
+                first = date.replace(day=1)
+                date = first - timedelta(days=1)
+            else:
+                day = int(request.form['submit_button'])
+                month = request.form['month']
+                intmonth = datetime.strptime(month, "%B")
+                month = int(intmonth.month)
+                year = int(request.form['year'])
+                return redirect(url_for('user_calendarDay', day=day, month=month, year=year))
+        elif request.method == 'GET':
+            date = datetime.now()
+        currentDay = date.day
+        currentMonth = date.strftime("%B")
+        currentYear = date.year
+        firstDay = date.replace(day=1).weekday()
+        lastDay = date.replace(day = fcalendar.monthrange(date.year, date.month)[1]).strftime("%d")
+        return render_template('user/Calendar-Month.html', lastDay = int(lastDay), 
+        firstDay=firstDay, day=currentDay, month=currentMonth, 
+        year=currentYear, date=date, error=error, company=company)
+
+
+@app.route('/user/calendar/<day>-<month>-<year>', methods =['GET', 'POST'])
+def user_calendarDay(day,month,year):
+    with open("config/config.yml") as f:
+        config = yaml.safe_load(f)
+    company = config['site']['company']
+    error = None
+    auth = utils.is_auth(session)
+    if not auth:
+        return redirect(url_for('login'))
+    elif auth == 2:
+        date = datetime(int(year),int(month),int(day),0,0,0)
+        if request.method == 'POST':
+            if request.form['submit_button'] == 'Month View':
+                return redirect(url_for('user_calendarMonth', month=month, year=year))
+            if request.form['submit_button'] == 'Next Day':
+                dt = date + timedelta(days=1)
+                year = dt.year
+                month = dt.month
+                day = dt.day
+                return redirect(url_for('user_calendarDay', day=day, month=month, year=year))
+            if request.form['submit_button'] == 'Prev Day':
+                dt = date - timedelta(days=1)
+                year = dt.year
+                month = dt.month
+                day = dt.day
+                return redirect(url_for('user_calendarDay', day=day, month=month, year=year))
+        else:
+            times = []
+            formatedtime = date.strftime("%I:%M %p")
+            times.append(formatedtime)
+            weekday = date.weekday()+1
+            day_sql = date.strftime('%Y-%m-%d')
+            user_schedule = sql.get_schedule(weekday,session['userId'])
+            app.logger.info(user_schedule)
+            user_booked = sql.get_bookings(day_sql,app.logger,session['userId'])
+            app.logger.info(user_booked)
+            for i in range(96): 
+                date += timedelta(minutes=15)
+                formatedtime = date.strftime("%I:%M %p")
+                times.append(formatedtime)
+            with open("config/config.yml") as f:
+                config = yaml.safe_load(f)
+            opentime = config['site']['open']
+            closetime = config['site']['close']
+            app.logger.info(datetime.strptime(opentime,"%I:%M %p"))
+            app.logger.info(datetime.strptime(times[36],"%I:%M %p")) 
+            return render_template('admin/Calendar-Day.html', day=day, month=month, year=year,
+            times=times,user_schedule=user_schedule, datetime=datetime, 
+            user_booked=user_booked, booked = 0, appid = '', scroll = 'start', opentime = opentime, closetime = closetime, company=company)
 
 
 @app.route('/user/analysis')
@@ -154,6 +259,44 @@ def user_scheduling():
     else:
         return redirect(url_for('error'))
 
+@app.route('/user/calendar/<day>-<month>-<year>/editbook/<userid>/<appointmentid>', methods   =['GET', 'POST'])
+def user_edit_booking(day,month,year,userid,appointmentid):
+    with open("config/config.yml") as f:
+        config = yaml.safe_load(f)
+    company = config['site']['company']
+    auth = utils.is_auth(session)
+    if not auth:
+        return redirect(url_for('login'))
+    elif auth == 1:
+        date = f'{year}-{month}-{day}'
+        if request.method == 'POST':
+            if request.form['submit'] == 'Update':
+                notes = request.form['notes']
+                set = f"notes = '{notes}'"
+                where = f'AppointId = {appointmentid}'
+                sql.update_table('Appointment',set,where)
+                return redirect(url_for('home', day=day, month=month, year=year))
+            time = f'{request.form["time"]}'
+            where = f"appointId = {appointmentid}"
+            appointment = sql.get_all('*','Appointment',where)[0]
+            where = f"customerId = {appointment['customerId']}"
+            customer = sql.get_all('*','Customer',where)[0]
+            time = datetime.strptime(time, '%I:%M %p').replace(year=int(year),month=int(month),day=int(day))
+            appointmentTypeId = appointment['appointTypeId']
+            app.logger.info(appointment)
+            where = f'appointTypeId = {appointmentTypeId}'
+            appointmentType = sql.get_all('*', 'AppointmentType',where)[0]
+            app.logger.info(appointmentType)
+            app.logger.info(where)
+            notes = sql.get_customer_notes(customer['customerId'])
+            return render_template('user/edit_booking.html', time=time.strftime("%I:%M %p"), day=day, month=month, notes = notes,
+            year=year, customer = customer, appointmentType = appointmentType, userId = userid, appointmentid = appointmentid, appointment = appointment, company=company)
+        
+        return redirect(url_for('home', day=day, month=month, year=year))
+
+    else:
+        return redirect(url_for('error'))        
+
 @app.route('/booth', methods=['GET', 'POST'])
 def booth():
     with open("config/config.yml") as f:
@@ -232,8 +375,8 @@ def booth_scheduling():
             for i in users:
                 schedule = sql.get_user_schedule(i['userId'])
                 app.logger.info(schedule)
-                if frm[f'Monday_start_{i["userId"]}']:
-                    if frm[f'Monday_end_{i["userId"]}']:
+                if frm.get(f'Monday_start_{i["userId"]}'):
+                    if frm.get(f'Monday_end_{i["userId"]}'):
                         found = 0 
                         for i in schedule:
                             if i['dayId'] == 1 :
@@ -246,11 +389,9 @@ def booth_scheduling():
                             sql.insert_Schedule(1,i['userId'],frm[f'Monday_start_{i["userId"]}'],frm[f'Monday_end_{i["userId"]}'])                 
                     else:
                         error = 'All times need start and end times'
-                else:
-                    where = f'userId = {i["userId"]} and dayId = 1'    
-                    sql.delete_data('Schedule', where)
-                if frm[f'Tuesday_start_{i["userId"]}']:
-                    if frm[f'Tuesday_end_{i["userId"]}']:
+
+                if frm.get(f'Tuesday_start_{i["userId"]}'):
+                    if frm.get(f'Tuesday_end_{i["userId"]}'):
                         found = 0 
                         for i in schedule:
                             if i['dayId'] == 2:
@@ -263,11 +404,9 @@ def booth_scheduling():
                             sql.insert_Schedule(2,i['userId'],frm[f'Tuesday_start_{i["userId"]}'],frm[f'Tuesday_end_{i["userId"]}'])                 
                     else:
                         error = 'All times need start and end times'
-                else:
-                    where = f'userId = {i["userId"]} and dayId = 2'    
-                    sql.delete_data('Schedule', where)
-                if frm[f'Wednesday_start_{i["userId"]}']:
-                    if frm[f'Wednesday_end_{i["userId"]}']:
+
+                if frm.get(f'Wednesday_start_{i["userId"]}'):
+                    if frm.get(f'Wednesday_end_{i["userId"]}'):
                         found = 0 
                         for i in schedule:
                             if i['dayId'] == 3:
@@ -281,11 +420,9 @@ def booth_scheduling():
                    
                     else:
                         error = 'All times need start and end times'
-                else:
-                    where = f'userId = {i["userId"]} and dayId = 3'    
-                    sql.delete_data('Schedule', where)
-                if frm[f'Thursday_start_{i["userId"]}']:
-                    if frm[f'Thursday_end_{i["userId"]}']:
+ 
+                if frm.get(f'Thursday_start_{i["userId"]}'):
+                    if frm.get(f'Thursday_end_{i["userId"]}'):
                         found = 0 
                         for i in schedule:
                             if i['dayId'] == 4:
@@ -300,11 +437,9 @@ def booth_scheduling():
                    
                     else:
                         error = 'All times need start and end times'
-                else:
-                    where = f'userId = {i["userId"]} and dayId = 4'    
-                    sql.delete_data('Schedule', where)
-                if frm[f'Friday_start_{i["userId"]}']:
-                    if frm[f'Friday_end_{i["userId"]}']:
+           
+                if frm.get(f'Friday_start_{i["userId"]}'):
+                    if frm.get(f'Friday_end_{i["userId"]}'):
                         found = 0 
                         for i in schedule:
                             if i['dayId'] == 5:
@@ -318,11 +453,8 @@ def booth_scheduling():
                    
                     else:
                         error = 'All times need start and end times'
-                else:
-                    where = f'userId = {i["userId"]} and dayId = 5'    
-                    sql.delete_data('Schedule', where)
-                if frm[f'Saturday_start_{i["userId"]}']:
-                    if frm[f'Saturday_end_{i["userId"]}']:
+                if frm.get(f'Saturday_start_{i["userId"]}'):
+                    if frm.get(f'Saturday_end_{i["userId"]}'):
                         found = 0 
                         for i in schedule:
                             if i['dayId'] == 6:
@@ -339,8 +471,8 @@ def booth_scheduling():
                 else:
                     where = f'userId = {i["userId"]} and dayId = 6'    
                     sql.delete_data('Schedule', where)
-                if frm[f'Sunday_start_{i["userId"]}']:
-                    if frm[f'Sunday_end_{i["userId"]}']:
+                if frm.get(f'Sunday_start_{i["userId"]}'):
+                    if frm.get(f'Sunday_end_{i["userId"]}'):
                         found = 0 
                         for i in schedule:
                             if i['dayId'] == 7 :
@@ -580,6 +712,8 @@ def edit_role(roleId):
             config = yaml.safe_load(f)
         company = config['site']['company']
         role = sql.get_all('*','Role',f"roleId = {roleId}")[0]
+        role = sql.get_all('*','Role',f"roleId = {roleId}")[0]
+        pricing = sql.get_all('*','Pricing',f"roleId = {roleId}")
         if request.method == 'POST':
             if request.form['submit'] == 'Delete':
                 table = 'Role'
@@ -598,7 +732,25 @@ def edit_role(roleId):
                     sql.insert_RoleGoal(roleId, "Monthly Appointments",request.form['Appointments'])
                 return redirect(url_for('role_management'))
             app.logger.info(role)
+            htmlid = list()
             app.logger.info(request.form)
+            if pricing:
+                for p in pricing:
+                    price = f"{p.appointTypeId}_{p.roleId}"
+                    htmlid.append(price)
+                    fprice = request.form[price]
+                    if p.price != fprice:
+                        set = f'price = {fprice}'
+                        where = f'totalPriceI d = {p.totalPriceId}'
+                        sql.update_table('Pricing', set,where)
+                else:
+                    for i in appointType:
+                        fprice = request.form['price']
+                        fprice = fprice.split('_')
+                        typeId = fprice[0]
+                        roleId = fprice[1]
+                        sql.insert_Pricing
+
             if request.form['roleName'] != role['roleName']:
                 if sql.get_single_role_info(request.form['roleName']):
                     error = "Role name taken, please choose a  different one"
@@ -951,7 +1103,7 @@ def edit_appointment(appointTypeId):
         return redirect(url_for('login'))
     elif auth == 2:
         role = sql.get_table('Role')
-        prices = sql.get_all('*','Pricing',f'appointTypeId = {appointTypeId}')
+        prices = sql.get_all('*','Pricing',f'appointTypeId = {appointTypeId} ORDER BY appointTypeId')
         with open("config/config.yml") as f:
             config = yaml.safe_load(f)
         company = config['site']['company']
@@ -978,8 +1130,11 @@ def edit_appointment(appointTypeId):
                 if request.form['hasHourlyRate'] != appointment['hasHourlyRate']:
                     app.logger.info(f"hasHourlyRate = {request.form['hasHourlyRate']}")
                     sql.update_table('AppointmentType',f"hasHourlyRate = '{request.form['hasHourlyRate']}'", f"appointTypeId = '{appointTypeId}'")
+            htmlprices = list()
             for i in prices:
                 roleid = i['roleId']
+                price = f'price_{roleid}'
+                htmlprices.append(price)
                 app.logger.info(f'rate_{roleid}')
                 price=float(request.form[f'rate_{roleid}'])
                 if price != i['price']:
@@ -1034,12 +1189,12 @@ def book(day,month,year,userid):
                     maxDur = maxDur.total_seconds() / 60
                     app.logger.info(maxDur)
                     where = f'duration < {maxDur} AND hasHourlyRate = 0 ORDER BY 1'
-                    appointmentTypes = sql.get_all('typeName, description, duration', 'AppointmentType',where)
+                    appointmentTypes = sql.get_all('appointTypeId, typeName, description, duration', 'AppointmentType a join Pricing p on a.appointTypeId = p.appointTypeId',where)
                     maxDur = maxDur / 60
                     where = f'duration < {maxDur} AND hasHourlyRate = 1 ORDER BY 1'
-                    appointmentTypes += sql.get_all('appointTypeId,typeName, description, duration', 'AppointmentType',where)
+                    appointmentTypes += sql.get_all('appointTypeId, typeName, description, duration', 'AppointmentType a join Pricing p on a.appointTypeId = p.appointTypeId',where)
                 else:
-                    appointmentTypes = sql.get_table('AppointmentType')
+                    appointmentTypes = sql.get_table('AppointmentType a join Pricing p on a.appointTypeId = p.appointTypeId')
                 return render_template('admin/booking.html', time=time.strftime("%I:%M %p"), day=day, month=month, 
                 year=year, appointmentTypes = appointmentTypes, userId = userid, company=company)
             else:
@@ -1062,7 +1217,7 @@ def edit_booking(day,month,year,userid,appointmentid):
                 where = f'AppointId = {appointmentid}'
                 sql.update_table('Appointment',set,where)
                 return redirect(url_for('calendarDay', day=day, month=month, year=year))
-            if request.form['submit'] == 'Delete':
+            elif request.form['submit'] == 'Delete':
                 sql.delete_data('Appointment',f'AppointId = {appointmentid}')
                 return redirect(url_for('calendarDay', day=day, month=month, year=year))
             
