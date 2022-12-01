@@ -1,0 +1,28 @@
+
+    {% extends "base_templates/booth_base.html" %}
+
+    {% block content %}
+    <div class=book>
+        <h1>Booking Appointment At {{ time }}</h1>
+        <form method="POST">
+          <input type="hidden" name="bookingId" value={{ bookingId }}>
+          <input type="hidden" name="userId" value={{ userId }}>
+          <input type="hidden" name="day" value={{ day }}>
+          <input type="hidden" name="month" value={{ month }}>
+          <input type="hidden" name="year" value={{ year }}>
+          <input type="hidden" name="time" value='{{ time }}'>
+          <input type="hidden" name="typeId" value='{{ appointmentType.appointTypeId }}'>
+          <h3>Appointment for {{customer['firstName'] }} {{ customer['lastName']}}</h3>
+                <p>{{ appointmentType.typeName }} - {{ appointmentType.description }} - {{ appointmentType.duration }}</p>
+            <label for="notes">Appointment Notes</label>
+            <textarea name="notes" id="notes"  rows="4" cols="50">{{appointment.notes}}</textarea>
+              <p></p>
+              <button class="left center" type="submit" id="submit" name="submit" value="Update">Update</button>  
+              <button class="left center" ype="submit" id="submit"  name="submit" value="Delete">Delete</button>
+        <h3>Previous Notes:</h3>
+        {% for i in notes %}
+            <p>{{i.notes}}</p><br>
+        {% endfor %}
+    </form>
+      </div>
+    {% endblock %}
