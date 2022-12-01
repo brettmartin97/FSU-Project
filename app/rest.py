@@ -199,10 +199,10 @@ def user_analysis():
     elif auth == 1:
         userId = int(session['userId'])
         # user viewed charts
-        userSales = sql.total_sales('2022-10-17', '2022-10-21', userId)   
-        userCustomers = sql.customer_chart('2022-10-17', '2022-10-21', userId)
-        appointType = sql.appointmentType_chart('2022-10-17', '2022-10-21', userId)
-        userAppointments = sql.appointment_by_date('2022-10-17', '2022-10-21', userId)
+        userSales = sql.total_sales('2022-11-28', '2022-12-02', userId)   
+        userCustomers = sql.customer_chart('2022-11-28', '2022-12-02', userId)
+        appointType = sql.appointmentType_chart('2022-11-28', '2022-12-02', userId)
+        userAppointments = sql.appointment_by_date('2022-11-28', '2022-12-02', userId)
         
         return render_template('user/analysis.html', error=error, userSales = userSales, userCustomers = userCustomers, 
         appointType = appointType, userAppointments = userAppointments, company=company)
@@ -726,10 +726,10 @@ def booth_analysis():
     elif auth == 3:
         userId = int(session['userId'])
         # user viewed charts
-        userSales = sql.total_sales('2022-10-17', '2022-10-21', userId)   
-        userCustomers = sql.customer_chart('2022-10-17', '2022-10-21', userId)
-        appointType = sql.appointmentType_chart('2022-10-17', '2022-10-21', userId)
-        userAppointments = sql.appointment_by_date('2022-10-17', '2022-10-21', userId)
+        userSales = sql.total_sales('2022-11-28', '2022-12-02', userId)   
+        userCustomers = sql.customer_chart('2022-11-28', '2022-12-02', userId)
+        appointType = sql.appointmentType_chart('2022-11-28', '2022-12-02', userId)
+        userAppointments = sql.appointment_by_date('2022-11-28', '2022-12-02', userId)
         return render_template('booth/analysis.html', error=error, userSales=userSales, userCustomers = userCustomers, 
         appointType = appointType, userAppointments = userAppointments, company=company)
     else:
@@ -817,8 +817,8 @@ def admin():
                     customer = sql.get_all('*','Customer',f'phoneNumber = {phone}')
                 app.logger.info(customer)
                 return render_template('admin/search_customer.html', customers=customer, company=company)
-        totalSales = sql.total_sales('2022-10-17', '2022-10-21')
-        allAppointType = sql.appointmentType_chart('2022-10-17', '2022-10-21')
+        totalSales = sql.total_sales('2022-11-28', '2022-12-02',)
+        allAppointType = sql.appointmentType_chart('2022-11-28', '2022-12-02',)
         firstname, lastname = sql.get_name(session['user'], app.logger)
         name = firstname + ' ' + lastname
         customers = sql.get_appointment_data()
@@ -1738,16 +1738,16 @@ def analysis():
 
 
         # user viewed charts
-        userSales = sql.total_sales('2022-10-17', '2022-10-21', 6, 100)   
-        userCustomers = sql.customer_chart('2022-10-17', '2022-10-21', 6, 2)
-        appointType = sql.appointmentType_chart('2022-10-17', '2022-10-21', 6)
-        userAppointments = sql.appointment_by_date('2022-10-17', '2022-10-21', 6)
+        userSales = sql.total_sales('2022-11-28', '2022-12-02', 6, 100)   
+        userCustomers = sql.customer_chart('2022-11-28', '2022-12-02', 6, 2)
+        appointType = sql.appointmentType_chart('2022-11-28', '2022-12-02', 6)
+        userAppointments = sql.appointment_by_date('2022-11-28', '2022-12-02', 6)
 
         # #managment viewed charts
-        totalCustomers = sql.customer_chart('2022-10-17', '2022-10-21', goal=4)
-        totalSales = sql.total_sales('2022-10-17', '2022-10-21', goal = 300)
-        allAppointType = sql.appointmentType_chart('2022-10-17', '2022-10-21')
-        totalAppointments = sql.appointment_by_date('2022-10-17', '2022-10-21')
+        totalCustomers = sql.customer_chart('2022-11-28', '2022-12-02', goal=4)
+        totalSales = sql.total_sales('2022-11-28', '2022-12-02', goal = 300)
+        allAppointType = sql.appointmentType_chart('2022-11-28', '2022-12-02')
+        totalAppointments = sql.appointment_by_date('2022-11-28', '2022-12-02')
 
         return render_template('admin/analysis.html', error=error, userSales=userSales, totalSales=totalSales, usersales=userSales,
         userCustomers = userCustomers, totalCustomers = totalCustomers, appointType = appointType, allAppointType = allAppointType, 
