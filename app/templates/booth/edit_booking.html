@@ -1,5 +1,4 @@
-
-    {% extends "base_templates/booth_base.html" %}
+{% extends "base_templates/booth_base.html" %}
 
     {% block content %}
     <div class=book>
@@ -18,7 +17,7 @@
             <textarea name="notes" id="notes"  rows="4" cols="50">{{appointment.notes}}</textarea>
               <p></p>
               <button class="left center" type="submit" id="submit" name="submit" value="Update">Update</button>  
-              <button class="left center" ype="submit" id="submit"  name="submit" value="Delete">Delete</button>
+              <button class="left center" type="submit" id="submit" name="submit" value="Delete">Delete</button>  
         <h3>Previous Notes:</h3>
         {% for i in notes %}
             <p>{{i.notes}}</p><br>

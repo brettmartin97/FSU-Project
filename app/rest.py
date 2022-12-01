@@ -46,17 +46,27 @@ def home():
         if request.method == 'POST':
             if request.form['submit_button'] == 'Next Day':
                 date = request.form['date']
-                date = date + timedelta(days=1)
+                date = datetime.strptime(date, '%Y-%m-%d')
+                dt = date + timedelta(days=1)
+                year = dt.year
+                month = dt.month
+                day = dt.day
+                return redirect(url_for('user_calendarDay', day=day, month=month, year=year))
             elif request.form['submit_button'] == 'Prev Day':
                 date = request.form['date']
-                date = date - timedelta(days=1)
-            else:
-                day = int(request.form['submit_button'])
-                month = request.form['month']
-                intmonth = datetime.strptime(month, "%B")
-                month = int(intmonth.month)
-                year = int(request.form['year'])
+                date = datetime.strptime(date, '%Y-%m-%d')
+                dt = date - timedelta(days=1)
+                year = dt.year
+                month = dt.month
+                day = dt.day
                 return redirect(url_for('user_calendarDay', day=day, month=month, year=year))
+            else:
+                date = request.form['date']
+                date = datetime.strptime(date, '%Y-%m-%d')
+                year = date.year
+                month = date.month
+                day = date.day
+                return redirect(url_for('user_calendarMonth', day=day, month=month, year=year))
         elif request.method == 'GET':
             date = datetime.now()
         year = date.year
@@ -82,7 +92,7 @@ def home():
         closetime = config['site']['close']
         app.logger.info(datetime.strptime(opentime,"%I:%M %p"))
         app.logger.info(datetime.strptime(times[36],"%I:%M %p")) 
-        return render_template('user/base.html', day=day, month=month, year=year,
+        return render_template('user/base.html', day=day, month=month, year=year, date = date,
         times=times,user_schedule=user_schedule, datetime=datetime, appoint = '',
         user_booked=user_booked, booked = 0, scroll = 'start', opentime = opentime, closetime = closetime, company=company)
 
@@ -95,7 +105,7 @@ def user_calendarMonth(month, year):
     auth = utils.is_auth(session)
     if not auth:
         return redirect(url_for('login'))
-    elif auth == 2:
+    elif auth == 1:
         if request.method == 'POST':
             if request.form['submit_button'] == 'Next Month':
                 date = request.form['date']
@@ -135,7 +145,7 @@ def user_calendarDay(day,month,year):
     auth = utils.is_auth(session)
     if not auth:
         return redirect(url_for('login'))
-    elif auth == 2:
+    elif auth == 1:
         date = datetime(int(year),int(month),int(day),0,0,0)
         if request.method == 'POST':
             if request.form['submit_button'] == 'Month View':
@@ -172,7 +182,7 @@ def user_calendarDay(day,month,year):
             closetime = config['site']['close']
             app.logger.info(datetime.strptime(opentime,"%I:%M %p"))
             app.logger.info(datetime.strptime(times[36],"%I:%M %p")) 
-            return render_template('admin/Calendar-Day.html', day=day, month=month, year=year,
+            return render_template('user/Calendar-Day.html', day=day, month=month, year=year,
             times=times,user_schedule=user_schedule, datetime=datetime, 
             user_booked=user_booked, booked = 0, appid = '', scroll = 'start', opentime = opentime, closetime = closetime, company=company)
 
@@ -218,6 +228,44 @@ def user_customers():
             return render_template('user/customers.html', error=error, customers=customers, company=company)
     else:
         return redirect(url_for('error'))
+
+@app.route('/user/customers/<customerId>', methods=['GET', 'POST'])
+def user_view_customer(customerId):
+    error = None
+    auth = utils.is_auth(session)
+    if not auth:
+        return redirect(url_for('login'))
+    elif auth == 1:
+        notes = sql.get_customer_notes(customerId)
+        with open("config/config.yml") as f:
+            config = yaml.safe_load(f)
+        company = config['site']['company']
+        customer = sql.get_all('*','Customer',f"customerId = {customerId}")[0]
+        if request.method == 'POST':
+            if request.form['submit'] == 'Delete':
+                table = 'Customer'
+                where = f'customerId = {customerId}'
+                sql.delete_data(table,where)
+                return redirect(url_for('customers'))
+           
+            app.logger.info(customer)
+            app.logger.info(request.form)
+            if request.form['firstName'] != customer['firstName'] :
+                sql.update_table('Customer',f"firstName = '{request.form['firstName']}'", f"customerId = '{customerId}'")
+            if request.form['lastName'] != customer['lastName']:
+                sql.update_table('Customer',f"lastName = '{request.form['lastName']}'", f"customerId = '{customerId}'")
+            if request.form['email'] != customer['email'] :
+                sql.update_table('Customer',f"email = '{request.form['email']}'", f"customerId = '{customerId}'")
+            if request.form['phoneNumber'] != customer['phoneNumber']:
+                sql.update_table('Customer',f"phoneNumber = '{request.form['phoneNumber']}'", f"customerId = '{customerId}'")
+            if error:
+                return render_template('user/view_customer.html', notes=notes, error=error, customer=customer, company=company)
+            else:
+                return redirect(url_for('customers'))
+        else:
+            app.logger.info(customer)
+            return render_template('user/view_customer.html', notes=notes, error=error, customer=customer, company=company)
+
 
 @app.route('/user/schedule', methods=['GET'])
 def user_scheduling():
@@ -309,7 +357,32 @@ def booth():
     elif session['booth'] != 1:
         return redirect(url_for('error'))
     else:
-        date = datetime.now()
+        if request.method == 'POST':
+            if request.form['submit_button'] == 'Next Day':
+                date = request.form['date']
+                date = datetime.strptime(date, '%Y-%m-%d')
+                dt = date + timedelta(days=1)
+                year = dt.year
+                month = dt.month
+                day = dt.day
+                return redirect(url_for('booth_calendarDay', day=day, month=month, year=year))
+            elif request.form['submit_button'] == 'Prev Day':
+                date = request.form['date']
+                date = datetime.strptime(date, '%Y-%m-%d')
+                dt = date - timedelta(days=1)
+                year = dt.year
+                month = dt.month
+                day = dt.day
+                return redirect(url_for('booth_calendarDay', day=day, month=month, year=year))
+            else:
+                date = request.form['date']
+                date = datetime.strptime(date, '%Y-%m-%d')
+                year = date.year
+                month = date.month
+                day = date.day
+                return redirect(url_for('booth_calendarMonth', day=day, month=month, year=year))
+        elif request.method == 'GET':
+            date = datetime.now()
         year = date.year
         month = date.month
         day = date.day
@@ -333,9 +406,99 @@ def booth():
         closetime = config['site']['close']
         app.logger.info(datetime.strptime(opentime,"%I:%M %p"))
         app.logger.info(datetime.strptime(times[36],"%I:%M %p")) 
-        return render_template('booth/base.html', day=day, month=month, year=year,
-        times=times,user_schedule=user_schedule, datetime=datetime,  appoint = '',
+        return render_template('booth/base.html', day=day, month=month, year=year, date = date,
+        times=times,user_schedule=user_schedule, datetime=datetime, appoint = '',
         user_booked=user_booked, booked = 0, scroll = 'start', opentime = opentime, closetime = closetime, company=company)
+
+@app.route('/booth/calendar/<month>-<year>', methods=['GET', 'POST'])
+def booth_calendarMonth(month, year):
+    with open("config/config.yml") as f:
+        config = yaml.safe_load(f)
+    company = config['site']['company']
+    error = None
+    auth = utils.is_auth(session)
+    if not auth:
+        return redirect(url_for('login'))
+    elif auth == 3:
+        if request.method == 'POST':
+            if request.form['submit_button'] == 'Next Month':
+                date = request.form['date']
+                date = datetime.strptime(date, '%Y-%m-%d')
+                last = date.replace(day = fcalendar.monthrange(date.year, date.month)[1])
+                date = last + timedelta(days=1)
+            elif request.form['submit_button'] == 'Prev Month':
+                date = request.form['date']
+                date = datetime.strptime(date, '%Y-%m-%d')
+                first = date.replace(day=1)
+                date = first - timedelta(days=1)
+            else:
+                day = int(request.form['submit_button'])
+                month = request.form['month']
+                intmonth = datetime.strptime(month, "%B")
+                month = int(intmonth.month)
+                year = int(request.form['year'])
+                return redirect(url_for('booth_calendarDay', day=day, month=month, year=year))
+        elif request.method == 'GET':
+            date = datetime.now()
+        currentDay = date.day
+        currentMonth = date.strftime("%B")
+        currentYear = date.year
+        firstDay = date.replace(day=1).weekday()
+        lastDay = date.replace(day = fcalendar.monthrange(date.year, date.month)[1]).strftime("%d")
+        return render_template('booth/Calendar-Month.html', lastDay = int(lastDay), 
+        firstDay=firstDay, day=currentDay, month=currentMonth, 
+        year=currentYear, date=date, error=error, company=company)
+
+
+@app.route('/booth/calendar/<day>-<month>-<year>', methods =['GET', 'POST'])
+def booth_calendarDay(day,month,year):
+    with open("config/config.yml") as f:
+        config = yaml.safe_load(f)
+    company = config['site']['company']
+    error = None
+    auth = utils.is_auth(session)
+    if not auth:
+        return redirect(url_for('login'))
+    elif auth == 3:
+        date = datetime(int(year),int(month),int(day),0,0,0)
+        if request.method == 'POST':
+            if request.form['submit_button'] == 'Month View':
+                return redirect(url_for('booth_calendarMonth', month=month, year=year))
+            if request.form['submit_button'] == 'Next Day':
+                dt = date + timedelta(days=1)
+                year = dt.year
+                month = dt.month
+                day = dt.day
+                return redirect(url_for('booth_calendarDay', day=day, month=month, year=year))
+            if request.form['submit_button'] == 'Prev Day':
+                dt = date - timedelta(days=1)
+                year = dt.year
+                month = dt.month
+                day = dt.day
+                return redirect(url_for('booth_calendarDay', day=day, month=month, year=year))
+        else:
+            times = []
+            formatedtime = date.strftime("%I:%M %p")
+            times.append(formatedtime)
+            weekday = date.weekday()+1
+            day_sql = date.strftime('%Y-%m-%d')
+            user_schedule = sql.get_schedule(weekday,session['userId'])
+            app.logger.info(user_schedule)
+            user_booked = sql.get_bookings(day_sql,app.logger,session['userId'])
+            app.logger.info(user_booked)
+            for i in range(96): 
+                date += timedelta(minutes=15)
+                formatedtime = date.strftime("%I:%M %p")
+                times.append(formatedtime)
+            with open("config/config.yml") as f:
+                config = yaml.safe_load(f)
+            opentime = config['site']['open']
+            closetime = config['site']['close']
+            app.logger.info(datetime.strptime(opentime,"%I:%M %p"))
+            app.logger.info(datetime.strptime(times[36],"%I:%M %p")) 
+            return render_template('booth/Calendar-Day.html', day=day, month=month, year=year,
+            times=times,user_schedule=user_schedule, datetime=datetime, 
+            user_booked=user_booked, booked = 0, appid = '', scroll = 'start', opentime = opentime, closetime = closetime, company=company)
 
 @app.route('/booth/customers')
 def booth_customers():
@@ -356,6 +519,43 @@ def booth_customers():
             return render_template('booth/customers.html', error=error, customers=customers, company=company)
     else:
         return redirect(url_for('error'))
+
+@app.route('/booth/customers/<customerId>', methods=['GET', 'POST'])
+def booth_view_customer(customerId):
+    error = None
+    auth = utils.is_auth(session)
+    if not auth:
+        return redirect(url_for('login'))
+    elif auth == 3:
+        notes = sql.get_customer_notes(customerId)
+        with open("config/config.yml") as f:
+            config = yaml.safe_load(f)
+        company = config['site']['company']
+        customer = sql.get_all('*','Customer',f"customerId = {customerId}")[0]
+        if request.method == 'POST':
+            if request.form['submit'] == 'Delete':
+                table = 'Customer'
+                where = f'customerId = {customerId}'
+                sql.delete_data(table,where)
+                return redirect(url_for('customers'))
+           
+            app.logger.info(customer)
+            app.logger.info(request.form)
+            if request.form['firstName'] != customer['firstName'] :
+                sql.update_table('Customer',f"firstName = '{request.form['firstName']}'", f"customerId = '{customerId}'")
+            if request.form['lastName'] != customer['lastName']:
+                sql.update_table('Customer',f"lastName = '{request.form['lastName']}'", f"customerId = '{customerId}'")
+            if request.form['email'] != customer['email'] :
+                sql.update_table('Customer',f"email = '{request.form['email']}'", f"customerId = '{customerId}'")
+            if request.form['phoneNumber'] != customer['phoneNumber']:
+                sql.update_table('Customer',f"phoneNumber = '{request.form['phoneNumber']}'", f"customerId = '{customerId}'")
+            if error:
+                return render_template('booth/view_customer.html', notes=notes, error=error, customer=customer, company=company)
+            else:
+                return redirect(url_for('customers'))
+        else:
+            app.logger.info(customer)
+            return render_template('booth/view_customer.html', notes=notes, error=error, customer=customer, company=company)
 
 @app.route('/booth/scheduling', methods=['GET','POST'   ])
 def booth_scheduling():
