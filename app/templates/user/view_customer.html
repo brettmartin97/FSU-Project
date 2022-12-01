@@ -1,0 +1,35 @@
+{% extends "base_templates/user_base.html" %}
+
+    {% block content %}
+    <div class="container">
+      <h1>Edit Customer</h1>
+    <form action="/user/customers" class="view_customer" method="GET"> 
+        <div class="halfleft">
+        <input type="text" id="firstName" name="firstName" value={{ customer.firstName }} readonly>
+        <input type="email" id="email" name="email" value={{ customer.email }} readonly>
+        </div>
+         <div class="halfright">
+            <input type="text" id="lastName" name="lastName" value={{ customer.lastName }} readonly>
+            <input type="text" pattern="[0-9]{7,10}" id="phoneNumber" name="phoneNumber" value={{ customer.phoneNumber }} readonly>
+        </div>
+        <input type="submit" name="submit" value="Back">
+    </form>
+    <div class="notes">
+        <table>
+            <thead>
+                <tr>
+                <th>Notes</th>
+                </tr>
+            </thead>
+            <tbody>
+        {% for i in notes %}
+            <tr>
+                <td>{{ i.notes }}</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+        </table>
+    </div>
+</div>
+
+    {% endblock %}
