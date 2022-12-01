@@ -668,8 +668,7 @@ def booth_scheduling():
                    
                     else:
                         error = 'All times need start and end times'
-               
-               
+
                 if frm.get(f'Sunday_start_{i["userId"]}'):
                     if frm.get(f'Sunday_end_{i["userId"]}'):
                         found = 0 
@@ -685,8 +684,6 @@ def booth_scheduling():
                    
                     else:
                         error = 'All times need start and end times'
-                
-                
             return redirect(url_for('booth_scheduling'))
         for i in users:
             if not i.get('start') and not i.get('end') :
