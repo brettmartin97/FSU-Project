@@ -77,11 +77,8 @@
                 </td>
               </form>
               {% else %}
-              <form  method = "POST" action="/admin/calendar/{{ day }}-{{ month }}-{{ year }}/book-{{ u.userId }}">
-                <td class=available>
-                  <input type=hidden name=time id=time value='{{ times[i] }}'>
-                  <button class=available type=submit>
-                  </button>
+              <td class=available>
+                
                 </td>
               </form>
             {% endif %}
