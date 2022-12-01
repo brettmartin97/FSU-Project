@@ -2,6 +2,7 @@
     {% block content %}
     <h1>{% block title %} {% endblock %}</h1>
     <div class="container">
+
       <form  action="" method="post">
         <input type="hidden" name="submit_button" value="Prev Day">
         </input>
@@ -21,6 +22,8 @@
       </form>
       <form  action="" method="post">
         <input type="hidden" name="submit_button" value="Month View">
+        <input type="hidden" name="day" value="{{ day }}">
+    
         </input>
         <input type="hidden" name="date" value={{ date }}>
     
@@ -65,22 +68,22 @@
               {% for bookings in user_booked %}
                 {% if bookings.userId == u.userId and datetime.strptime(times[i],"%I:%M %p")  >= datetime.strptime(bookings.startTime,"%I:%M %p") and datetime.strptime(times[i],"%I:%M %p")  <= datetime.strptime(bookings.endTime, "%I:%M %p") %}
                  {% set vars.booked = 1 %}
+                 {% set vars.appid = bookings['appointmentId'] %}
+                
                 {% endif %}
       
               {% endfor %}
               {% if vars['booked'] == 1 %}
-                <form  method = "POST" action="/admin/calendar/{{ day }}-{{ month }}-{{ year }}/editbook-{{ u.userId }}">
+                <form  method = "POST" action="/user/calendar/{{ day }}-{{ month }}-{{ year }}/editbook/{{ u.userId }}/{{ vars['appid'] }}">
                   <td class=booked>
                   <input type=hidden name=time id=time value='{{ times[i] }}'>
-                  <button class=booked type=submit>
+                  <button class=booked name='submit' type=submit>
                   </button>
                 </td>
               </form>
               {% else %}
               <td class=available>
-                
                 </td>
-              </form>
             {% endif %}
             {% else %}
                 <td class=unavailable></td>
