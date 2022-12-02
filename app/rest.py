@@ -1376,6 +1376,7 @@ def book(day,month,year,userid):
                 app.logger.info(time)
                 time = datetime.strptime(time, '%I:%M %p').replace(year=int(year),month=int(month),day=int(day))
                 next_appt = sql.get_next_appt(date, time, userid)
+                roleid = sql.get_user_role(userid)
                 if next_appt:
                     next_appt = next_appt['startTime']
                     app.logger.info(time)
@@ -1383,13 +1384,14 @@ def book(day,month,year,userid):
                     maxDur = next_appt - time
                     maxDur = maxDur.total_seconds() / 60
                     app.logger.info(maxDur)
-                    where = f'duration < {maxDur} AND hasHourlyRate = 0 ORDER BY 1'
-                    appointmentTypes = sql.get_all('appointTypeId, typeName, description, duration', 'AppointmentType a join Pricing p on a.appointTypeId = p.appointTypeId',where)
+                    where = f'duration < {maxDur} AND hasHourlyRate = 0 and p.roleId = {roleid} ORDER BY 1'
+                    appointmentTypes = sql.get_all('a.appointTypeId, typeName, description, duration', 'AppointmentType a join Pricing p on a.appointTypeId = p.appointTypeId',where)
                     maxDur = maxDur / 60
-                    where = f'duration < {maxDur} AND hasHourlyRate = 1 ORDER BY 1'
-                    appointmentTypes += sql.get_all('appointTypeId, typeName, description, duration', 'AppointmentType a join Pricing p on a.appointTypeId = p.appointTypeId',where)
+                    where = f'duration < {maxDur} AND hasHourlyRate = 1 and p.roleId = {roleid}  ORDER BY 1'
+                    appointmentTypes += sql.get_all('a.appointTypeId, typeName, description, duration', 'AppointmentType a join Pricing p on a.appointTypeId = p.appointTypeId',where)
                 else:
-                    appointmentTypes = sql.get_table('AppointmentType a join Pricing p on a.appointTypeId = p.appointTypeId')
+                    where = f'p.roleId = {roleid}  ORDER BY 1'
+                    appointmentTypes = sql.get_all('*','AppointmentType a join Pricing p on a.appointTypeId = p.appointTypeId', where)
                 return render_template('admin/booking.html', time=time.strftime("%I:%M %p"), day=day, month=month, 
                 year=year, appointmentTypes = appointmentTypes, userId = userid, company=company)
             else:
